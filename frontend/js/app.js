@@ -1517,3 +1517,551 @@ function escapeHtml(str) {
     return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' }[m];
   });
 }
+
+// ==========================================================================
+// 9. Autonomous 6-Agent Execution Laboratory (UX4G Standalone Workbench)
+// ==========================================================================
+function initWorkbench() {
+  // 9.1 Tab Switching
+  const tabBtns = document.querySelectorAll('.wb-tab-btn');
+  tabBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const agentKey = btn.getAttribute('data-wb-agent');
+      tabBtns.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+
+      document.querySelectorAll('.wb-panel').forEach(p => p.classList.remove('active'));
+      const targetPanel = document.getElementById(`wb-panel-${agentKey}`);
+      if (targetPanel) targetPanel.classList.add('active');
+    });
+  });
+
+  // 9.2 Agent A: Multilingual Triage & NER Gatekeeper
+  const btnRunA = document.getElementById('btn-run-agent-a');
+  const inputA = document.getElementById('wb-input-text-a');
+  const wardA = document.getElementById('wb-ward-a');
+
+  document.getElementById('wb-sample-marathi-a')?.addEventListener('click', () => {
+    inputA.value = "Shivaji Chowk javal main water pipeline phutli ahe, rastyavar khoop pani sathlay and water flooding entire street.";
+  });
+  document.getElementById('wb-sample-garbage-a')?.addEventListener('click', () => {
+    inputA.value = "Overflowing community garbage bin on Market Road uncollected for 3 days, foul stench spread everywhere.";
+  });
+  document.getElementById('wb-sample-spark-a')?.addEventListener('click', () => {
+    inputA.value = "Main chowk ke paas electric pole par transformer spark ho raha hai, kabhi bhi aag lag sakti hai.";
+  });
+  document.getElementById('wb-sample-incomplete-a')?.addEventListener('click', () => {
+    inputA.value = "Problem ahe lavkar ya.";
+  });
+
+  async function executeAgentA() {
+    const text = inputA?.value?.trim() || "Water pipeline leak near Kothrud depot";
+    const ward = wardA?.value || "Ward-14 (Kothrud)";
+    const tag = document.getElementById('wb-tag-a');
+    const content = document.getElementById('wb-content-a');
+    if (tag) { tag.textContent = 'Executing...'; tag.className = 'wb-status-tag pending'; }
+
+    try {
+      const res = await fetch(`${API_BASE}/api/agents/execute/agent-a`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ raw_text: text, ward_id: ward })
+      });
+      const data = await res.json();
+      if (tag) {
+        tag.textContent = `${data.execution_time_ms} ms • Latency OK`;
+        tag.className = 'wb-status-tag success';
+      }
+      if (content) {
+        content.innerHTML = `
+          <div class="wb-result-grid">
+            <div class="wb-metric-row">
+              <span class="wb-metric-label">Detected Language:</span>
+              <span class="wb-metric-value text-blue"><strong>${data.detected_language}</strong> (${(data.language_confidence * 100).toFixed(1)}% Confidence)</span>
+            </div>
+            <div class="wb-metric-row">
+              <span class="wb-metric-label">Canonical English:</span>
+              <span class="wb-metric-value"><strong>${escapeHtml(data.canonical_english_summary)}</strong></span>
+            </div>
+            <div class="wb-metric-row">
+              <span class="wb-metric-label">Extracted Category:</span>
+              <span class="wb-metric-value"><span class="badge-dept">${escapeHtml(data.extracted_category)}</span></span>
+            </div>
+            <div class="wb-metric-row">
+              <span class="wb-metric-label">Extracted Entities:</span>
+              <span class="wb-metric-value">Ward: <strong>${escapeHtml(data.entities_extracted?.ward || 'Ward-14')}</strong> | Landmark: <strong>${escapeHtml(data.entities_extracted?.landmark || 'Paud Road')}</strong></span>
+            </div>
+            <div class="wb-metric-row">
+              <span class="wb-metric-label">Completeness Gatekeeper:</span>
+              <span class="wb-metric-value">
+                ${data.completeness_gatekeeper?.passed 
+                  ? '<span style="color:#16a34a;font-weight:bold;">✓ PASSED</span> (Sufficient spatial entities to route field team)' 
+                  : '<span style="color:#dc2626;font-weight:bold;">✗ REJECTED</span> (' + escapeHtml(data.completeness_gatekeeper?.clarification_needed || 'Missing landmark') + ')'}
+              </span>
+            </div>
+            <div class="wb-metric-row">
+              <span class="wb-metric-label">Execution Latency:</span>
+              <span class="wb-metric-value text-amber"><strong>${data.execution_time_ms} ms</strong> (Ollama/Fallback deterministic NLP)</span>
+            </div>
+          </div>
+          <div class="wb-json-toggle mt-2">
+            <pre class="wb-json-box">${escapeHtml(JSON.stringify(data, null, 2))}</pre>
+          </div>
+        `;
+      }
+    } catch (e) {
+      if (tag) { tag.textContent = 'Error'; tag.className = 'wb-status-tag error'; }
+      if (content) content.innerHTML = `<div class="wb-error">Agent A execution failed: ${e.message}</div>`;
+    }
+  }
+  btnRunA?.addEventListener('click', executeAgentA);
+
+  // 9.3 Agent C: PostGIS Spatial Deduplication
+  const btnRunC = document.getElementById('btn-run-agent-c');
+  const latC = document.getElementById('wb-lat-c');
+  const lngC = document.getElementById('wb-lng-c');
+  const catC = document.getElementById('wb-cat-c');
+
+  document.getElementById('wb-sample-near-c')?.addEventListener('click', () => {
+    latC.value = "18.5080";
+    lngC.value = "73.8085";
+  });
+  document.getElementById('wb-sample-far-c')?.addEventListener('click', () => {
+    latC.value = "18.5312";
+    lngC.value = "73.8445";
+  });
+
+  async function executeAgentC() {
+    const tag = document.getElementById('wb-tag-c');
+    const content = document.getElementById('wb-content-c');
+    if (tag) { tag.textContent = 'Evaluating...'; tag.className = 'wb-status-tag pending'; }
+
+    try {
+      const res = await fetch(`${API_BASE}/api/agents/execute/agent-c`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          latitude: parseFloat(latC.value) || 18.5080,
+          longitude: parseFloat(lngC.value) || 73.8085,
+          category: catC.value || "Solid Waste Management (SWM)",
+          raw_text: ""
+        })
+      });
+      const data = await res.json();
+      if (tag) {
+        tag.textContent = `${data.execution_time_ms} ms • ${data.clustering_decision}`;
+        tag.className = `wb-status-tag ${data.is_duplicate ? 'warn' : 'success'}`;
+      }
+      if (content) {
+        content.innerHTML = `
+          <div class="wb-result-grid">
+            <div class="wb-metric-row">
+              <span class="wb-metric-label">Clustering Verdict:</span>
+              <span class="wb-metric-value">
+                ${data.is_duplicate 
+                  ? '<strong style="color:#ea580c;">DUPLICATE_CLUSTERED_INTO_PARENT</strong> (Parent #' + (data.parent_ticket_id || 'TICKET-01') + ')' 
+                  : '<strong style="color:#16a34a;">UNIQUE_ORIGINAL_INCIDENT</strong> (Independent work order created)'}
+              </span>
+            </div>
+            <div class="wb-metric-row">
+              <span class="wb-metric-label">Haversine Geodesic Distance:</span>
+              <span class="wb-metric-value">
+                <strong>${data.nearest_incident_distance_meters !== null ? data.nearest_incident_distance_meters + ' meters' : 'No active incident within range'}</strong>
+                (Spatial Threshold: &le; ${data.spatial_radius_threshold_meters}m)
+              </span>
+            </div>
+            <div class="wb-metric-row">
+              <span class="wb-metric-label">Cosine Semantic Similarity:</span>
+              <span class="wb-metric-value">
+                <strong>${data.semantic_cosine_similarity.toFixed(3)}</strong> (Threshold: &ge; ${data.semantic_cosine_threshold})
+              </span>
+            </div>
+            <div class="wb-metric-row">
+              <span class="wb-metric-label">Redundant Crew Saved:</span>
+              <span class="wb-metric-value">
+                ${data.crew_dispatch_prevented 
+                  ? '<span style="color:#16a34a;font-weight:bold;">✓ Saved 1 Truck & 4 Workers</span> (Consolidated into single cluster)' 
+                  : '<span>No duplication. Full crew assigned.</span>'}
+              </span>
+            </div>
+            <div class="wb-metric-row">
+              <span class="wb-metric-label">PostGIS Query:</span>
+              <span class="wb-metric-value font-mono" style="font-size:11px;color:#0b3b60;">${escapeHtml(data.postgis_query_simulation)}</span>
+            </div>
+          </div>
+          <div class="wb-json-toggle mt-2">
+            <pre class="wb-json-box">${escapeHtml(JSON.stringify(data, null, 2))}</pre>
+          </div>
+        `;
+      }
+    } catch (e) {
+      if (tag) { tag.textContent = 'Error'; tag.className = 'wb-status-tag error'; }
+      if (content) content.innerHTML = `<div class="wb-error">Agent C execution failed: ${e.message}</div>`;
+    }
+  }
+  btnRunC?.addEventListener('click', executeAgentC);
+
+  // 9.4 Agent B: Priority Math & SLA Mapping
+  const btnRunB = document.getElementById('btn-run-agent-b');
+  const sliderH = document.getElementById('slider-hazard');
+  const sliderT = document.getElementById('slider-traffic');
+  const sliderD = document.getElementById('slider-density');
+  const sliderC = document.getElementById('slider-cluster');
+
+  const lblH = document.getElementById('val-hazard-score');
+  const lblT = document.getElementById('val-traffic-score');
+  const lblD = document.getElementById('val-density-score');
+  const lblC = document.getElementById('val-cluster-size');
+
+  function updateAgentBLabels() {
+    if (lblH) lblH.textContent = sliderH?.value || '95';
+    if (lblT) lblT.textContent = sliderT?.value || '90';
+    if (lblD) lblD.textContent = sliderD?.value || '85';
+    const cVal = parseInt(sliderC?.value || '3');
+    const delta = (cVal - 1) * 5;
+    if (lblC) lblC.textContent = `${cVal} Reports (+${delta} pts)`;
+  }
+
+  [sliderH, sliderT, sliderD, sliderC].forEach(s => {
+    s?.addEventListener('input', () => {
+      updateAgentBLabels();
+      executeAgentB();
+    });
+  });
+
+  async function executeAgentB() {
+    const tag = document.getElementById('wb-tag-b');
+    const content = document.getElementById('wb-content-b');
+    const h = parseFloat(sliderH?.value || 95);
+    const t = parseFloat(sliderT?.value || 90);
+    const d = parseFloat(sliderD?.value || 85);
+    const c = parseInt(sliderC?.value || 3);
+
+    try {
+      const res = await fetch(`${API_BASE}/api/agents/execute/agent-b`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          category: "Water Supply & Pumping",
+          hazard_score: h,
+          traffic_score: t,
+          density_score: d,
+          cluster_size: c
+        })
+      });
+      const data = await res.json();
+      if (tag) {
+        tag.textContent = `Score ${data.computed_priority_score} • ${data.priority_tier}`;
+        tag.className = 'wb-status-tag success';
+      }
+      if (content) {
+        const bd = data.formula_breakdown;
+        content.innerHTML = `
+          <div class="wb-result-grid">
+            <div class="wb-metric-row">
+              <span class="wb-metric-label">Mathematical Formula:</span>
+              <span class="wb-metric-value font-mono"><strong>${escapeHtml(data.formula)}</strong></span>
+            </div>
+            <div class="wb-metric-row">
+              <span class="wb-metric-label">Computed Priority Score:</span>
+              <span class="wb-metric-value"><strong style="font-size:16px;color:#0b3b60;">${data.computed_priority_score} / 100</strong></span>
+            </div>
+            <div class="wb-metric-row">
+              <span class="wb-metric-label">Priority Tier & SLA:</span>
+              <span class="wb-metric-value">
+                <span class="badge-tier ${data.priority_tier === 'P1_CRITICAL' ? 'tier-p1' : 'tier-p2'}">${data.priority_tier}</span>
+                <strong style="color:#dc2626;margin-left:8px;">${data.statutory_sla_hours} Hours Statutory SLA</strong>
+              </span>
+            </div>
+            <div class="wb-metric-row">
+              <span class="wb-metric-label">Statutory Act:</span>
+              <span class="wb-metric-value">${escapeHtml(data.statutory_act)}</span>
+            </div>
+            <div class="wb-metric-row">
+              <span class="wb-metric-label">Arithmetic Terms:</span>
+              <span class="wb-metric-value">
+                Hazard: (${bd.hazard.weight} &times; ${bd.hazard.score}) = <strong>${bd.hazard.weighted_value}</strong><br/>
+                Traffic: (${bd.traffic.weight} &times; ${bd.traffic.score}) = <strong>${bd.traffic.weighted_value}</strong><br/>
+                Density: (${bd.population_density.weight} &times; ${bd.population_density.score}) = <strong>${bd.population_density.weighted_value}</strong><br/>
+                Cluster Delta: <strong>+${bd.cluster_delta.delta_points} pts</strong> (${bd.cluster_delta.cluster_size} reports)
+              </span>
+            </div>
+          </div>
+          <div class="wb-json-toggle mt-2">
+            <pre class="wb-json-box">${escapeHtml(JSON.stringify(data, null, 2))}</pre>
+          </div>
+        `;
+      }
+    } catch (e) {
+      if (tag) { tag.textContent = 'Error'; tag.className = 'wb-status-tag error'; }
+      if (content) content.innerHTML = `<div class="wb-error">Agent B execution failed: ${e.message}</div>`;
+    }
+  }
+  btnRunB?.addEventListener('click', executeAgentB);
+
+  // 9.5 Agent D: 4-Tier Statutory Escalation Ladder
+  const btnRunD = document.getElementById('btn-run-agent-d');
+  const slaSelectD = document.getElementById('wb-sla-hours-d');
+  const sliderElapsedD = document.getElementById('slider-elapsed-d');
+  const lblElapsedD = document.getElementById('val-elapsed-hours');
+
+  function updateAgentDLabel() {
+    const el = parseFloat(sliderElapsedD?.value || 8);
+    const sla = parseFloat(slaSelectD?.value || 6);
+    const pct = ((el / sla) * 100).toFixed(1);
+    if (lblElapsedD) lblElapsedD.textContent = `${el.toFixed(1)} Hours (${pct}% Elapsed)`;
+  }
+
+  sliderElapsedD?.addEventListener('input', () => {
+    updateAgentDLabel();
+    executeAgentD();
+  });
+  slaSelectD?.addEventListener('change', () => {
+    updateAgentDLabel();
+    executeAgentD();
+  });
+
+  document.getElementById('wb-preset-normal-d')?.addEventListener('click', () => {
+    if (sliderElapsedD) sliderElapsedD.value = "2";
+    updateAgentDLabel();
+    executeAgentD();
+  });
+  document.getElementById('wb-preset-urgent-d')?.addEventListener('click', () => {
+    if (sliderElapsedD) sliderElapsedD.value = "5";
+    updateAgentDLabel();
+    executeAgentD();
+  });
+  document.getElementById('wb-preset-breach-d')?.addEventListener('click', () => {
+    if (sliderElapsedD) sliderElapsedD.value = "8";
+    updateAgentDLabel();
+    executeAgentD();
+  });
+  document.getElementById('wb-preset-comm-d')?.addEventListener('click', () => {
+    if (sliderElapsedD) sliderElapsedD.value = "14";
+    updateAgentDLabel();
+    executeAgentD();
+  });
+
+  async function executeAgentD() {
+    const tag = document.getElementById('wb-tag-d');
+    const content = document.getElementById('wb-content-d');
+    const sla = parseFloat(slaSelectD?.value || 6);
+    const el = parseFloat(sliderElapsedD?.value || 8);
+
+    try {
+      const res = await fetch(`${API_BASE}/api/agents/execute/agent-d`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          sla_hours: sla,
+          elapsed_hours: el,
+          department_id: "dept-wat-01"
+        })
+      });
+      const data = await res.json();
+      if (tag) {
+        tag.textContent = `Tier ${data.escalation_level} • ${data.status}`;
+        tag.className = `wb-status-tag ${data.escalation_level >= 3 ? 'error' : data.escalation_level === 2 ? 'warn' : 'success'}`;
+      }
+      if (content) {
+        const off = data.assigned_officer;
+        const ladderHtml = (data.hierarchy_ladder || []).map(l => `
+          <div class="ladder-step ${l.active ? 'active-step' : ''}">
+            <span class="ladder-tier-badge">Tier ${l.tier}</span>
+            <span class="ladder-title">${escapeHtml(l.title)}</span>
+            ${l.active ? '<span class="ladder-now-tag">CURRENT ACTIVE OFFICER</span>' : ''}
+          </div>
+        `).join('');
+
+        content.innerHTML = `
+          <div class="wb-result-grid">
+            <div class="wb-metric-row">
+              <span class="wb-metric-label">Escalation Status:</span>
+              <span class="wb-metric-value">
+                <strong style="color:${data.escalation_level >= 3 ? '#dc2626' : data.escalation_level === 2 ? '#ea580c' : '#16a34a'};font-size:15px;">
+                  Tier ${data.escalation_level} — ${data.status}
+                </strong>
+                (${data.percent_elapsed}% of statutory SLA elapsed)
+              </span>
+            </div>
+            <div class="wb-metric-row">
+              <span class="wb-metric-label">Trigger Rule:</span>
+              <span class="wb-metric-value"><em>${escapeHtml(data.trigger_reason)}</em></span>
+            </div>
+            <div class="wb-metric-row">
+              <span class="wb-metric-label">Responsible Officer:</span>
+              <span class="wb-metric-value">
+                <strong>${escapeHtml(off.name)}</strong> (${escapeHtml(off.designation)})<br/>
+                <span style="font-size:11px;color:#64748b;">Statutory Contact: ${escapeHtml(off.email)}</span>
+              </span>
+            </div>
+            <div class="wb-metric-row">
+              <span class="wb-metric-label">Administrative Ladder:</span>
+              <div class="ladder-container mt-1">${ladderHtml}</div>
+            </div>
+          </div>
+          <div class="wb-json-toggle mt-2">
+            <pre class="wb-json-box">${escapeHtml(JSON.stringify(data, null, 2))}</pre>
+          </div>
+        `;
+      }
+    } catch (e) {
+      if (tag) { tag.textContent = 'Error'; tag.className = 'wb-status-tag error'; }
+      if (content) content.innerHTML = `<div class="wb-error">Agent D execution failed: ${e.message}</div>`;
+    }
+  }
+  btnRunD?.addEventListener('click', executeAgentD);
+
+  // 9.6 Agent F: SOP Checklist & Geotag Audit
+  const btnRunF = document.getElementById('btn-run-agent-f');
+  const catF = document.getElementById('wb-cat-f');
+  const incGpsF = document.getElementById('wb-incident-gps-f');
+  const clGpsF = document.getElementById('wb-closure-gps-f');
+
+  document.getElementById('wb-sample-valid-f')?.addEventListener('click', () => {
+    incGpsF.value = "18.5074, 73.8077";
+    clGpsF.value = "18.5075, 73.8076";
+  });
+  document.getElementById('wb-sample-invalid-f')?.addEventListener('click', () => {
+    incGpsF.value = "18.5074, 73.8077";
+    clGpsF.value = "18.5130, 73.8110";
+  });
+
+  async function executeAgentF() {
+    const tag = document.getElementById('wb-tag-f');
+    const content = document.getElementById('wb-content-f');
+    const incParts = (incGpsF?.value || "18.5074, 73.8077").split(',').map(p => parseFloat(p.trim()));
+    const clParts = (clGpsF?.value || "18.5075, 73.8076").split(',').map(p => parseFloat(p.trim()));
+
+    try {
+      const res = await fetch(`${API_BASE}/api/agents/execute/agent-f`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          category: catF?.value || "Water Supply & Pumping",
+          summary: "Pipeline burst repair and excavation",
+          incident_lat: incParts[0] || 18.5074,
+          incident_lng: incParts[1] || 73.8077,
+          closure_lat: clParts[0] || 18.5075,
+          closure_lng: clParts[1] || 73.8076
+        })
+      });
+      const data = await res.json();
+      const geo = data.geotag_audit;
+      if (tag) {
+        tag.textContent = `${geo.status} (${geo.geodesic_offset_meters}m)`;
+        tag.className = `wb-status-tag ${geo.passed ? 'success' : 'error'}`;
+      }
+      if (content) {
+        const sopItems = (data.sop_checklist || []).map(s => `<li>✓ ${escapeHtml(s)}</li>`).join('');
+        const bomItems = (data.bill_of_materials || []).map(b => `<tr><td>${escapeHtml(b.item)}</td><td><strong>${escapeHtml(b.quantity)}</strong></td></tr>`).join('');
+
+        content.innerHTML = `
+          <div class="wb-result-grid">
+            <div class="wb-metric-row">
+              <span class="wb-metric-label">Geotag Geofence Audit:</span>
+              <span class="wb-metric-value">
+                <strong style="color:${geo.passed ? '#16a34a' : '#dc2626'};font-size:14px;">${geo.status}</strong>
+                <br/>Offset: <strong>${geo.geodesic_offset_meters} meters</strong> (Statutory Limit: &le; ${geo.max_allowed_threshold_meters}m)
+              </span>
+            </div>
+            <div class="wb-metric-row">
+              <span class="wb-metric-label">Engineering SOP Checklist:</span>
+              <ul class="wb-checklist" style="padding-left:18px;margin:4px 0;">${sopItems}</ul>
+            </div>
+            <div class="wb-metric-row">
+              <span class="wb-metric-label">Bill of Materials (BOM):</span>
+              <table class="breakdown-table mt-1" style="font-size:12px;">
+                <tr><th>Material / Equipment</th><th>Required Quantity</th></tr>
+                ${bomItems}
+              </table>
+            </div>
+          </div>
+          <div class="wb-json-toggle mt-2">
+            <pre class="wb-json-box">${escapeHtml(JSON.stringify(data, null, 2))}</pre>
+          </div>
+        `;
+      }
+    } catch (e) {
+      if (tag) { tag.textContent = 'Error'; tag.className = 'wb-status-tag error'; }
+      if (content) content.innerHTML = `<div class="wb-error">Agent F execution failed: ${e.message}</div>`;
+    }
+  }
+  btnRunF?.addEventListener('click', executeAgentF);
+
+  // 9.7 Agent E: WhatsApp & Omnichannel Simulator
+  const btnRunE = document.getElementById('btn-run-agent-e');
+  const ticketE = document.getElementById('wb-ticket-e');
+  const phoneE = document.getElementById('wb-phone-e');
+  const milestoneE = document.getElementById('wb-milestone-e');
+
+  async function executeAgentE() {
+    const tag = document.getElementById('wb-tag-e');
+    const content = document.getElementById('wb-content-e');
+
+    try {
+      const res = await fetch(`${API_BASE}/api/agents/execute/agent-e`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          ticket_id: ticketE?.value || "PMC-2026-WAT-01",
+          milestone: milestoneE?.value || "Resolved & Restored",
+          phone: phoneE?.value || "+91 98220 54321"
+        })
+      });
+      const data = await res.json();
+      const wa = data.whatsapp_payload;
+      if (tag) {
+        tag.textContent = `${wa.delivery_status} • Read ${wa.read_receipt_at}`;
+        tag.className = 'wb-status-tag success';
+      }
+      if (content) {
+        const btnHtml = (wa.interactive_buttons || []).map(b => `
+          <button class="wa-action-btn" onclick="alert('${escapeHtml(b.label)} triggered for ${wa.recipient}!')">
+            ${escapeHtml(b.label)}
+          </button>
+        `).join('');
+
+        content.innerHTML = `
+          <div class="wa-chat-simulator">
+            <div class="wa-chat-header">
+              <div class="wa-avatar">🏛️</div>
+              <div class="wa-header-info">
+                <div class="wa-sender-name">PMC Care (पुणे महानगरपालिका) <span class="wa-verified">✓</span></div>
+                <div class="wa-sender-status">Official Business Account • RTS 2015</div>
+              </div>
+            </div>
+            <div class="wa-bubble-container">
+              <div class="wa-bubble">
+                <div class="wa-bubble-header">${escapeHtml(wa.header)}</div>
+                <div class="wa-bubble-body">${escapeHtml(wa.body)}</div>
+                <div class="wa-bubble-footer">
+                  <span class="wa-timestamp">${escapeHtml(wa.read_receipt_at)}</span>
+                  <span class="wa-ticks">✓✓</span>
+                </div>
+                <div class="wa-interactive-btns">${btnHtml}</div>
+              </div>
+            </div>
+          </div>
+          <div class="wb-json-toggle mt-2">
+            <pre class="wb-json-box">${escapeHtml(JSON.stringify(data, null, 2))}</pre>
+          </div>
+        `;
+      }
+    } catch (e) {
+      if (tag) { tag.textContent = 'Error'; tag.className = 'wb-status-tag error'; }
+      if (content) content.innerHTML = `<div class="wb-error">Agent E execution failed: ${e.message}</div>`;
+    }
+  }
+  btnRunE?.addEventListener('click', executeAgentE);
+
+  // Initialize initial state for Workbench
+  updateAgentBLabels();
+  updateAgentDLabel();
+  executeAgentA();
+  executeAgentC();
+  executeAgentB();
+  executeAgentD();
+  executeAgentF();
+  executeAgentE();
+}
