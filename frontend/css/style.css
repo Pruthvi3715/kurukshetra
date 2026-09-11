@@ -1,485 +1,524 @@
 /* ==========================================================================
-   NagrikSewa AI — Design System & Stylesheet
-   Crafted for Pune & PCMC Municipal Corporation Multi-Agent SLA Platform
-   Author: Sampada (@sampada-11)
+   UX4G Design System — Government of India (GoI) Compliant Stylesheet
+   Pune Municipal Corporation (PMC) & PCMC Civic Grievance Operating System
+   Unified Experience for Government (UX4G) Specification
    ========================================================================== */
 
 :root {
-  /* Curated Dark Theme Palette */
-  --bg-app: #07090e;
-  --bg-card: rgba(16, 22, 34, 0.75);
-  --bg-card-hover: rgba(22, 30, 46, 0.9);
-  --bg-header: rgba(11, 15, 25, 0.85);
-  --bg-input: rgba(15, 23, 42, 0.8);
+  /* Official Indian Civic Color Palette */
+  --gov-primary: #0b3b60;          /* Deep Government India Blue */
+  --gov-primary-dark: #062238;     /* Dark Header & Foundation */
+  --gov-primary-light: #165385;    /* Hover State */
   
-  /* Borders & Glass Dividers */
-  --border-subtle: rgba(255, 255, 255, 0.08);
-  --border-light: rgba(255, 255, 255, 0.15);
-  --border-accent: rgba(6, 182, 212, 0.35);
+  --gov-saffron: #ff9933;          /* India National Saffron */
+  --gov-saffron-dark: #e65100;     /* Saffron Button & Alert */
+  --gov-green: #138808;            /* India National Green */
+  --gov-green-dark: #0e6306;       /* Verified State */
 
-  /* Neon & Brand Accents */
-  --accent-cyan: #06b6d4;
-  --accent-cyan-glow: rgba(6, 182, 212, 0.25);
-  --accent-indigo: #6366f1;
-  --accent-indigo-glow: rgba(99, 102, 241, 0.25);
+  /* Neutral & Civic Backgrounds */
+  --bg-page: #f4f6f9;              /* Official Portal Canvas */
+  --bg-card: #ffffff;              /* Clean White Card Surface */
+  --bg-subtle: #f8fafc;            /* Secondary Container */
+  --border-gov: #d1d5db;           /* Standard High-Contrast Border */
+  --border-light: #e5e7eb;
   
-  /* Statutory Priority & State Colors */
-  --priority-p1: #f43f5e;
-  --priority-p1-glow: rgba(244, 63, 94, 0.35);
-  --priority-p2: #f59e0b;
-  --priority-p2-glow: rgba(245, 158, 11, 0.3);
-  --priority-p3: #0ea5e9;
-  --priority-p4: #8b5cf6;
-  
-  --state-success: #10b981;
-  --state-success-glow: rgba(16, 185, 129, 0.25);
-  --state-breach: #ef4444;
-  --state-breach-glow: rgba(239, 68, 68, 0.4);
+  /* Priority Status Colors (RTS Act Standards) */
+  --p1-critical: #dc2626;          /* Red */
+  --p1-bg: #fef2f2;
+  --p2-high: #ea580c;              /* Orange */
+  --p2-bg: #fff7ed;
+  --p3-medium: #0284c7;            /* Blue */
+  --p3-bg: #f0f9ff;
+  --p4-low: #16a34a;               /* Green */
+  --p4-bg: #f0fdf4;
 
   /* Typography */
-  --font-main: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-  --font-display: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-gov: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-devanagari: 'Noto Sans Devanagari', sans-serif;
+  --font-display: 'Outfit', sans-serif;
   --font-mono: 'JetBrains Mono', monospace;
 
-  /* Text Colors */
-  --text-primary: #f8fafc;
-  --text-secondary: #94a3b8;
-  --text-muted: #64748b;
-  --text-inverse: #020617;
+  /* Text Contrast */
+  --text-dark: #111827;
+  --text-body: #374151;
+  --text-muted: #6b7280;
+  --text-white: #ffffff;
 
-  /* Glassmorphism Shadows */
-  --glass-blur: blur(16px);
-  --shadow-card: 0 10px 30px -10px rgba(0, 0, 0, 0.6);
-  --shadow-glow-cyan: 0 0 25px rgba(6, 182, 212, 0.3);
-  --shadow-glow-rose: 0 0 25px rgba(244, 63, 94, 0.4);
+  /* Shadows */
+  --gov-shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.08);
+  --gov-shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --gov-shadow-lg: 0 10px 25px -3px rgba(0, 0, 0, 0.15);
 }
 
-/* Reset & Box Sizing */
+/* Reset */
 *, *::before, *::after {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
 }
 
-body {
-  font-family: var(--font-main);
-  background-color: var(--bg-app);
-  color: var(--text-primary);
+body.ux4g-theme {
+  font-family: var(--font-gov);
+  background-color: var(--bg-page);
+  color: var(--text-dark);
+  line-height: 1.5;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  overflow-x: hidden;
-  background-image: 
-    radial-gradient(circle at 15% 15%, rgba(99, 102, 241, 0.08) 0%, transparent 40%),
-    radial-gradient(circle at 85% 20%, rgba(6, 182, 212, 0.08) 0%, transparent 45%),
-    radial-gradient(circle at 50% 80%, rgba(244, 63, 94, 0.05) 0%, transparent 50%);
-  background-attachment: fixed;
 }
 
-/* Custom Scrollbar */
+/* Custom Scrollbars */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: var(--bg-app);
+  background: #f1f5f9;
 }
 ::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.15);
-  border-radius: 999px;
-}
-::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.3);
-}
-
-.sr-only {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  border: 0;
+  background: #94a3b8;
+  border-radius: 4px;
 }
 
 /* ==========================================================================
-   Header & Brand Area
+   1. UX4G Tricolor Strip & Accessibility Top Bar
    ========================================================================== */
-.app-header {
-  position: sticky;
-  top: 0;
-  z-index: 50;
+.gov-tricolor-bar {
+  height: 4px;
+  width: 100%;
+  background: linear-gradient(to right, #ff9933 33.33%, #ffffff 33.33% 66.66%, #138808 66.66%);
+  border-bottom: 1px solid rgba(0,0,0,0.08);
+}
+
+.gov-top-accessibility-strip {
+  background-color: #062238;
+  color: #e2e8f0;
+  font-size: 0.75rem;
+  padding: 5px 24px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.strip-container {
+  max-width: 1700px;
+  margin: 0 auto;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 12px 28px;
-  background: var(--bg-header);
-  backdrop-filter: var(--glass-blur);
-  -webkit-backdrop-filter: var(--glass-blur);
-  border-bottom: 1px solid var(--border-subtle);
-  gap: 20px;
 }
 
-.header-left {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-}
-
-.brand-badge {
-  position: relative;
-  width: 44px;
-  height: 44px;
-  background: linear-gradient(135deg, #0ea5e9, #6366f1);
-  border-radius: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 4px 20px rgba(14, 165, 233, 0.35);
-}
-
-.brand-logo-glow {
-  position: absolute;
-  inset: -2px;
-  border-radius: 14px;
-  background: linear-gradient(135deg, #0ea5e9, #6366f1);
-  filter: blur(8px);
-  opacity: 0.5;
-  z-index: -1;
-}
-
-.brand-icon {
-  width: 24px;
-  height: 24px;
-  color: #fff;
-}
-
-.brand-title {
-  font-family: var(--font-display);
-  font-weight: 700;
-  font-size: 1.25rem;
-  letter-spacing: -0.02em;
+.strip-left {
   display: flex;
   align-items: center;
   gap: 8px;
+  font-weight: 500;
 }
 
-.badge-ai {
-  font-size: 0.65rem;
-  font-weight: 700;
-  font-family: var(--font-mono);
-  padding: 2px 7px;
-  background: rgba(6, 182, 212, 0.15);
-  color: var(--accent-cyan);
-  border: 1px solid rgba(6, 182, 212, 0.3);
-  border-radius: 6px;
-  letter-spacing: 0.05em;
+.gov-flag-icon {
+  font-size: 0.9rem;
 }
 
-.brand-subtitle {
-  font-size: 0.78rem;
-  color: var(--text-secondary);
-  font-weight: 400;
-}
-
-/* ==========================================================================
-   Virtual Time-Travel Deck
-   ========================================================================== */
-.time-travel-deck {
+.strip-right {
   display: flex;
   align-items: center;
-  background: rgba(15, 23, 42, 0.9);
-  padding: 6px 14px;
-  border-radius: 14px;
-  border: 1px solid var(--border-light);
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
   gap: 16px;
 }
 
-.time-display-box {
+.accessibility-ctrls {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.ctrl-label {
+  color: #94a3b8;
+  font-size: 0.7rem;
+}
+
+.btn-a {
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #fff;
+  padding: 1px 6px;
+  font-size: 0.72rem;
+  cursor: pointer;
+  border-radius: 3px;
+}
+.btn-a:hover, .btn-a.active {
+  background: var(--gov-saffron);
+  border-color: var(--gov-saffron);
+  color: #000;
+  font-weight: 700;
+}
+
+.lang-switch {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.lang-btn {
+  background: none;
+  border: none;
+  color: #cbd5e1;
+  cursor: pointer;
+  font-size: 0.75rem;
+}
+.lang-btn.active, .lang-btn:hover {
+  color: var(--gov-saffron);
+  font-weight: 700;
+}
+
+.divider {
+  color: #475569;
+}
+
+.rts-badge {
+  background: rgba(19, 136, 8, 0.2);
+  color: #4ade80;
+  border: 1px solid rgba(19, 136, 8, 0.4);
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 0.68rem;
+  font-weight: 600;
+}
+
+/* ==========================================================================
+   2. Official UX4G Government Main Header
+   ========================================================================== */
+.ux4g-main-header {
+  background: var(--gov-primary);
+  color: #fff;
+  padding: 12px 24px;
+  box-shadow: var(--gov-shadow-md);
+  border-bottom: 2px solid var(--gov-saffron);
+}
+
+.header-container {
+  max-width: 1700px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.emblem-and-brand {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.ashoka-emblem-box {
+  width: 48px;
+  height: 48px;
+  background: #ffffff;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+}
+
+.ashoka-svg {
+  width: 100%;
+  height: 100%;
+}
+
+.brand-titles {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.brand-main-title {
+  font-family: var(--font-devanagari), var(--font-gov);
+  font-size: 1.3rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: #ffffff;
+}
+.brand-main-title span {
+  font-weight: 400;
+  color: #e2e8f0;
+  font-size: 1.15rem;
+}
+
+.brand-sub-title {
+  font-size: 0.8rem;
+  color: #cbd5e1;
+}
+
+.brand-meta-tags {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 3px;
+}
+
+.meta-tag {
+  font-size: 0.65rem;
+  background: rgba(255, 255, 255, 0.12);
+  color: #e2e8f0;
+  padding: 1px 6px;
+  border-radius: 3px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+}
+.meta-tag.green {
+  background: rgba(19, 136, 8, 0.25);
+  border-color: #4ade80;
+  color: #a7f3d0;
+  font-weight: 600;
+}
+
+/* Time Travel Deck */
+.ux4g-time-travel-deck {
+  background: #062238;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  padding: 6px 14px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.clock-badge {
   display: flex;
   align-items: center;
   gap: 10px;
   padding-right: 14px;
-  border-right: 1px solid var(--border-subtle);
+  border-right: 1px solid rgba(255, 255, 255, 0.15);
 }
 
-.pulse-dot {
+.pulse-clock-dot {
   width: 8px;
   height: 8px;
-  background-color: var(--accent-cyan);
   border-radius: 50%;
-  box-shadow: 0 0 10px var(--accent-cyan);
-  animation: pulse-glow 2s infinite ease-in-out;
+  background: var(--gov-saffron);
+  box-shadow: 0 0 8px var(--gov-saffron);
+  animation: pulse-dot-anim 1.8s infinite ease-in-out;
 }
 
-.time-content {
+.clock-text-group {
   display: flex;
   flex-direction: column;
 }
 
-.time-label {
+.clock-label {
   font-size: 0.62rem;
   font-family: var(--font-mono);
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  color: var(--accent-cyan);
+  color: var(--gov-saffron);
+  font-weight: 700;
 }
 
-.time-value {
+.clock-time {
   font-family: var(--font-mono);
   font-size: 0.85rem;
-  font-weight: 500;
-  color: #fff;
-  letter-spacing: -0.01em;
-}
-
-.time-actions {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.time-btn {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid var(--border-subtle);
-  color: var(--text-primary);
-  padding: 6px 12px;
-  border-radius: 8px;
-  font-size: 0.78rem;
   font-weight: 600;
-  cursor: pointer;
+  color: #fff;
+}
+
+.time-btn-group {
   display: flex;
   align-items: center;
   gap: 6px;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.time-btn:hover {
-  background: rgba(6, 182, 212, 0.15);
-  border-color: var(--accent-cyan);
+.time-action-btn {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.2);
   color: #fff;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(6, 182, 212, 0.2);
+  padding: 5px 10px;
+  border-radius: 5px;
+  font-size: 0.78rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  transition: all 0.2s ease;
 }
 
-.time-btn:active {
-  transform: translateY(0);
+.time-action-btn:hover {
+  background: var(--gov-saffron);
+  border-color: var(--gov-saffron);
+  color: #000;
 }
 
-.btn-advance .btn-icon {
-  font-family: var(--font-mono);
-  font-weight: 700;
-  color: var(--accent-cyan);
+.time-action-btn.btn-highlight {
+  background: rgba(230, 81, 0, 0.35);
+  border-color: var(--gov-saffron);
 }
 
-.btn-reset {
-  background: rgba(255, 255, 255, 0.03);
-  color: var(--text-muted);
+.time-action-btn.btn-sync {
+  background: rgba(255, 255, 255, 0.05);
+  color: #94a3b8;
 }
-
-.btn-reset:hover {
-  background: rgba(244, 63, 94, 0.15);
-  border-color: var(--priority-p1);
+.time-action-btn.btn-sync:hover {
+  background: rgba(220, 38, 38, 0.25);
+  border-color: var(--p1-critical);
   color: #fff;
 }
 
 /* Action Buttons */
-.header-right {
+.header-action-btns {
   display: flex;
   align-items: center;
   gap: 10px;
 }
 
-.btn-primary, .btn-secondary, .btn-success, .btn-danger {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 9px 18px;
-  border-radius: 10px;
+.btn-gov-primary, .btn-gov-secondary, .btn-gov-success, .btn-gov-danger {
+  padding: 8px 16px;
+  border-radius: 6px;
   font-size: 0.85rem;
   font-weight: 600;
   cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
   border: none;
+  font-family: var(--font-gov);
   transition: all 0.2s ease;
-  font-family: var(--font-main);
 }
 
-.btn-primary {
-  background: linear-gradient(135deg, #0284c7, #2563eb);
+.btn-gov-primary {
+  background: var(--gov-saffron-dark);
   color: #fff;
-  box-shadow: 0 4px 14px rgba(2, 132, 199, 0.35);
+  box-shadow: 0 2px 6px rgba(230, 81, 0, 0.3);
 }
-
-.btn-primary:hover {
-  background: linear-gradient(135deg, #0ea5e9, #3b82f6);
+.btn-gov-primary:hover {
+  background: #c2410c;
   transform: translateY(-1px);
-  box-shadow: 0 6px 20px rgba(2, 132, 199, 0.5);
 }
 
-.btn-secondary {
-  background: rgba(255, 255, 255, 0.06);
-  color: var(--text-primary);
-  border: 1px solid var(--border-light);
-}
-
-.btn-secondary:hover {
+.btn-gov-secondary {
   background: rgba(255, 255, 255, 0.12);
-  transform: translateY(-1px);
-}
-
-.btn-success {
-  background: linear-gradient(135deg, #059669, #10b981);
   color: #fff;
-  box-shadow: 0 4px 14px rgba(16, 185, 129, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+.btn-gov-secondary:hover {
+  background: rgba(255, 255, 255, 0.22);
 }
 
-.btn-danger {
-  background: linear-gradient(135deg, #dc2626, #f43f5e);
+.btn-gov-success {
+  background: var(--gov-green);
   color: #fff;
-  box-shadow: 0 4px 14px rgba(244, 63, 94, 0.3);
+}
+.btn-gov-success:hover {
+  background: var(--gov-green-dark);
 }
 
-.btn-glow {
-  box-shadow: 0 0 25px rgba(37, 99, 235, 0.6);
-  animation: button-pulse 2s infinite ease-in-out;
+.btn-gov-danger {
+  background: var(--p1-critical);
+  color: #fff;
 }
 
 /* ==========================================================================
-   Metrics Row
+   3. Government Metrics Strip
    ========================================================================== */
-.metrics-row {
+.gov-metrics-strip {
+  padding: 18px 24px 8px 24px;
+}
+
+.metrics-grid {
+  max-width: 1700px;
+  margin: 0 auto;
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 16px;
-  padding: 20px 28px 10px 28px;
 }
 
-.metric-card {
+.gov-metric-card {
   background: var(--bg-card);
-  backdrop-filter: var(--glass-blur);
-  -webkit-backdrop-filter: var(--glass-blur);
-  border: 1px solid var(--border-subtle);
-  border-radius: 16px;
+  border: 1px solid var(--border-gov);
+  border-radius: 8px;
   padding: 16px 20px;
+  box-shadow: var(--gov-shadow-sm);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  border-top: 3px solid var(--gov-primary);
+}
+
+.metric-top {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  box-shadow: var(--shadow-card);
-  transition: transform 0.2s ease, border-color 0.2s ease;
 }
 
-.metric-card:hover {
-  transform: translateY(-2px);
-  border-color: var(--border-light);
-}
-
-.metric-info {
-  display: flex;
-  flex-direction: column;
-}
-
-.metric-label {
-  font-size: 0.68rem;
+.gov-card-label {
+  font-size: 0.72rem;
   font-weight: 700;
-  letter-spacing: 0.06em;
   color: var(--text-muted);
+  letter-spacing: 0.03em;
+}
+
+.gov-badge-icon {
+  font-size: 1.1rem;
 }
 
 .metric-val {
   font-family: var(--font-display);
-  font-size: 1.9rem;
+  font-size: 2.1rem;
   font-weight: 700;
-  color: #fff;
-  line-height: 1.2;
-  margin: 2px 0;
+  line-height: 1.1;
+  color: var(--gov-primary-dark);
 }
 
-.metric-sub {
-  font-size: 0.72rem;
-  color: var(--text-secondary);
+.metric-subtext {
+  font-size: 0.75rem;
+  color: var(--text-muted);
 }
 
-.metric-icon-box {
-  width: 44px;
-  height: 44px;
-  border-radius: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
+.text-amber { color: var(--gov-saffron-dark) !important; }
+.text-red { color: var(--p1-critical) !important; }
+.text-green { color: var(--gov-green) !important; }
 
-.metric-icon-box svg {
-  width: 22px;
-  height: 22px;
-}
-
-.metric-icon-box.cyan {
-  background: rgba(6, 182, 212, 0.12);
-  color: var(--accent-cyan);
-}
-.metric-icon-box.amber {
-  background: rgba(245, 158, 11, 0.12);
-  color: var(--priority-p2);
-}
-.metric-icon-box.rose {
-  background: rgba(244, 63, 94, 0.15);
-  color: var(--priority-p1);
-}
-.metric-icon-box.emerald {
-  background: rgba(16, 185, 129, 0.12);
-  color: var(--state-success);
-}
-
-.text-rose { color: var(--priority-p1) !important; }
-.text-emerald { color: var(--state-success) !important; }
-.text-cyan { color: var(--accent-cyan) !important; }
-.text-muted { color: var(--text-muted) !important; }
-
-/* Glowing breach alert when SLA fails */
-.card-escalated.breach-alert {
-  border-color: var(--priority-p1);
-  box-shadow: var(--shadow-glow-rose);
-  animation: pulse-breach 1.5s infinite alternate;
+/* Breach card pulsating indicator */
+.card-breach-pulse.breach-alert {
+  border-top-color: var(--p1-critical);
+  box-shadow: 0 0 15px rgba(220, 38, 38, 0.35);
+  animation: pulse-breach-glow 1.6s infinite alternate;
 }
 
 /* ==========================================================================
-   Main Grid Layout
+   4. Main Civic Operating Dashboard (Grid Layout)
    ========================================================================== */
-.main-dashboard-grid {
+.gov-main-container {
+  max-width: 1700px;
+  margin: 0 auto;
+  padding: 12px 24px 28px 24px;
   display: grid;
-  grid-template-columns: 1.35fr 1fr;
+  grid-template-columns: 1.25fr 1fr;
   gap: 20px;
-  padding: 14px 28px 28px 28px;
   flex: 1;
+  width: 100%;
 }
 
-.dashboard-pane {
+.gov-panel {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 16px;
 }
 
-.pane-header {
+.panel-header-row {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 10px;
 }
 
-.pane-title-group h2 {
-  font-family: var(--font-display);
-  font-size: 1.35rem;
+.panel-heading {
+  font-family: var(--font-gov);
+  font-size: 1.25rem;
   font-weight: 700;
-  letter-spacing: -0.02em;
+  color: var(--gov-primary-dark);
 }
 
-.pane-subtitle {
+.panel-subheading {
   font-size: 0.8rem;
-  color: var(--text-secondary);
+  color: var(--text-muted);
 }
 
-.dept-pills-bar {
+.dept-filters-row {
   display: flex;
   align-items: center;
   gap: 8px;
@@ -487,685 +526,706 @@ body {
   padding-bottom: 4px;
 }
 
-.dept-pill {
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid var(--border-subtle);
-  color: var(--text-secondary);
+.dept-filter-btn {
+  background: #ffffff;
+  border: 1px solid var(--border-gov);
+  color: var(--text-body);
   font-size: 0.78rem;
-  font-weight: 500;
+  font-weight: 600;
   padding: 5px 12px;
   border-radius: 20px;
   cursor: pointer;
   white-space: nowrap;
+  box-shadow: var(--gov-shadow-sm);
   transition: all 0.2s ease;
 }
 
-.dept-pill:hover {
-  background: rgba(255, 255, 255, 0.08);
-  color: #fff;
+.dept-filter-btn:hover {
+  background: #f1f5f9;
 }
 
-.dept-pill.active {
-  background: rgba(6, 182, 212, 0.15);
-  border-color: var(--accent-cyan);
+.dept-filter-btn.active {
+  background: var(--gov-primary);
+  border-color: var(--gov-primary);
   color: #fff;
-  font-weight: 600;
 }
 
 /* ==========================================================================
-   Kanban Command Board
+   5. UX4G Kanban Board & Incident Cards
    ========================================================================== */
-.kanban-board {
+.gov-kanban-board {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 14px;
+  gap: 12px;
   min-height: 520px;
 }
 
-.kanban-col {
-  background: rgba(13, 18, 30, 0.5);
-  border: 1px solid var(--border-subtle);
-  border-radius: 14px;
+.kanban-column {
+  background: #eef2f6;
+  border: 1px solid var(--border-gov);
+  border-radius: 8px;
   display: flex;
   flex-direction: column;
   overflow: hidden;
 }
 
-.kanban-col-head {
-  padding: 12px 14px;
-  background: rgba(255, 255, 255, 0.02);
-  border-bottom: 1px solid var(--border-subtle);
+.column-header {
+  padding: 10px 12px;
+  background: #fff;
+  border-bottom: 1px solid var(--border-gov);
   display: flex;
   align-items: center;
-  gap: 8px;
+  justify-content: space-between;
+  border-top: 3px solid #94a3b8;
 }
 
-.col-dot {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-}
-.col-dot.cyan { background: var(--accent-cyan); box-shadow: 0 0 8px var(--accent-cyan); }
-.col-dot.amber { background: var(--priority-p2); box-shadow: 0 0 8px var(--priority-p2); }
-.col-dot.rose { background: var(--priority-p1); box-shadow: 0 0 8px var(--priority-p1); }
-.col-dot.emerald { background: var(--state-success); box-shadow: 0 0 8px var(--state-success); }
+.column-header.col-blue { border-top-color: var(--gov-primary); }
+.column-header.col-amber { border-top-color: var(--gov-saffron-dark); }
+.column-header.col-red { border-top-color: var(--p1-critical); }
+.column-header.col-green { border-top-color: var(--gov-green); }
 
-.col-title {
-  font-family: var(--font-mono);
+.col-status-name {
   font-size: 0.72rem;
   font-weight: 700;
-  letter-spacing: 0.05em;
-  color: var(--text-secondary);
-  flex: 1;
+  color: var(--text-dark);
 }
 
-.col-count {
+.col-count-badge {
   font-family: var(--font-mono);
   font-size: 0.75rem;
   font-weight: 700;
-  background: rgba(255, 255, 255, 0.06);
-  padding: 2px 7px;
+  background: #e2e8f0;
+  padding: 1px 7px;
   border-radius: 10px;
+  color: var(--text-dark);
 }
 
-.kanban-cards-wrapper {
+.kanban-cards-container {
   padding: 10px;
   display: flex;
   flex-direction: column;
   gap: 10px;
   overflow-y: auto;
-  max-height: 600px;
+  max-height: 580px;
   flex: 1;
 }
 
-/* Kanban Incident Card */
-.incident-card {
-  background: var(--bg-card);
-  border: 1px solid var(--border-subtle);
-  border-radius: 12px;
-  padding: 12px 14px;
+/* Government Incident Card */
+.gov-ticket-card {
+  background: #ffffff;
+  border: 1px solid var(--border-gov);
+  border-radius: 6px;
+  padding: 12px;
   display: flex;
   flex-direction: column;
   gap: 8px;
+  box-shadow: var(--gov-shadow-sm);
   cursor: pointer;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
   position: relative;
-  overflow: hidden;
 }
 
-.incident-card:hover {
+.gov-ticket-card:hover {
   transform: translateY(-2px);
-  border-color: var(--border-light);
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+  box-shadow: var(--gov-shadow-md);
+  border-color: var(--gov-primary);
 }
 
-.incident-card.p1-card {
-  border-left: 3px solid var(--priority-p1);
-}
-.incident-card.p2-card {
-  border-left: 3px solid var(--priority-p2);
-}
-.incident-card.p3-card {
-  border-left: 3px solid var(--priority-p3);
-}
-.incident-card.p4-card {
-  border-left: 3px solid var(--priority-p4);
+.gov-ticket-card.border-p1 { border-left: 4px solid var(--p1-critical); }
+.gov-ticket-card.border-p2 { border-left: 4px solid var(--p2-high); }
+.gov-ticket-card.border-p3 { border-left: 4px solid var(--p3-medium); }
+.gov-ticket-card.border-p4 { border-left: 4px solid var(--p4-low); }
+
+.gov-ticket-card.is-breached {
+  border: 1px solid var(--p1-critical);
+  border-left: 5px solid var(--p1-critical);
+  background: #fff5f5;
+  box-shadow: 0 0 10px rgba(220, 38, 38, 0.25);
 }
 
-/* Breach style on card */
-.incident-card.is-breached {
-  border: 1px solid var(--priority-p1);
-  background: rgba(244, 63, 94, 0.08);
-  box-shadow: 0 0 15px rgba(244, 63, 94, 0.25);
-  animation: flash-border 2s infinite ease-in-out;
-}
-
-.card-top-row {
+.card-header-line {
   display: flex;
   align-items: center;
   justify-content: space-between;
 }
 
-.ticket-number {
+.ticket-id-tag {
   font-family: var(--font-mono);
-  font-size: 0.72rem;
+  font-size: 0.75rem;
   font-weight: 700;
-  color: var(--accent-cyan);
+  color: var(--gov-primary);
 }
 
-.priority-badge {
-  font-family: var(--font-mono);
-  font-size: 0.62rem;
+.p-tier-badge {
+  font-size: 0.65rem;
   font-weight: 700;
   padding: 2px 6px;
-  border-radius: 5px;
-  letter-spacing: 0.03em;
+  border-radius: 3px;
+  font-family: var(--font-mono);
 }
+.p-tier-badge.p1 { background: var(--p1-bg); color: var(--p1-critical); border: 1px solid #fca5a5; }
+.p-tier-badge.p2 { background: var(--p2-bg); color: var(--p2-high); border: 1px solid #fdba74; }
+.p-tier-badge.p3 { background: var(--p3-bg); color: var(--p3-medium); border: 1px solid #bae6fd; }
+.p-tier-badge.p4 { background: var(--p4-bg); color: var(--p4-low); border: 1px solid #bbf7d0; }
 
-.priority-badge.p1 { background: rgba(244, 63, 94, 0.2); color: #fda4af; border: 1px solid rgba(244, 63, 94, 0.4); }
-.priority-badge.p2 { background: rgba(245, 158, 11, 0.2); color: #fde68a; border: 1px solid rgba(245, 158, 11, 0.4); }
-.priority-badge.p3 { background: rgba(14, 165, 233, 0.2); color: #bae6fd; border: 1px solid rgba(14, 165, 233, 0.4); }
-.priority-badge.p4 { background: rgba(139, 92, 246, 0.2); color: #ddd6fe; border: 1px solid rgba(139, 92, 246, 0.4); }
-
-.incident-summary {
+.ticket-issue-summary {
   font-size: 0.82rem;
-  font-weight: 500;
-  color: var(--text-primary);
+  font-weight: 600;
+  color: var(--text-dark);
   line-height: 1.35;
 }
 
-.incident-location-row {
+.ticket-geo-info {
   display: flex;
   align-items: center;
-  gap: 5px;
+  gap: 6px;
   font-size: 0.72rem;
   color: var(--text-muted);
 }
 
-.incident-location-row svg {
-  width: 12px;
-  height: 12px;
-  flex-shrink: 0;
+.cluster-flag {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  font-weight: 700;
+  background: #fef3c7;
+  color: #b45309;
+  padding: 2px 6px;
+  border-radius: 3px;
+  border: 1px solid #fde68a;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
 }
 
-.incident-officer-row {
+.ticket-officer-line {
   font-size: 0.72rem;
   padding-top: 6px;
-  border-top: 1px solid var(--border-subtle);
+  border-top: 1px solid var(--border-light);
   display: flex;
   align-items: center;
   justify-content: space-between;
 }
 
-.officer-tier-pill {
-  font-size: 0.65rem;
+.officer-badge {
   font-family: var(--font-mono);
+  font-size: 0.65rem;
   font-weight: 600;
+  background: #f1f5f9;
   padding: 2px 6px;
   border-radius: 4px;
+  color: var(--gov-primary-dark);
+}
+.officer-badge.l3, .officer-badge.l4 {
+  background: #fee2e2;
+  color: #991b1b;
+  font-weight: 700;
 }
 
-.officer-tier-pill.tier-1 { background: rgba(255, 255, 255, 0.06); color: var(--text-secondary); }
-.officer-tier-pill.tier-2 { background: rgba(245, 158, 11, 0.2); color: #fde68a; }
-.officer-tier-pill.tier-3 { background: rgba(244, 63, 94, 0.25); color: #fda4af; font-weight: 700; }
-.officer-tier-pill.tier-4 { background: linear-gradient(135deg, #7c3aed, #db2777); color: #fff; font-weight: 800; }
-
-.sla-countdown-pill {
+.sla-time-indicator {
   font-family: var(--font-mono);
   font-size: 0.68rem;
   font-weight: 600;
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
 }
-
-.sla-countdown-pill.breached {
-  color: var(--priority-p1);
+.sla-time-indicator.overdue {
+  color: var(--p1-critical);
   font-weight: 700;
 }
 
-.cluster-tag {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  font-size: 0.65rem;
-  font-family: var(--font-mono);
-  padding: 2px 6px;
-  background: rgba(99, 102, 241, 0.2);
-  border: 1px solid rgba(99, 102, 241, 0.4);
-  color: #c7d2fe;
-  border-radius: 4px;
-}
-
 /* ==========================================================================
-   Right Pane: Ward Map & Agent Execution Stream
-   ========================================================================== */
-.pane-card {
+   6. Real Leaflet OpenStreetMap Container
+   ========================================================================= */
+.gov-card {
   background: var(--bg-card);
-  backdrop-filter: var(--glass-blur);
-  -webkit-backdrop-filter: var(--glass-blur);
-  border: 1px solid var(--border-subtle);
-  border-radius: 16px;
-  padding: 16px 20px;
-  box-shadow: var(--shadow-card);
+  border: 1px solid var(--border-gov);
+  border-radius: 8px;
+  box-shadow: var(--gov-shadow-sm);
+  padding: 16px;
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 12px;
 }
 
-.card-head {
+.map-card-header, .agent-card-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
 }
 
-.card-title-group h3 {
-  font-family: var(--font-display);
-  font-size: 1.05rem;
+.card-title {
+  font-size: 1rem;
   font-weight: 700;
+  color: var(--gov-primary-dark);
 }
 
-.card-subtitle {
-  font-size: 0.72rem;
-  color: var(--text-secondary);
+.card-caption {
+  font-size: 0.75rem;
+  color: var(--text-muted);
 }
 
-.map-legend {
+.map-legend-row {
   display: flex;
   align-items: center;
-  gap: 12px;
-  font-size: 0.7rem;
-  color: var(--text-secondary);
+  gap: 8px;
 }
 
-.legend-item {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-}
-
-.dot-p1 { width: 7px; height: 7px; border-radius: 50%; background: var(--priority-p1); box-shadow: 0 0 6px var(--priority-p1); }
-.dot-p2 { width: 7px; height: 7px; border-radius: 50%; background: var(--priority-p2); }
-.dot-cluster { width: 7px; height: 7px; border-radius: 50%; background: var(--accent-indigo); }
-
-/* SVG Map Styling */
-.map-container {
-  position: relative;
-  background: #090e1a;
-  border: 1px solid var(--border-subtle);
-  border-radius: 12px;
-  overflow: hidden;
-  height: 240px;
-}
-
-.ward-map-svg {
-  width: 100%;
-  height: 100%;
-}
-
-.ward-poly {
-  fill: rgba(30, 41, 59, 0.4);
-  stroke: rgba(255, 255, 255, 0.12);
-  stroke-width: 1.5;
-  transition: all 0.25s ease;
-  cursor: pointer;
-}
-
-.ward-poly:hover {
-  fill: rgba(6, 182, 212, 0.12);
-  stroke: var(--accent-cyan);
-}
-
-.ward-poly.active-hq {
-  fill: rgba(99, 102, 241, 0.15);
-  stroke: rgba(99, 102, 241, 0.4);
-}
-
-.ward-label {
-  font-family: var(--font-mono);
-  font-size: 10px;
+.legend-chip {
+  font-size: 0.68rem;
   font-weight: 600;
-  fill: #64748b;
-  text-anchor: middle;
-  pointer-events: none;
+  padding: 2px 7px;
+  border-radius: 4px;
 }
+.chip-p1 { background: var(--p1-bg); color: var(--p1-critical); border: 1px solid #fca5a5; }
+.chip-p2 { background: var(--p2-bg); color: var(--p2-high); border: 1px solid #fdba74; }
+.chip-cluster { background: #fef3c7; color: #b45309; border: 1px solid #fde68a; }
 
-.hq-label {
-  fill: #818cf8;
-}
-
-/* Map Pins */
-.map-pin {
-  cursor: pointer;
-  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-
-.map-pin:hover {
-  transform: scale(1.4);
-}
-
-.map-overlay-tooltip {
-  position: absolute;
-  display: none;
-  background: rgba(15, 23, 42, 0.95);
-  border: 1px solid var(--accent-cyan);
-  padding: 6px 10px;
+/* The Real Leaflet Map */
+.real-leaflet-map {
+  width: 100%;
+  height: 270px;
   border-radius: 6px;
-  font-size: 0.72rem;
-  color: #fff;
-  pointer-events: none;
-  z-index: 20;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+  border: 1px solid var(--border-gov);
+  z-index: 1;
+}
+
+.map-footer-coords {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.7rem;
+  color: var(--text-muted);
 }
 
 /* ==========================================================================
-   Agent Pipeline Stepper & Log Terminal
+   7. 6-Agent LangGraph Execution Stepper & Terminal
    ========================================================================== */
-.live-pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  font-family: var(--font-mono);
-  font-size: 0.65rem;
-  font-weight: 700;
-  color: var(--state-success);
-  background: rgba(16, 185, 129, 0.12);
-  border: 1px solid rgba(16, 185, 129, 0.3);
-  padding: 2px 7px;
-  border-radius: 6px;
+.btn-inspect-latest {
+  background: var(--gov-primary);
+  color: #fff;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+.btn-inspect-latest:hover {
+  background: var(--gov-primary-light);
 }
 
-.pulse-dot-mini {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background-color: var(--state-success);
-  animation: pulse-glow 1.5s infinite ease-in-out;
-}
-
-.agent-stepper {
+.gov-agent-stepper {
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 8px 0;
-  gap: 4px;
+  gap: 2px;
 }
 
-.agent-step-item {
+.stepper-node {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 8px;
-  opacity: 0.5;
-  transition: all 0.3s ease;
+  gap: 4px;
+  cursor: pointer;
+  opacity: 0.6;
+  transition: all 0.2s ease;
 }
 
-.agent-step-item.active {
+.stepper-node:hover, .stepper-node.active {
   opacity: 1;
-  transform: scale(1.02);
+  transform: scale(1.05);
 }
 
-.step-circle {
-  width: 26px;
-  height: 26px;
+.node-circle {
+  width: 28px;
+  height: 28px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid var(--border-light);
+  background: #e2e8f0;
+  border: 2px solid #94a3b8;
   display: flex;
   align-items: center;
   justify-content: center;
   font-family: var(--font-mono);
-  font-size: 0.72rem;
+  font-size: 0.75rem;
   font-weight: 700;
-  color: var(--text-secondary);
+  color: var(--text-dark);
 }
 
-.agent-step-item.active .step-circle {
-  background: var(--accent-cyan);
-  border-color: var(--accent-cyan);
-  color: var(--text-inverse);
-  box-shadow: 0 0 12px var(--accent-cyan);
-}
-
-.step-text {
-  display: flex;
-  flex-direction: column;
-}
-
-.step-title {
-  font-size: 0.72rem;
-  font-weight: 600;
+.stepper-node.active .node-circle {
+  background: var(--gov-primary);
+  border-color: var(--gov-saffron);
   color: #fff;
+  box-shadow: 0 0 10px rgba(11, 59, 96, 0.4);
 }
 
-.step-status {
-  font-size: 0.62rem;
+.node-label {
+  font-size: 0.65rem;
+  font-weight: 600;
   color: var(--text-muted);
+  white-space: nowrap;
 }
 
-.step-connector {
+.stepper-line {
   flex: 1;
-  height: 1px;
-  background: var(--border-subtle);
+  height: 2px;
+  background: #cbd5e1;
   min-width: 8px;
+  margin-top: -12px;
 }
 
-/* Agent Terminal */
-.agent-log-terminal {
-  background: #050811;
-  border: 1px solid var(--border-subtle);
-  border-radius: 10px;
+/* Agent Output Terminal */
+.agent-terminal {
+  background: #0f172a;
+  border: 1px solid #1e293b;
+  border-radius: 6px;
   padding: 12px;
   font-family: var(--font-mono);
   font-size: 0.72rem;
-  height: 160px;
+  height: 150px;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 5px;
 }
 
-.terminal-line {
+.term-line {
   line-height: 1.4;
   word-break: break-all;
 }
+.term-line.info { color: #38bdf8; }
+.term-line.success { color: #4ade80; }
+.term-line.alert { color: #f87171; }
+.term-line.warn { color: #fbbf24; }
 
 /* ==========================================================================
-   Modals
+   8. Modals (UX4G Compliant)
    ========================================================================== */
-.modal-backdrop {
+.gov-modal-backdrop {
   position: fixed;
   inset: 0;
-  background: rgba(3, 7, 18, 0.8);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  background: rgba(6, 34, 56, 0.75);
+  backdrop-filter: blur(4px);
   display: none;
   align-items: center;
   justify-content: center;
-  z-index: 100;
+  z-index: 1000;
   padding: 20px;
-  animation: fade-in 0.2s ease forwards;
 }
-
-.modal-backdrop.open {
+.gov-modal-backdrop.open {
   display: flex;
 }
 
-.modal-dialog {
-  background: #0f172a;
-  border: 1px solid var(--border-light);
-  border-radius: 20px;
+.gov-modal-card {
+  background: #ffffff;
+  border: 1px solid var(--border-gov);
+  border-radius: 8px;
   width: 100%;
-  max-width: 600px;
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8);
+  max-width: 650px;
+  box-shadow: var(--gov-shadow-lg);
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  animation: zoom-in 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  max-height: 90vh;
 }
 
-.presets-dialog {
-  max-width: 780px;
-}
+.presets-card { max-width: 800px; }
+.copilot-card { max-width: 850px; }
+.inspector-card { max-width: 920px; }
 
-.copilot-dialog {
-  max-width: 850px;
-}
-
-.modal-header {
-  padding: 18px 24px;
-  background: rgba(255, 255, 255, 0.02);
-  border-bottom: 1px solid var(--border-subtle);
+.modal-top {
+  padding: 16px 20px;
+  background: var(--gov-primary);
+  color: #fff;
   display: flex;
   align-items: center;
   justify-content: space-between;
 }
-
-.modal-title-group h3 {
-  font-family: var(--font-display);
+.modal-top h3 {
   font-size: 1.15rem;
   font-weight: 700;
 }
-
-.modal-subtitle {
+.modal-top p {
   font-size: 0.75rem;
-  color: var(--text-secondary);
+  color: #cbd5e1;
 }
 
-.modal-close-btn {
+.btn-close-modal {
   background: none;
   border: none;
-  font-size: 1.5rem;
-  color: var(--text-muted);
+  font-size: 1.8rem;
+  color: #fff;
   cursor: pointer;
   line-height: 1;
 }
-.modal-close-btn:hover { color: #fff; }
 
-.modal-body {
-  padding: 20px 24px;
+/* Modal Form Elements */
+.modal-form {
+  padding: 20px;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 14px;
+  overflow-y: auto;
 }
 
-/* Forms */
-.channel-tabs {
-  display: flex;
-  gap: 8px;
-  border-bottom: 1px solid var(--border-subtle);
-  padding-bottom: 10px;
-}
-
-.channel-tab {
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid var(--border-subtle);
-  color: var(--text-secondary);
-  font-size: 0.78rem;
-  font-weight: 600;
-  padding: 6px 14px;
-  border-radius: 8px;
-  cursor: pointer;
-}
-
-.channel-tab.active {
-  background: rgba(6, 182, 212, 0.15);
-  border-color: var(--accent-cyan);
-  color: #fff;
-}
-
-.form-group {
+.form-field {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 5px;
 }
-
-.form-group label {
-  font-size: 0.78rem;
+.form-field label {
+  font-size: 0.8rem;
   font-weight: 600;
-  color: var(--text-secondary);
+  color: var(--text-dark);
 }
-
-.form-group textarea,
-.form-group select,
-.form-group input {
-  background: var(--bg-input);
-  border: 1px solid var(--border-light);
-  border-radius: 10px;
-  padding: 10px 12px;
-  color: #fff;
-  font-family: var(--font-main);
+.form-field textarea, .form-field select, .form-field input {
+  background: #fff;
+  border: 1px solid var(--border-gov);
+  border-radius: 4px;
+  padding: 8px 12px;
   font-size: 0.85rem;
+  color: var(--text-dark);
 }
-
-.form-group textarea:focus,
-.form-group select:focus,
-.form-group input:focus {
+.form-field textarea:focus, .form-field select:focus, .form-field input:focus {
   outline: none;
-  border-color: var(--accent-cyan);
-  box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.2);
+  border-color: var(--gov-primary);
+  box-shadow: 0 0 0 2px rgba(11, 59, 96, 0.2);
 }
 
-.input-hint {
-  font-size: 0.7rem;
+.field-hint {
+  font-size: 0.72rem;
   color: var(--text-muted);
 }
 
-.form-row {
-  display: flex;
-  gap: 12px;
-}
-.flex-1 { flex: 1; }
-
-.modal-actions {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 10px;
-}
-
-.space-between {
-  justify-content: space-between;
-}
-
-.mt-3 { margin-top: 12px; }
-.mt-4 { margin-top: 16px; }
-
-/* Presets Grid */
-.presets-intro {
-  font-size: 0.85rem;
-  color: var(--text-secondary);
-  line-height: 1.45;
-}
-
-.preset-items-grid {
+.form-two-cols {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 12px;
 }
 
-.preset-item-card {
-  background: rgba(255, 255, 255, 0.02);
-  border: 1px solid var(--border-subtle);
-  border-radius: 12px;
+.form-actions-row {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.btn-sample {
+  background: #f1f5f9;
+  border: 1px solid var(--border-gov);
+  color: var(--text-body);
+  padding: 8px 12px;
+  border-radius: 4px;
+  font-size: 0.78rem;
+  cursor: pointer;
+}
+.btn-sample:hover {
+  background: #e2e8f0;
+}
+
+/* Presets Grid */
+.presets-intro-text {
+  padding: 16px 20px 0 20px;
+  font-size: 0.82rem;
+  color: var(--text-body);
+}
+
+.presets-container-grid {
+  padding: 14px 20px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.preset-box {
+  background: #f8fafc;
+  border: 1px solid var(--border-gov);
+  border-radius: 6px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.preset-box.border-p1 { border-left: 4px solid var(--p1-critical); }
+.preset-box.border-p2 { border-left: 4px solid var(--p2-high); }
+.preset-box.border-p2-cluster { border-left: 4px solid #b45309; }
+.preset-box.border-p4 { border-left: 4px solid var(--p4-low); }
+
+.preset-box h4 {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--text-dark);
+}
+.preset-box p {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+.preset-dest {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: var(--gov-primary);
+}
+
+.modal-bottom-row {
+  padding: 14px 20px;
+  background: #f1f5f9;
+  border-top: 1px solid var(--border-gov);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* ==========================================================================
+   9. Multi-Agent Deep Dive Inspector View (Real Math & Performance)
+   ========================================================================== */
+.inspector-tabs {
+  display: flex;
+  background: #e2e8f0;
+  border-bottom: 1px solid var(--border-gov);
+  overflow-x: auto;
+}
+
+.insp-tab {
+  background: none;
+  border: none;
+  padding: 10px 16px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  cursor: pointer;
+  white-space: nowrap;
+  border-bottom: 3px solid transparent;
+}
+.insp-tab:hover {
+  color: var(--gov-primary);
+}
+.insp-tab.active {
+  background: #fff;
+  color: var(--gov-primary-dark);
+  border-bottom-color: var(--gov-saffron);
+}
+
+.inspector-body {
+  padding: 20px;
+  overflow-y: auto;
+  max-height: 65vh;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Math and Telemetry Cards */
+.math-callout-box {
+  background: #f0fdf4;
+  border: 1px solid #86efac;
+  border-radius: 6px;
   padding: 14px;
   display: flex;
   flex-direction: column;
   gap: 6px;
 }
 
-.preset-item-card.border-p1 { border-left: 3px solid var(--priority-p1); }
-.preset-item-card.border-p2 { border-left: 3px solid var(--priority-p2); }
-.preset-item-card.border-p4 { border-left: 3px solid var(--priority-p4); }
+.math-formula {
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #166534;
+  background: #dcfce7;
+  padding: 6px 10px;
+  border-radius: 4px;
+}
 
-.preset-item-card h4 {
+.breakdown-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.78rem;
+  margin-top: 6px;
+}
+.breakdown-table th, .breakdown-table td {
+  padding: 6px 10px;
+  border: 1px solid var(--border-gov);
+  text-align: left;
+}
+.breakdown-table th {
+  background: #f1f5f9;
+  font-weight: 700;
+}
+
+.json-code-view {
+  background: #0f172a;
+  color: #38bdf8;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  padding: 12px;
+  border-radius: 6px;
+  overflow-x: auto;
+  white-space: pre-wrap;
+  max-height: 240px;
+}
+
+/* Phone Mockup for Agent E */
+.phone-mockup-wrapper {
+  max-width: 420px;
+  margin: 0 auto;
+  border: 8px solid #334155;
+  border-radius: 24px;
+  background: #e5ddd5;
+  overflow: hidden;
+  box-shadow: var(--gov-shadow-md);
+}
+
+.phone-header-wa {
+  background: #075e54;
+  color: #fff;
+  padding: 10px 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
   font-size: 0.85rem;
   font-weight: 600;
-  color: #fff;
 }
 
-.preset-item-card p {
-  font-size: 0.75rem;
-  color: var(--text-secondary);
-  line-height: 1.35;
+.phone-chat-body {
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-height: 220px;
 }
 
-.preset-tag {
-  font-family: var(--font-mono);
-  font-size: 0.65rem;
-  color: var(--accent-cyan);
+.wa-bubble {
+  background: #ffffff;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 0.78rem;
+  color: #111;
+  max-width: 85%;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.15);
+}
+.wa-bubble.outbound {
+  background: #dcf8c6;
+  align-self: flex-end;
+}
+.wa-time {
+  font-size: 0.62rem;
+  color: #667781;
+  float: right;
+  margin-top: 4px;
+  margin-left: 8px;
 }
 
-/* Copilot Grid */
-.copilot-grid {
+/* Copilot Split Grid */
+.copilot-split-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 20px;
+  padding: 20px;
 }
 
-.copilot-sec-title {
-  font-size: 0.82rem;
+.sec-title {
+  font-size: 0.85rem;
   font-weight: 700;
-  color: #fff;
+  color: var(--gov-primary-dark);
   margin-bottom: 8px;
 }
 
@@ -1175,170 +1235,731 @@ body {
   flex-direction: column;
   gap: 6px;
 }
-
 .sop-checklist li {
   font-size: 0.78rem;
-  color: var(--text-secondary);
-  background: rgba(255, 255, 255, 0.02);
+  background: #f8fafc;
+  border: 1px solid var(--border-gov);
   padding: 6px 10px;
-  border-radius: 6px;
-  border-left: 2px solid var(--accent-cyan);
+  border-radius: 4px;
+  border-left: 3px solid var(--gov-primary);
 }
 
-.bom-tags {
+.bom-chips-row {
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
 }
-
-.bom-tag {
+.bom-chip {
   font-family: var(--font-mono);
-  font-size: 0.7rem;
-  background: rgba(6, 182, 212, 0.1);
-  border: 1px solid rgba(6, 182, 212, 0.3);
-  color: var(--accent-cyan);
+  font-size: 0.72rem;
+  background: #e0f2fe;
+  color: #0369a1;
+  border: 1px solid #7dd3fc;
   padding: 3px 8px;
-  border-radius: 6px;
+  border-radius: 4px;
 }
 
-.photo-compare-box {
+.photo-pair-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 10px;
 }
 
-.photo-card {
+.photo-box {
   display: flex;
   flex-direction: column;
   gap: 4px;
 }
 
-.photo-badge {
-  font-family: var(--font-mono);
-  font-size: 0.62rem;
+.photo-lbl {
+  font-size: 0.68rem;
   font-weight: 700;
-  color: var(--priority-p2);
+  color: var(--gov-saffron-dark);
 }
-.photo-badge.success {
-  color: var(--state-success);
-}
+.photo-lbl.success { color: var(--gov-green); }
 
-.photo-placeholder {
+.photo-mock {
   height: 120px;
-  border-radius: 8px;
-  background: #1e293b;
-  position: relative;
-  overflow: hidden;
-  border: 1px solid var(--border-subtle);
+  border-radius: 6px;
+  border: 1px solid var(--border-gov);
   display: flex;
   align-items: flex-end;
-  padding: 8px;
+  padding: 6px;
 }
-
-.before-bg {
-  background: linear-gradient(135deg, #1e1b4b, #312e81);
+.photo-mock.before {
+  background: linear-gradient(135deg, #1e293b, #334155);
 }
-
-.after-bg {
+.photo-mock.after {
   background: linear-gradient(135deg, #064e3b, #047857);
 }
 
-.photo-tag-overlay {
+.gps-chip {
   font-family: var(--font-mono);
-  font-size: 0.62rem;
-  background: rgba(0, 0, 0, 0.65);
+  font-size: 0.65rem;
+  background: rgba(0, 0, 0, 0.7);
+  color: #fff;
   padding: 2px 6px;
-  border-radius: 4px;
+  border-radius: 3px;
+}
+.gps-chip.success {
+  background: rgba(19, 136, 8, 0.85);
   color: #fff;
 }
-.photo-tag-overlay.success {
-  color: #a7f3d0;
-}
 
-.closure-audit-box {
+.closure-actions-bar {
   margin-top: 14px;
   display: flex;
   flex-direction: column;
   gap: 10px;
 }
 
-.audit-status {
+.audit-pass-badge {
   display: flex;
   align-items: center;
   gap: 6px;
-  font-size: 0.75rem;
-  color: var(--state-success);
+  font-size: 0.78rem;
+  color: var(--gov-green-dark);
+  background: #dcfce7;
+  padding: 6px 10px;
+  border-radius: 4px;
+  border: 1px solid #86efac;
 }
 
-.dot-verified {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: var(--state-success);
-  box-shadow: 0 0 8px var(--state-success);
-}
-
-.audit-buttons {
+.action-btn-pair {
   display: flex;
-  gap: 8px;
+  gap: 10px;
 }
 
-/* ==========================================================================
-   Keyframe Animations
-   ========================================================================== */
-@keyframes pulse-glow {
+/* Animations */
+@keyframes pulse-dot-anim {
   0%, 100% { opacity: 1; transform: scale(1); }
-  50% { opacity: 0.4; transform: scale(0.9); }
+  50% { opacity: 0.4; transform: scale(0.85); }
 }
 
-@keyframes button-pulse {
-  0%, 100% { box-shadow: 0 0 15px rgba(2, 132, 199, 0.4); }
-  50% { box-shadow: 0 0 30px rgba(14, 165, 233, 0.8); }
+@keyframes pulse-breach-glow {
+  0% { box-shadow: 0 0 5px rgba(220, 38, 38, 0.2); }
+  100% { box-shadow: 0 0 20px rgba(220, 38, 38, 0.6); }
 }
 
-@keyframes pulse-breach {
-  0% { box-shadow: 0 0 10px rgba(244, 63, 94, 0.2); }
-  100% { box-shadow: 0 0 30px rgba(244, 63, 94, 0.6); }
-}
-
-@keyframes flash-border {
-  0%, 100% { border-color: var(--priority-p1); }
-  50% { border-color: rgba(244, 63, 94, 0.3); }
-}
-
-@keyframes fade-in {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-@keyframes zoom-in {
-  from { opacity: 0; transform: scale(0.95); }
-  to { opacity: 1; transform: scale(1); }
-}
-
-/* Responsive Breakpoints */
+/* Responsive */
 @media (max-width: 1200px) {
-  .main-dashboard-grid {
+  .gov-main-container {
     grid-template-columns: 1fr;
-  }
-  .kanban-board {
-    grid-template-columns: repeat(2, 1fr);
   }
 }
 
 @media (max-width: 768px) {
-  .metrics-row {
+  .metrics-grid {
     grid-template-columns: 1fr 1fr;
   }
-  .kanban-board {
+  .gov-kanban-board {
     grid-template-columns: 1fr;
   }
-  .app-header {
+  .header-container {
     flex-direction: column;
     align-items: flex-start;
   }
-  .time-travel-deck {
+  .ux4g-time-travel-deck {
     width: 100%;
     justify-content: space-between;
   }
+}
+
+/* ==========================================================================
+   UX4G BREADCRUMB BAR
+   ========================================================================== */
+.ux4g-breadcrumb-bar {
+  background: #f1f5f9;
+  border-top: 1px solid #e2e8f0;
+  border-bottom: 1px solid #cbd5e1;
+  padding: 6px 24px;
+  font-size: 0.76rem;
+  color: #475569;
+}
+.breadcrumb-container {
+  max-width: 1700px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.bc-item {
+  color: #0b3b60;
+  font-weight: 500;
+}
+.bc-item.active {
+  color: #1e293b;
+  font-weight: 700;
+}
+.bc-sep {
+  color: #94a3b8;
+}
+
+.btn-gov-workbench {
+  background: #0284c7;
+  color: #ffffff;
+  padding: 7px 14px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid #0369a1;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+  transition: background 0.15s ease;
+}
+.btn-gov-workbench:hover {
+  background: #0369a1;
+}
+
+/* ==========================================================================
+   MAP QUICK TOOLBAR & GEO CONTROLS
+   ========================================================================== */
+.map-quick-toolbar {
+  display: flex;
+  gap: 6px;
+  padding: 8px 12px;
+  background: #f8fafc;
+  border-bottom: 1px solid #e2e8f0;
+  overflow-x: auto;
+}
+.map-tool-btn {
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 4px;
+  padding: 4px 9px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #334155;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.15s ease;
+}
+.map-tool-btn:hover {
+  background: #f1f5f9;
+  border-color: #94a3b8;
+}
+.map-tool-btn.active {
+  background: #0b3b60;
+  color: #ffffff;
+  border-color: #0b3b60;
+}
+
+/* Custom Facility Markers on Map */
+.custom-facility-marker {
+  display: flex;
+  align-items: center;
+}
+.facility-pill {
+  background: #0b3b60;
+  color: #fff;
+  font-size: 10px;
+  font-weight: bold;
+  padding: 2px 6px;
+  border-radius: 4px;
+  border: 1px solid #ff9933;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+  white-space: nowrap;
+}
+
+/* ==========================================================================
+   6-AGENT AUTONOMOUS EXECUTION LABORATORY & STANDALONE TELEMETRY WORKBENCH
+   ========================================================================== */
+.gov-workbench-section {
+  background: #ffffff;
+  border-top: 2px solid #0b3b60;
+  border-bottom: 1px solid #cbd5e1;
+  margin-top: 28px;
+  padding: 32px 24px;
+}
+.workbench-container {
+  max-width: 1700px;
+  margin: 0 auto;
+}
+
+.workbench-header-strip {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 24px;
+  border-bottom: 1px solid #e2e8f0;
+  padding-bottom: 16px;
+  gap: 20px;
+}
+.wb-badge {
+  display: inline-block;
+  background: #ff9933;
+  color: #000;
+  font-size: 0.68rem;
+  font-weight: 800;
+  padding: 2px 8px;
+  border-radius: 3px;
+  margin-bottom: 6px;
+  letter-spacing: 0.5px;
+}
+.wb-title {
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: #0b3b60;
+  letter-spacing: -0.01em;
+}
+.wb-subtitle {
+  font-size: 0.85rem;
+  color: #475569;
+  margin-top: 4px;
+  max-width: 1100px;
+  line-height: 1.5;
+}
+
+.wb-header-right {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+.wb-stat-pill {
+  font-size: 0.75rem;
+  font-weight: 700;
+  background: #f1f5f9;
+  color: #334155;
+  padding: 5px 10px;
+  border-radius: 4px;
+  border: 1px solid #cbd5e1;
+}
+.wb-stat-pill.green {
+  background: #f0fdf4;
+  color: #166534;
+  border-color: #86efac;
+}
+
+/* Tabs Navigation */
+.workbench-tabs-nav {
+  display: flex;
+  gap: 8px;
+  border-bottom: 2px solid #e2e8f0;
+  overflow-x: auto;
+  margin-bottom: 24px;
+}
+.wb-tab-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #f8fafc;
+  border: 1px solid #cbd5e1;
+  border-bottom: none;
+  padding: 10px 18px;
+  border-radius: 6px 6px 0 0;
+  font-size: 0.84rem;
+  font-weight: 600;
+  color: #475569;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+.wb-tab-btn:hover {
+  background: #e2e8f0;
+  color: #0b3b60;
+}
+.wb-tab-btn.active {
+  background: #0b3b60;
+  color: #ffffff;
+  border-color: #0b3b60;
+}
+.wb-tab-badge {
+  background: #ff9933;
+  color: #000;
+  font-size: 0.72rem;
+  font-weight: 800;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+}
+.wb-tab-btn.active .wb-tab-badge {
+  background: #ff9933;
+  color: #000;
+}
+
+/* Panels */
+.wb-panel {
+  display: none;
+}
+.wb-panel.active {
+  display: block;
+}
+
+.wb-split-grid {
+  display: grid;
+  grid-template-columns: 1fr 1.15fr;
+  gap: 24px;
+}
+@media (max-width: 1024px) {
+  .wb-split-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.wb-col-controls {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 20px;
+}
+.wb-panel-heading {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #0b3b60;
+  margin-bottom: 4px;
+}
+.wb-panel-desc {
+  font-size: 0.78rem;
+  color: #64748b;
+  margin-bottom: 16px;
+  line-height: 1.45;
+}
+
+.wb-form-group {
+  margin-bottom: 14px;
+}
+.wb-form-group label {
+  display: block;
+  font-size: 0.76rem;
+  font-weight: 600;
+  color: #334155;
+  margin-bottom: 5px;
+}
+.wb-form-row {
+  display: flex;
+  gap: 12px;
+}
+.flex-1 { flex: 1; }
+
+.wb-textarea, .wb-input, .wb-select {
+  width: 100%;
+  padding: 8px 12px;
+  font-size: 0.82rem;
+  font-family: inherit;
+  border: 1px solid #cbd5e1;
+  border-radius: 4px;
+  background: #ffffff;
+  color: #1e293b;
+  outline: none;
+  transition: border-color 0.15s ease;
+}
+.wb-textarea:focus, .wb-input:focus, .wb-select:focus {
+  border-color: #0284c7;
+  box-shadow: 0 0 0 2px rgba(2, 132, 199, 0.15);
+}
+
+.wb-presets-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+}
+.wb-preset-lbl {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: #64748b;
+}
+.wb-preset-chip {
+  background: #e2e8f0;
+  border: 1px solid #cbd5e1;
+  color: #1e293b;
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 3px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.wb-preset-chip:hover {
+  background: #cbd5e1;
+}
+
+.wb-slider-group {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  padding: 10px 14px;
+  margin-bottom: 12px;
+}
+.wb-slider-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #334155;
+  margin-bottom: 6px;
+}
+.wb-slider {
+  width: 100%;
+  accent-color: #0b3b60;
+  cursor: pointer;
+}
+
+.wb-exec-btn {
+  width: 100%;
+  padding: 10px 16px;
+  font-size: 0.88rem;
+  font-weight: 700;
+  margin-top: 10px;
+}
+
+/* Telemetry Box */
+.wb-col-telemetry {
+  display: flex;
+  flex-direction: column;
+}
+.wb-telemetry-box {
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: var(--gov-shadow-sm);
+}
+.wb-telemetry-header {
+  background: #0b3b60;
+  color: #ffffff;
+  padding: 10px 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.wb-tel-title {
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+}
+.wb-status-tag {
+  font-size: 0.7rem;
+  font-weight: 700;
+  background: #ff9933;
+  color: #000;
+  padding: 2px 7px;
+  border-radius: 3px;
+}
+.wb-status-tag.success {
+  background: #86efac;
+  color: #14532d;
+}
+
+.wb-tel-content {
+  padding: 18px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  font-size: 0.82rem;
+  color: #334155;
+  overflow-y: auto;
+}
+.wb-empty-state {
+  margin: auto;
+  color: #94a3b8;
+  text-align: center;
+  font-style: italic;
+}
+
+/* Telemetry Metric Cards */
+.tel-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.tel-metric-card {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  padding: 8px 12px;
+  border-radius: 6px;
+}
+.tel-metric-lbl {
+  font-size: 0.7rem;
+  color: #64748b;
+  text-transform: uppercase;
+  font-weight: 700;
+}
+.tel-metric-val {
+  font-size: 1rem;
+  font-weight: 800;
+  color: #0b3b60;
+  margin-top: 2px;
+}
+
+/* ==========================================================================
+   UX4G OFFICIAL 4-COLUMN GOVERNMENT FOOTER
+   ========================================================================== */
+.ux4g-gov-footer {
+  background: #062238;
+  color: #cbd5e1;
+  border-top: 1px solid rgba(255,255,255,0.1);
+  margin-top: auto;
+}
+.footer-container {
+  max-width: 1700px;
+  margin: 0 auto;
+  padding: 40px 24px 20px;
+}
+.footer-cols-grid {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr 1fr 1.1fr;
+  gap: 32px;
+  margin-bottom: 32px;
+}
+@media (max-width: 1024px) {
+  .footer-cols-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+@media (max-width: 640px) {
+  .footer-cols-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.footer-emblem-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+.emblem-symbol {
+  font-size: 1.8rem;
+}
+.footer-col-title {
+  color: #ffffff;
+  font-size: 0.96rem;
+  font-weight: 700;
+}
+.footer-subtitle {
+  font-size: 0.76rem;
+  color: #94a3b8;
+}
+.footer-desc {
+  font-size: 0.78rem;
+  line-height: 1.6;
+  color: #94a3b8;
+  margin-bottom: 12px;
+}
+.footer-initiative-tag {
+  display: inline-block;
+  font-size: 0.72rem;
+  background: rgba(255, 153, 51, 0.15);
+  color: #ff9933;
+  padding: 3px 8px;
+  border-radius: 3px;
+  border: 1px solid rgba(255, 153, 51, 0.3);
+}
+
+.footer-links-list, .footer-contact-list {
+  list-style: none;
+  font-size: 0.78rem;
+  line-height: 1.8;
+}
+.footer-links-list a {
+  color: #cbd5e1;
+  text-decoration: none;
+  transition: color 0.15s ease;
+}
+.footer-links-list a:hover {
+  color: #ff9933;
+  text-decoration: underline;
+}
+.footer-contact-list li {
+  color: #94a3b8;
+  margin-bottom: 4px;
+}
+.footer-contact-list strong {
+  color: #ffffff;
+}
+
+.compliance-badges-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-top: 10px;
+}
+.comp-badge {
+  font-size: 0.72rem;
+  font-weight: 600;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #e2e8f0;
+  padding: 4px 8px;
+  border-radius: 3px;
+  text-align: center;
+}
+
+.footer-bottom-strip {
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  padding-top: 18px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.74rem;
+  color: #64748b;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.footer-copyright {
+  color: #94a3b8;
+}
+.footer-meta-stats {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.meta-dot {
+  color: #475569;
+}
+
+/* ==========================================================================
+   UX4G HIGH-CONTRAST MODE (WCAG 2.2 AAA ACCESSIBILITY)
+   ========================================================================== */
+body.ux4g-high-contrast {
+  background-color: #000000 !important;
+  color: #ffff00 !important;
+}
+body.ux4g-high-contrast .gov-main-header,
+body.ux4g-high-contrast .ux4g-top-accessibility-strip,
+body.ux4g-high-contrast .gov-card,
+body.ux4g-high-contrast .gov-kanban-board,
+body.ux4g-high-contrast .kanban-column,
+body.ux4g-high-contrast .gov-ticket-card,
+body.ux4g-high-contrast .gov-workbench-section,
+body.ux4g-high-contrast .wb-col-controls,
+body.ux4g-high-contrast .wb-telemetry-box,
+body.ux4g-high-contrast .ux4g-gov-footer {
+  background-color: #000000 !important;
+  color: #ffff00 !important;
+  border-color: #ffffff !important;
+}
+body.ux4g-high-contrast h1, 
+body.ux4g-high-contrast h2, 
+body.ux4g-high-contrast h3, 
+body.ux4g-high-contrast h4,
+body.ux4g-high-contrast .brand-main-title,
+body.ux4g-high-contrast .card-title,
+body.ux4g-high-contrast .panel-heading {
+  color: #ffffff !important;
+}
+body.ux4g-high-contrast a,
+body.ux4g-high-contrast strong {
+  color: #00ffff !important;
+}
+body.ux4g-high-contrast .btn-gov-primary,
+body.ux4g-high-contrast .btn-gov-secondary,
+body.ux4g-high-contrast .wb-tab-btn.active {
+  background-color: #ffff00 !important;
+  color: #000000 !important;
+  border: 2px solid #ffffff !important;
 }

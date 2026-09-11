@@ -3,516 +3,902 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>NagrikSewa AI — Multi-Agent Municipal Complaint Router & SLA Escalation System</title>
-  <meta name="description" content="Autonomous Civic Incident Redressal Platform with LangGraph Multi-Agent Orchestration, Spatial Clustering & Virtual Time-Travel SLA Escalation" />
-  
-  <!-- Fonts: Inter & Outfit -->
+  <title>पुणे महानगरपालिका (PMC) — NagrikSewa Multi-Agent Civic Grievance Operating System (UX4G)</title>
+  <meta name="description" content="Official Government of India UX4G Complaint Redressal Platform powered by LangGraph 6-Agent System, Real OpenStreetMap Geospatial Clustering, and Virtual SLA Escalation." />
+
+  <!-- Fonts: Inter & Outfit & Noto Sans Devanagari for authentic Indian Government portals -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
-  
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Noto+Sans+Devanagari:wght@400;600;700&family=Outfit:wght@600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+
+  <!-- Leaflet.js Real OpenStreetMap Stylesheet -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+
   <link rel="stylesheet" href="css/style.css" />
 </head>
-<body class="dark-theme">
-  <!-- Audio context alert chime element -->
-  <div id="audio-indicator" class="sr-only"></div>
+<body class="ux4g-theme">
 
-  <!-- Top App Navigation -->
-  <header class="app-header">
-    <div class="header-left">
-      <div class="brand-badge">
-        <div class="brand-logo-glow"></div>
-        <svg class="brand-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
-        </svg>
+  <!-- =========================================================================
+       UX4G TOP GOVERNMENT TRICOLOR BANNER & ACCESSIBILITY STRIP
+       ========================================================================= -->
+  <div class="gov-tricolor-bar"></div>
+  <div class="gov-top-accessibility-strip">
+    <div class="strip-container">
+      <div class="strip-left">
+        <span class="gov-flag-icon">🇮🇳</span>
+        <span class="gov-title-sm" id="gov-top-banner-text">भारत सरकार | Government of India • महाराष्ट्र शासन | Government of Maharashtra • पुणे महानगरपालिका (PMC)</span>
       </div>
-      <div>
-        <div class="brand-title">NagrikSewa <span class="badge-ai">MULTI-AGENT AI</span></div>
-        <div class="brand-subtitle">PMC & PCMC Autonomous Grievance Redressal & SLA Escalator</div>
+      <div class="strip-right">
+        <div class="accessibility-ctrls">
+          <span class="ctrl-label" id="lbl-text-size">Text Size:</span>
+          <button class="btn-a" id="btn-font-dec" title="Decrease Font">A-</button>
+          <button class="btn-a active" id="btn-font-normal" title="Normal Font">A</button>
+          <button class="btn-a" id="btn-font-inc" title="Increase Font">A+</button>
+          <button class="btn-a" id="btn-contrast-toggle" title="Toggle High Contrast Mode">Contrast 🌓</button>
+        </div>
+        <div class="lang-switch">
+          <button class="lang-btn active" id="lang-en">English</button>
+          <span class="divider">|</span>
+          <button class="lang-btn" id="lang-mr">मराठी</button>
+          <span class="divider">|</span>
+          <button class="lang-btn" id="lang-hi">हिंदी</button>
+        </div>
+        <span class="rts-badge" id="rts-badge-strip">RTS Act 2015 Compliant</span>
       </div>
     </div>
+  </div>
 
-    <!-- Center: Virtual Time-Travel Simulation Bar -->
-    <div class="time-travel-deck" id="time-travel-deck">
-      <div class="time-display-box">
-        <span class="pulse-dot"></span>
-        <div class="time-content">
-          <span class="time-label">VIRTUAL MUNICIPAL CLOCK</span>
-          <span class="time-value" id="virtual-clock-val">2026-09-11 12:00:00 UTC</span>
+  <!-- =========================================================================
+       MAIN GOVERNMENT PORTAL HEADER (UX4G COMPLIANT)
+       ========================================================================= -->
+  <header class="ux4g-main-header">
+    <div class="header-container">
+      <div class="emblem-and-brand">
+        <!-- National Emblem of India (Ashoka Lion Capital with Satyameva Jayate) -->
+        <div class="ashoka-emblem-box" title="State Emblem of India • सत्यमेव जयते">
+          <svg viewBox="0 0 100 120" class="ashoka-svg" fill="none">
+            <!-- Lion Capital Silhouette Graphic -->
+            <path d="M50 12 C44 12 40 16 38 22 C34 24 32 28 32 34 C32 40 36 44 40 46 C38 52 42 60 50 62 C58 60 62 52 60 46 C64 44 68 40 68 34 C68 28 66 24 62 22 C60 16 56 12 50 12 Z" fill="#0B3B60"/>
+            <circle cx="50" cy="28" r="4" fill="#FF9933"/>
+            <rect x="36" y="64" width="28" height="6" rx="2" fill="#0B3B60"/>
+            <!-- Ashoka Chakra 24-spoke disc -->
+            <circle cx="50" cy="80" r="10" stroke="#0B3B60" stroke-width="2" fill="#FFFFFF"/>
+            <circle cx="50" cy="80" r="2.5" fill="#FF9933"/>
+            <line x1="50" y1="70" x2="50" y2="90" stroke="#0B3B60" stroke-width="1"/>
+            <line x1="40" y1="80" x2="60" y2="80" stroke="#0B3B60" stroke-width="1"/>
+            <line x1="43" y1="73" x2="57" y2="87" stroke="#0B3B60" stroke-width="0.8"/>
+            <line x1="43" y1="87" x2="57" y2="73" stroke="#0B3B60" stroke-width="0.8"/>
+            <!-- Base Pedestal & Satyameva Jayate text -->
+            <rect x="28" y="93" width="44" height="6" rx="1" fill="#0B3B60"/>
+            <text x="50" y="112" font-family="'Noto Sans Devanagari', sans-serif" font-size="8.5" font-weight="700" fill="#0B3B60" text-anchor="middle">सत्यमेव जयते</text>
+          </svg>
+        </div>
+
+        <div class="brand-titles">
+          <div class="brand-main-title" id="main-brand-title">
+            पुणे महानगरपालिका <span>• Pune Municipal Corporation</span>
+          </div>
+          <div class="brand-sub-title" id="main-brand-subtitle">
+            नागरी सेवा AI — Multi-Agent Civic Grievance Redressal & Statutory SLA Escalation Platform
+          </div>
+          <div class="brand-meta-tags">
+            <span class="meta-tag">Ministry of Housing & Urban Affairs (MoHUA)</span>
+            <span class="meta-tag">PCMC & PMC Unified Jurisdiction</span>
+            <span class="meta-tag green">6-Agent LangGraph Engine Active</span>
+            <span class="meta-tag saffron" id="agent-provider-tag">Ollama Local Engine Active</span>
+          </div>
         </div>
       </div>
 
-      <div class="time-actions">
-        <button class="time-btn btn-advance" data-hours="6" id="btn-advance-6h" title="Fast forward time by 6 Hours">
-          <span class="btn-icon">+6h</span>
-          <span class="btn-text">6h SLA</span>
+      <!-- Time-Travel Virtual Clock Control Bar -->
+      <div class="ux4g-time-travel-deck">
+        <div class="clock-badge">
+          <div class="pulse-clock-dot"></div>
+          <div class="clock-text-group">
+            <span class="clock-label">MUNICIPAL VIRTUAL CLOCK (SLA SIMULATOR)</span>
+            <span class="clock-time" id="virtual-clock-val">2026-09-11 12:00:00 UTC</span>
+          </div>
+        </div>
+
+        <div class="time-btn-group">
+          <button class="time-action-btn" data-hours="6" id="btn-advance-6h" title="Fast-forward virtual time by 6h">
+            <strong>+6h</strong> <span>(L1/L2)</span>
+          </button>
+          <button class="time-action-btn btn-highlight" data-hours="24" id="btn-advance-24h" title="Fast-forward virtual time by 24h">
+            <strong>+24h</strong> <span>(Breach L3)</span>
+          </button>
+          <button class="time-action-btn" data-hours="48" id="btn-advance-48h" title="Fast-forward virtual time by 48h">
+            <strong>+48h</strong> <span>(Comm. L4)</span>
+          </button>
+          <button class="time-action-btn btn-sync" id="btn-reset-clock" title="Sync back to real system time">
+            <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+            <span>Sync</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Header Action Buttons & Section Jumpers -->
+      <div class="header-action-btns">
+        <button class="btn-gov-primary" id="btn-open-citizen-modal">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
+          <span id="txt-lodge-grievance">Lodge Grievance</span>
         </button>
-        <button class="time-btn btn-advance" data-hours="24" id="btn-advance-24h" title="Fast forward time by 24 Hours">
-          <span class="btn-icon">+24h</span>
-          <span class="btn-text">24h SLA</span>
+        <button class="btn-gov-secondary" id="btn-open-demo-presets">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+          <span>3-Min Demo Presets</span>
         </button>
-        <button class="time-btn btn-advance" data-hours="48" id="btn-advance-48h" title="Fast forward time by 48 Hours">
-          <span class="btn-icon">+48h</span>
-          <span class="btn-text">48h SLA</span>
-        </button>
-        <button class="time-btn btn-reset" id="btn-reset-clock" title="Reset virtual clock to real time">
-          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
-            <path d="M3 3v5h5"/>
-          </svg>
-          <span>Sync</span>
-        </button>
+        <a href="#agent-workbench-section" class="btn-gov-workbench" id="btn-jump-workbench">
+          <span>🔬 6-Agent Lab</span>
+        </a>
       </div>
     </div>
 
-    <div class="header-right">
-      <button class="btn-primary" id="btn-open-citizen-modal">
-        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M12 5v14M5 12h14"/>
-        </svg>
-        <span>Report Grievance</span>
-      </button>
-      <button class="btn-secondary" id="btn-open-demo-presets">
-        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
-          <polygon points="5 3 19 12 5 21 5 3"/>
-        </svg>
-        <span>Live 3-Min Demo</span>
-      </button>
+    <!-- Official Government Breadcrumbs -->
+    <div class="ux4g-breadcrumb-bar">
+      <div class="breadcrumb-container">
+        <span class="bc-item">गृह (Home)</span>
+        <span class="bc-sep">/</span>
+        <span class="bc-item">महाराष्ट्र शासन (Govt of Maharashtra)</span>
+        <span class="bc-sep">/</span>
+        <span class="bc-item">पुणे महानगरपालिका (PMC Care)</span>
+        <span class="bc-sep">/</span>
+        <span class="bc-item active">नागरी तक्रार निवारण Multi-Agent Command Center</span>
+      </div>
     </div>
   </header>
 
-  <!-- Metric Overview Cards -->
-  <section class="metrics-row">
-    <div class="metric-card card-total">
-      <div class="metric-info">
-        <span class="metric-label">TOTAL REGISTERED</span>
-        <span class="metric-val" id="metric-total">0</span>
-        <span class="metric-sub">Across 5 Ward Zones</span>
+  <!-- =========================================================================
+       STATUTORY SLA & COMPLAINT METRIC CARDS
+       ========================================================================= -->
+  <section class="gov-metrics-strip">
+    <div class="metrics-grid">
+      <div class="gov-metric-card">
+        <div class="metric-top">
+          <span class="gov-card-label">TOTAL LODGED GRIEVANCES</span>
+          <span class="gov-badge-icon blue">📋</span>
+        </div>
+        <div class="metric-val" id="metric-total">0</div>
+        <div class="metric-subtext">Registered across Ward 14, Ward 8, & City Central</div>
       </div>
-      <div class="metric-icon-box cyan">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-      </div>
-    </div>
 
-    <div class="metric-card card-active">
-      <div class="metric-info">
-        <span class="metric-label">IN-FIELD ACTIVE</span>
-        <span class="metric-val" id="metric-active">0</span>
-        <span class="metric-sub">Assigned to Ward Teams</span>
+      <div class="gov-metric-card">
+        <div class="metric-top">
+          <span class="gov-card-label">IN-FIELD ACTIVE (TIER 1)</span>
+          <span class="gov-badge-icon amber">⏳</span>
+        </div>
+        <div class="metric-val text-amber" id="metric-active">0</div>
+        <div class="metric-subtext">Assigned to Junior Engineers & Sanitary Inspectors</div>
       </div>
-      <div class="metric-icon-box amber">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-      </div>
-    </div>
 
-    <div class="metric-card card-escalated" id="metric-escalated-card">
-      <div class="metric-info">
-        <span class="metric-label">SLA BREACHED / ESCALATED</span>
-        <span class="metric-val text-rose" id="metric-escalated">0</span>
-        <span class="metric-sub">Promoted to L2 / L3 / L4</span>
+      <div class="gov-metric-card card-breach-pulse" id="metric-escalated-card">
+        <div class="metric-top">
+          <span class="gov-card-label">STATUTORY SLA BREACHED / ESCALATED</span>
+          <span class="gov-badge-icon red">🚨</span>
+        </div>
+        <div class="metric-val text-red" id="metric-escalated">0</div>
+        <div class="metric-subtext">Promoted to AMC (L2), DMC (L3), or Commissioner (L4)</div>
       </div>
-      <div class="metric-icon-box rose">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-      </div>
-    </div>
 
-    <div class="metric-card card-resolved">
-      <div class="metric-info">
-        <span class="metric-label">RESOLVED & VERIFIED</span>
-        <span class="metric-val text-emerald" id="metric-resolved">0</span>
-        <span class="metric-sub">Photo Proof Approved</span>
-      </div>
-      <div class="metric-icon-box emerald">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+      <div class="gov-metric-card">
+        <div class="metric-top">
+          <span class="gov-card-label">RESOLVED & CITIZEN VERIFIED</span>
+          <span class="gov-badge-icon green">✅</span>
+        </div>
+        <div class="metric-val text-green" id="metric-resolved">0</div>
+        <div class="metric-subtext">Geotag photo proof validated within 100m threshold</div>
       </div>
     </div>
   </section>
 
-  <!-- Main Grid: Left Command Center + Right Map & Agent Trace -->
-  <main class="main-dashboard-grid">
+  <!-- =========================================================================
+       MAIN CIVIC OPERATING DASHBOARD (KANBAN + REAL OPENSTREETMAP + AGENT ENGINE)
+       ========================================================================= -->
+  <main class="gov-main-container">
     
-    <!-- Left Column: Department Filtering & Kanban Command Board -->
-    <section class="dashboard-pane left-pane">
-      <div class="pane-header">
-        <div class="pane-title-group">
-          <h2>Department Redressal Board</h2>
-          <span class="pane-subtitle">Live statutory SLA status by ward jurisdiction</span>
+    <!-- LEFT PANE: Department Kanban Command Center -->
+    <section class="gov-panel left-panel">
+      <div class="panel-header-row">
+        <div>
+          <h2 class="panel-heading">Departmental Grievance Redressal Board</h2>
+          <p class="panel-subheading">Maharashtra Right to Public Services Act (RTS) Statutory Tracking</p>
         </div>
-        
-        <!-- Department Filter Pills -->
-        <div class="dept-pills-bar" id="dept-pills">
-          <button class="dept-pill active" data-dept="ALL">All Departments</button>
-          <button class="dept-pill" data-dept="Water Supply">Water Supply</button>
-          <button class="dept-pill" data-dept="Solid Waste">Solid Waste</button>
-          <button class="dept-pill" data-dept="Drainage">Drainage</button>
-          <button class="dept-pill" data-dept="Electrical">Electrical</button>
-          <button class="dept-pill" data-dept="Roads">Roads & Civil</button>
+
+        <!-- Department Filter Buttons -->
+        <div class="dept-filters-row" id="dept-pills">
+          <button class="dept-filter-btn active" data-dept="ALL">All Departments</button>
+          <button class="dept-filter-btn" data-dept="Water Supply">Water Supply (WAT)</button>
+          <button class="dept-filter-btn" data-dept="Solid Waste">Solid Waste (SWM)</button>
+          <button class="dept-filter-btn" data-dept="Drainage">Drainage (DRN)</button>
+          <button class="dept-filter-btn" data-dept="Electrical">Electrical (ELE)</button>
+          <button class="dept-filter-btn" data-dept="Roads">Roads & Civil (RDM)</button>
         </div>
       </div>
 
-      <!-- Kanban Columns -->
-      <div class="kanban-board" id="kanban-board">
+      <!-- 4-Stage Kanban Columns -->
+      <div class="gov-kanban-board" id="kanban-board">
         <!-- Col 1: Registered -->
-        <div class="kanban-col" data-status="REGISTERED">
-          <div class="kanban-col-head">
-            <span class="col-dot cyan"></span>
-            <span class="col-title">REGISTERED</span>
-            <span class="col-count" id="count-registered">0</span>
+        <div class="kanban-column" data-status="REGISTERED">
+          <div class="column-header col-blue">
+            <span class="col-status-name">1. LODGED & TRIAGED</span>
+            <span class="col-count-badge" id="count-registered">0</span>
           </div>
-          <div class="kanban-cards-wrapper" id="col-cards-registered">
-            <!-- Cards dynamically inserted -->
-          </div>
+          <div class="kanban-cards-container" id="col-cards-registered"></div>
         </div>
 
-        <!-- Col 2: In-Progress / Assigned Tier 1 -->
-        <div class="kanban-col" data-status="IN_PROGRESS">
-          <div class="kanban-col-head">
-            <span class="col-dot amber"></span>
-            <span class="col-title">ASSIGNED / FIELD (L1)</span>
-            <span class="col-count" id="count-inprogress">0</span>
+        <!-- Col 2: In-Progress / Field Assigned (Tier 1) -->
+        <div class="kanban-column" data-status="IN_PROGRESS">
+          <div class="column-header col-amber">
+            <span class="col-status-name">2. FIELD ASSIGNED (L1)</span>
+            <span class="col-count-badge" id="count-inprogress">0</span>
           </div>
-          <div class="kanban-cards-wrapper" id="col-cards-inprogress">
-            <!-- Cards dynamically inserted -->
-          </div>
+          <div class="kanban-cards-container" id="col-cards-inprogress"></div>
         </div>
 
-        <!-- Col 3: Escalated (L2 / L3 / L4) -->
-        <div class="kanban-col col-breach" data-status="ESCALATED">
-          <div class="kanban-col-head">
-            <span class="col-dot rose"></span>
-            <span class="col-title">SLA ESCALATED</span>
-            <span class="col-count text-rose" id="count-escalated">0</span>
+        <!-- Col 3: SLA Escalated (Tier 2/3/4) -->
+        <div class="kanban-column col-escalated" data-status="ESCALATED">
+          <div class="column-header col-red">
+            <span class="col-status-name">3. SLA ESCALATED (L2/L3/L4)</span>
+            <span class="col-count-badge text-red" id="count-escalated">0</span>
           </div>
-          <div class="kanban-cards-wrapper" id="col-cards-escalated">
-            <!-- Cards dynamically inserted -->
-          </div>
+          <div class="kanban-cards-container" id="col-cards-escalated"></div>
         </div>
 
         <!-- Col 4: Resolved -->
-        <div class="kanban-col" data-status="RESOLVED">
-          <div class="kanban-col-head">
-            <span class="col-dot emerald"></span>
-            <span class="col-title">RESOLVED</span>
-            <span class="col-count" id="count-resolved">0</span>
+        <div class="kanban-column" data-status="RESOLVED">
+          <div class="column-header col-green">
+            <span class="col-status-name">4. RESOLVED & CLOSED</span>
+            <span class="col-count-badge text-green" id="count-resolved">0</span>
           </div>
-          <div class="kanban-cards-wrapper" id="col-cards-resolved">
-            <!-- Cards dynamically inserted -->
-          </div>
+          <div class="kanban-cards-container" id="col-cards-resolved"></div>
         </div>
       </div>
     </section>
 
-    <!-- Right Column: Interactive Ward Map & Live Agent Execution Stream -->
-    <aside class="dashboard-pane right-pane">
+    <!-- RIGHT PANE: Real OpenStreetMap (Leaflet) + Real Multi-Agent Performance Terminal -->
+    <aside class="gov-panel right-panel">
       
-      <!-- Ward Map Box -->
-      <div class="pane-card ward-map-card">
-        <div class="card-head">
-          <div class="card-title-group">
-            <h3>Pune/PCMC Ward Geospatial View</h3>
-            <span class="card-subtitle">Spatial deduplication (< 150m radius) & incident clustering</span>
+      <!-- REAL LEAFLET OPENSTREETMAP GEO-VIEW -->
+      <div class="gov-card map-card">
+        <div class="map-card-header">
+          <div>
+            <h3 class="card-title">Pune Municipal Real Geospatial Map</h3>
+            <p class="card-caption">Live PostGIS 150m radius circles & incident deduplication pins</p>
           </div>
-          <div class="map-legend">
-            <span class="legend-item"><span class="dot-p1"></span> P1 Critical</span>
-            <span class="legend-item"><span class="dot-p2"></span> P2 High</span>
-            <span class="legend-item"><span class="dot-cluster"></span> Clustered</span>
+          <div class="map-legend-row">
+            <span class="legend-chip chip-p1">P1 Critical</span>
+            <span class="legend-chip chip-p2">P2 High</span>
+            <span class="legend-chip chip-cluster">150m Cluster Zone</span>
           </div>
         </div>
-        
-        <!-- Interactive Vector Ward Map Canvas -->
-        <div class="map-container" id="map-container">
-          <svg id="ward-map-svg" viewBox="0 0 600 380" class="ward-map-svg">
-            <defs>
-              <radialGradient id="radar-glow" cx="50%" cy="50%" r="50%">
-                <stop offset="0%" stop-color="#06B6D4" stop-opacity="0.6"/>
-                <stop offset="100%" stop-color="#06B6D4" stop-opacity="0"/>
-              </radialGradient>
-              <filter id="glow-filter" x="-20%" y="-20%" width="140%" height="140%">
-                <feGaussianBlur stdDeviation="3" result="glow"/>
-                <feMerge>
-                  <feMergeNode in="glow"/>
-                  <feMergeNode in="SourceGraphic"/>
-                </feMerge>
-              </filter>
-            </defs>
 
-            <!-- Municipal Ward Boundaries (Polygon outlines of Kothrud, Aundh, Shivaji Nagar, Swargate, Hadapsar) -->
-            <g class="ward-polygons">
-              <!-- Ward 14: Kothrud -->
-              <polygon points="40,90 190,70 230,170 140,250 50,210" class="ward-poly" id="ward-14" data-name="Ward 14 (Kothrud)"/>
-              <text x="110" y="160" class="ward-label">Ward 14 (Kothrud)</text>
-              
-              <!-- Ward 08: Aundh / Baner -->
-              <polygon points="190,70 340,50 370,140 230,170" class="ward-poly" id="ward-08" data-name="Ward 08 (Aundh)"/>
-              <text x="260" y="110" class="ward-label">Ward 08 (Aundh)</text>
-              
-              <!-- Ward 05: Shivajinagar / Central HQ -->
-              <polygon points="230,170 370,140 420,240 280,270" class="ward-poly active-hq" id="ward-05" data-name="Shivajinagar (HQ)"/>
-              <text x="300" y="210" class="ward-label hq-label">Shivajinagar (HQ)</text>
-
-              <!-- Ward 10: Swargate / Parvati -->
-              <polygon points="140,250 280,270 310,360 170,350" class="ward-poly" id="ward-10" data-name="Ward 10 (Swargate)"/>
-              <text x="200" y="310" class="ward-label">Ward 10 (Swargate)</text>
-
-              <!-- Ward 18: Hadapsar -->
-              <polygon points="420,240 560,190 580,310 440,340 310,360 280,270" class="ward-poly" id="ward-18" data-name="Ward 18 (Hadapsar)"/>
-              <text x="470" y="270" class="ward-label">Ward 18 (Hadapsar)</text>
-            </g>
-
-            <!-- Dynamic Incident Marker Pins Layer -->
-            <g id="map-pins-layer"></g>
-          </svg>
-          
-          <div class="map-overlay-tooltip" id="map-tooltip"></div>
+        <!-- Real Leaflet Map Container -->
+        <div class="map-quick-toolbar">
+          <button class="map-tool-btn active" id="btn-toggle-wards" title="Toggle Pune Ward Polygons">🗺️ Ward Boundaries</button>
+          <button class="map-tool-btn active" id="btn-toggle-circles" title="Toggle 150m PostGIS Radius Circles">⭕ 150m PostGIS</button>
+          <button class="map-tool-btn active" id="btn-toggle-facilities" title="Toggle Civic Depots & Ward Offices">🏛️ Ward Offices</button>
+          <button class="map-tool-btn" id="btn-fit-incidents" title="Fit all active grievance pins">📍 Fit Incidents</button>
+          <button class="map-tool-btn" id="btn-center-hq" title="Recenter to PMC Main Bhavan">🏛️ Center PMC HQ</button>
+        </div>
+        <div id="real-leaflet-map" class="real-leaflet-map"></div>
+        <div class="map-footer-coords">
+          <span id="map-status-coords">Center: 18.5204° N, 73.8567° E (PMC Headquarters, Shivajinagar)</span>
+          <span class="map-tile-credit">© OpenStreetMap Contributors • CartoDB Positron</span>
         </div>
       </div>
 
-      <!-- LangGraph Multi-Agent Execution Stream -->
-      <div class="pane-card agent-stream-card">
-        <div class="card-head">
-          <div class="card-title-group">
-            <h3>LangGraph Autonomous Agent Pipeline</h3>
-            <span class="card-subtitle">State transitions & reasoning trace</span>
+      <!-- 6-AGENT LANGGRAPH PERFORMANCE & DEEP DIVE TERMINAL -->
+      <div class="gov-card agent-stream-card">
+        <div class="agent-card-header">
+          <div>
+            <h3 class="card-title">LangGraph 6-Agent Execution Engine</h3>
+            <p class="card-caption">Real-time state machine transitions & mathematical evaluations</p>
           </div>
-          <span class="live-pill"><span class="pulse-dot-mini"></span> ACTIVE</span>
+          <button class="btn-inspect-latest" id="btn-inspect-current-ticket">
+            <span>🔍 Inspect Agent Math</span>
+          </button>
         </div>
 
-        <!-- 6 Agent Pipeline Stepper -->
-        <div class="agent-stepper" id="agent-stepper">
-          <div class="agent-step-item" id="step-agent-a">
-            <div class="step-circle">A</div>
-            <div class="step-text">
-              <span class="step-title">Agent A: Ingestion & NER</span>
-              <span class="step-status">Code-mix parser</span>
-            </div>
+        <!-- Stepper of all 6 agents -->
+        <div class="gov-agent-stepper">
+          <div class="stepper-node active" id="node-agent-a" title="Agent A: Multilingual Triage & NER">
+            <div class="node-circle">A</div>
+            <div class="node-label">Triage/NER</div>
           </div>
-          <div class="step-connector"></div>
+          <div class="stepper-line"></div>
 
-          <div class="agent-step-item" id="step-agent-c">
-            <div class="step-circle">C</div>
-            <div class="step-text">
-              <span class="step-title">Agent C: Spatial Deduplication</span>
-              <span class="step-status">Haversine & Vector</span>
-            </div>
+          <div class="stepper-node" id="node-agent-c" title="Agent C: Spatial Deduplication & Clustering">
+            <div class="node-circle">C</div>
+            <div class="node-label">Spatial Dedup</div>
           </div>
-          <div class="step-connector"></div>
+          <div class="stepper-line"></div>
 
-          <div class="agent-step-item" id="step-agent-b">
-            <div class="step-circle">B</div>
-            <div class="step-text">
-              <span class="step-title">Agent B: Routing & SLA</span>
-              <span class="step-status">Hazard scoring</span>
-            </div>
+          <div class="stepper-node" id="node-agent-b" title="Agent B: Department Routing & Priority Scoring">
+            <div class="node-circle">B</div>
+            <div class="node-label">P-Score/SLA</div>
           </div>
-          <div class="step-connector"></div>
+          <div class="stepper-line"></div>
 
-          <div class="agent-step-item" id="step-agent-d">
-            <div class="step-circle">D</div>
-            <div class="step-text">
-              <span class="step-title">Agent D: SLA Orchestrator</span>
-              <span class="step-status">4-Tier Escalator</span>
-            </div>
+          <div class="stepper-node" id="node-agent-d" title="Agent D: SLA Tracker & 4-Tier Escalator">
+            <div class="node-circle">D</div>
+            <div class="node-label">SLA Tracker</div>
           </div>
-          <div class="step-connector"></div>
+          <div class="stepper-line"></div>
 
-          <div class="agent-step-item" id="step-agent-f">
-            <div class="step-circle">F</div>
-            <div class="step-text">
-              <span class="step-title">Agent F: Field Copilot</span>
-              <span class="step-status">SOP checklist & Proof</span>
-            </div>
+          <div class="stepper-node" id="node-agent-f" title="Agent F: Field Officer Action Copilot">
+            <div class="node-circle">F</div>
+            <div class="node-label">Field Copilot</div>
+          </div>
+          <div class="stepper-line"></div>
+
+          <div class="stepper-node" id="node-agent-e" title="Agent E: Citizen Engagement Bot">
+            <div class="node-circle">E</div>
+            <div class="node-label">Citizen Bot</div>
           </div>
         </div>
 
-        <!-- Real-Time Agent Stream Logs -->
-        <div class="agent-log-terminal" id="agent-log-terminal">
-          <div class="terminal-line text-cyan">[SYSTEM] Multi-Agent Municipal Redressal Kernel initialized.</div>
-          <div class="terminal-line text-muted">[AGENT:Ingestion] Ready to parse English, Marathi & Hinglish citizen voice/text.</div>
-          <div class="terminal-line text-muted">[AGENT:SpatialCluster] PostGIS & pgvector cluster threshold set to 150m / 0.85 similarity.</div>
-          <div class="terminal-line text-muted">[CLOCK] Virtual Clock synchronized with statutory Maharashtra Right to Services Act SLAs.</div>
+        <!-- Terminal log for agent outputs -->
+        <div class="agent-terminal" id="agent-log-terminal">
+          <div class="term-line info">[SYSTEM] NeGD UX4G Municipal Engine initialized.</div>
+          <div class="term-line info">[LANGGRAPH] StateGraph topology compiled: 6 agents linked with conditional edges.</div>
+          <div class="term-line success">[LEAFLET] Real OpenStreetMap tile layer active at Pune coordinates.</div>
+          <div class="term-line info">[RTS_ACT] Statutory deadlines loaded: Water 6h (P1), SWM 18h (P2), Roads 48h (P4).</div>
         </div>
       </div>
     </aside>
   </main>
 
-  <!-- ============================================== -->
-  <!-- MODAL 1: Citizen Grievance Submission -->
-  <!-- ============================================== -->
-  <div class="modal-backdrop" id="citizen-modal">
-    <div class="modal-dialog">
-      <div class="modal-header">
-        <div class="modal-title-group">
-          <h3>Submit Citizen Grievance</h3>
-          <span class="modal-subtitle">Direct multi-channel interface to Agent A (Multilingual Ingestion)</span>
+  <!-- =========================================================================
+       6-AGENT AUTONOMOUS EXECUTION LABORATORY & STANDALONE TELEMETRY WORKBENCH
+       Shows the real individual working of each agent individually with actual performance
+       ========================================================================= -->
+  <section class="gov-workbench-section" id="agent-workbench-section">
+    <div class="workbench-container">
+      <div class="workbench-header-strip">
+        <div class="wb-header-left">
+          <div class="wb-badge">LIVE AGENT LAB</div>
+          <h2 class="wb-title">🔬 6-Agent Autonomous Execution Laboratory & Telemetry Workbench</h2>
+          <p class="wb-subtitle">Execute, test, and mathematically verify each of the 6 municipal AI agents in complete isolation. Real-time parameters, PostGIS geodesic calculations, formula arithmetic, and LLM telemetry.</p>
         </div>
-        <button class="modal-close-btn" id="btn-close-citizen-modal">&times;</button>
+        <div class="wb-header-right">
+          <span class="wb-stat-pill">⚡ Direct API Execution</span>
+          <span class="wb-stat-pill green">⚖️ RTS Act 2015 Verified</span>
+        </div>
       </div>
 
-      <div class="modal-body">
-        <div class="channel-tabs">
-          <button class="channel-tab active" data-channel="WEB">🌐 Web Form</button>
-          <button class="channel-tab" data-channel="WHATSAPP">💬 WhatsApp Chat</button>
-          <button class="channel-tab" data-channel="VOICE">🎙️ Voice Note</button>
+      <!-- Workbench Agent Selector Tabs -->
+      <div class="workbench-tabs-nav" id="wb-tabs-nav">
+        <button class="wb-tab-btn active" data-wb-agent="a">
+          <span class="wb-tab-badge">A</span>
+          <span class="wb-tab-name">Agent A: Multilingual NER</span>
+        </button>
+        <button class="wb-tab-btn" data-wb-agent="c">
+          <span class="wb-tab-badge">C</span>
+          <span class="wb-tab-name">Agent C: PostGIS Dedup</span>
+        </button>
+        <button class="wb-tab-btn" data-wb-agent="b">
+          <span class="wb-tab-badge">B</span>
+          <span class="wb-tab-name">Agent B: Priority Math & SLA</span>
+        </button>
+        <button class="wb-tab-btn" data-wb-agent="d">
+          <span class="wb-tab-badge">D</span>
+          <span class="wb-tab-name">Agent D: 4-Tier Escalator</span>
+        </button>
+        <button class="wb-tab-btn" data-wb-agent="f">
+          <span class="wb-tab-badge">F</span>
+          <span class="wb-tab-name">Agent F: SOP & Geotag Audit</span>
+        </button>
+        <button class="wb-tab-btn" data-wb-agent="e">
+          <span class="wb-tab-badge">E</span>
+          <span class="wb-tab-name">Agent E: Citizen WhatsApp</span>
+        </button>
+      </div>
+
+      <!-- Workbench Content Panels -->
+      <div class="workbench-panels-deck">
+
+        <!-- ==================== PANEL A: AGENT A ==================== -->
+        <div class="wb-panel active" id="wb-panel-a">
+          <div class="wb-split-grid">
+            <div class="wb-col-controls">
+              <h4 class="wb-panel-heading">Interactive Input for Agent A</h4>
+              <p class="wb-panel-desc">Normalizes code-mixed vernaculars (Marathi, Hindi, Hinglish), extracts spatial entities, and runs the Completeness Gatekeeper check.</p>
+              
+              <div class="wb-form-group">
+                <label>Citizen Grievance Text (Marathi, Hindi, or Hinglish):</label>
+                <textarea id="wb-input-text-a" rows="4" class="wb-textarea" placeholder="Enter custom grievance in Marathi/Hinglish...">Shivaji Chowk javal main water pipeline phutli ahe, rastyavar khoop pani sathlay and water flooding entire street.</textarea>
+              </div>
+
+              <div class="wb-presets-row">
+                <span class="wb-preset-lbl">Quick Presets:</span>
+                <button type="button" class="wb-preset-chip" id="wb-sample-marathi-a">💧 Water Burst (Marathi)</button>
+                <button type="button" class="wb-preset-chip" id="wb-sample-garbage-a">🗑️ Garbage Overflow (Hinglish)</button>
+                <button type="button" class="wb-preset-chip" id="wb-sample-spark-a">⚡ Live Wire (Hindi)</button>
+                <button type="button" class="wb-preset-chip" id="wb-sample-incomplete-a">❓ Incomplete (Gatekeeper Test)</button>
+              </div>
+
+              <div class="wb-form-row mt-3">
+                <div class="wb-form-group flex-1">
+                  <label>Ward Jurisdiction:</label>
+                  <select id="wb-ward-a" class="wb-select">
+                    <option value="Ward-14 (Kothrud)">Ward-14 (Kothrud)</option>
+                    <option value="Ward-08 (Aundh)">Ward-08 (Aundh)</option>
+                    <option value="Ward-05 (Shivajinagar)">Ward-05 (Shivajinagar)</option>
+                    <option value="Ward-10 (Swargate)">Ward-10 (Swargate)</option>
+                    <option value="Ward-18 (Hadapsar)">Ward-18 (Hadapsar)</option>
+                  </select>
+                </div>
+                <button type="button" class="btn-gov-primary wb-exec-btn" id="btn-run-agent-a">
+                  <span>▶ Run Agent A Standalone</span>
+                </button>
+              </div>
+            </div>
+
+            <div class="wb-col-telemetry">
+              <div class="wb-telemetry-box" id="wb-output-a">
+                <div class="wb-telemetry-header">
+                  <span class="wb-tel-title">Agent A Execution Telemetry</span>
+                  <span class="wb-status-tag" id="wb-tag-a">Ready to Execute</span>
+                </div>
+                <div class="wb-tel-content" id="wb-content-a">
+                  <div class="wb-empty-state">Click "Run Agent A Standalone" to benchmark multilingual NER and completeness extraction.</div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
 
-        <form id="grievance-form">
-          <div class="form-group">
-            <label for="input-complaint-text">Describe the Incident (Hinglish / Marathi / English accepted):</label>
-            <textarea id="input-complaint-text" rows="4" placeholder="e.g. Shivaji Chowk javal main water pipeline phutli ahe, rastyavar khoop pani sathlay... (Main pipeline burst near Shivaji Chowk)"></textarea>
-            <span class="input-hint">Agent A extracts landmarks, ward, category, and completeness automatically.</span>
-          </div>
+        <!-- ==================== PANEL C: AGENT C ==================== -->
+        <div class="wb-panel" id="wb-panel-c">
+          <div class="wb-split-grid">
+            <div class="wb-col-controls">
+              <h4 class="wb-panel-heading">Spatial Coordinates for Agent C</h4>
+              <p class="wb-panel-desc">PostGIS compound query: Evaluates Geodesic Haversine distance (&le; 150m) and text semantic similarity (&ge; 0.85) against existing complaints to eliminate duplicate contractor dispatches.</p>
+              
+              <div class="wb-form-row">
+                <div class="wb-form-group flex-1">
+                  <label>Latitude:</label>
+                  <input type="number" step="0.0001" id="wb-lat-c" class="wb-input" value="18.5080" />
+                </div>
+                <div class="wb-form-group flex-1">
+                  <label>Longitude:</label>
+                  <input type="number" step="0.0001" id="wb-lng-c" class="wb-input" value="73.8085" />
+                </div>
+              </div>
 
-          <div class="form-row">
-            <div class="form-group flex-1">
-              <label for="input-ward">Ward Jurisdiction:</label>
-              <select id="input-ward">
-                <option value="Ward-14 (Kothrud)">Ward-14 (Kothrud)</option>
-                <option value="Ward-08 (Aundh)">Ward-08 (Aundh)</option>
-                <option value="Ward-05 (Shivajinagar)">Ward-05 (Shivajinagar)</option>
-                <option value="Ward-10 (Swargate)">Ward-10 (Swargate)</option>
-                <option value="Ward-18 (Hadapsar)">Ward-18 (Hadapsar)</option>
-              </select>
-            </div>
-            <div class="form-group flex-1">
-              <label for="input-phone">Citizen Phone (for WhatsApp SLA alerts):</label>
-              <input type="text" id="input-phone" value="+91 98220 54321" />
-            </div>
-          </div>
+              <div class="wb-form-group">
+                <label>Incident Category:</label>
+                <select id="wb-cat-c" class="wb-select">
+                  <option value="Solid Waste Management (SWM)">Solid Waste Management (SWM)</option>
+                  <option value="Water Supply & Pumping">Water Supply & Pumping</option>
+                  <option value="Drainage & Sewerage">Drainage & Sewerage</option>
+                  <option value="Roads & Traffic Infrastructure">Roads & Traffic Infrastructure</option>
+                  <option value="Streetlighting & Electrical">Streetlighting & Electrical</option>
+                </select>
+              </div>
 
-          <div class="modal-actions">
-            <button type="button" class="btn-secondary" id="btn-sample-water">Sample: Water Burst</button>
-            <button type="button" class="btn-secondary" id="btn-sample-garbage">Sample: Garbage Dump</button>
-            <button type="submit" class="btn-primary" id="btn-submit-complaint">
-              <span>Submit to Multi-Agent Router</span>
-            </button>
+              <div class="wb-presets-row">
+                <span class="wb-preset-lbl">Test Scenarios:</span>
+                <button type="button" class="wb-preset-chip" id="wb-sample-near-c">📍 Colocated (118m - Duplicate)</button>
+                <button type="button" class="wb-preset-chip" id="wb-sample-far-c">📍 Distant (3.8km - Unique)</button>
+              </div>
+
+              <button type="button" class="btn-gov-primary wb-exec-btn mt-4" id="btn-run-agent-c">
+                <span>▶ Run Agent C PostGIS Dedup</span>
+              </button>
+            </div>
+
+            <div class="wb-col-telemetry">
+              <div class="wb-telemetry-box" id="wb-output-c">
+                <div class="wb-telemetry-header">
+                  <span class="wb-tel-title">Agent C Spatial Deduplication Telemetry</span>
+                  <span class="wb-status-tag" id="wb-tag-c">Ready to Execute</span>
+                </div>
+                <div class="wb-tel-content" id="wb-content-c">
+                  <div class="wb-empty-state">Click "Run Agent C PostGIS Dedup" to evaluate Haversine distance and clustering logic.</div>
+                </div>
+              </div>
+            </div>
           </div>
-        </form>
+        </div>
+
+        <!-- ==================== PANEL B: AGENT B ==================== -->
+        <div class="wb-panel" id="wb-panel-b">
+          <div class="wb-split-grid">
+            <div class="wb-col-controls">
+              <h4 class="wb-panel-heading">Multi-Factor Priority Variables for Agent B</h4>
+              <p class="wb-panel-desc">Calculates numerical Priority Score P &isin; [1, 100] using the PRD formula: P = (0.45 &times; S_hazard) + (0.25 &times; S_traffic) + (0.20 &times; S_pop) + &Delta;_cluster</p>
+
+              <div class="wb-slider-group">
+                <div class="wb-slider-header">
+                  <span>Urban Hazard Severity (S_hazard, W=0.45):</span>
+                  <strong id="val-hazard-score">95</strong>
+                </div>
+                <input type="range" id="slider-hazard" min="0" max="100" value="95" class="wb-slider" />
+              </div>
+
+              <div class="wb-slider-group">
+                <div class="wb-slider-header">
+                  <span>Traffic Disruption Impact (S_traffic, W=0.25):</span>
+                  <strong id="val-traffic-score">90</strong>
+                </div>
+                <input type="range" id="slider-traffic" min="0" max="100" value="90" class="wb-slider" />
+              </div>
+
+              <div class="wb-slider-group">
+                <div class="wb-slider-header">
+                  <span>Population Density Risk (S_pop, W=0.20):</span>
+                  <strong id="val-density-score">85</strong>
+                </div>
+                <input type="range" id="slider-density" min="0" max="100" value="85" class="wb-slider" />
+              </div>
+
+              <div class="wb-slider-group">
+                <div class="wb-slider-header">
+                  <span>Clustered Duplicate Reports (&Delta;_cluster = [N-1]&times;5):</span>
+                  <strong id="val-cluster-size">3 Reports (+10 pts)</strong>
+                </div>
+                <input type="range" id="slider-cluster" min="1" max="10" value="3" class="wb-slider" />
+              </div>
+
+              <button type="button" class="btn-gov-primary wb-exec-btn mt-3" id="btn-run-agent-b">
+                <span>▶ Compute Priority Math & Statutory SLA</span>
+              </button>
+            </div>
+
+            <div class="wb-col-telemetry">
+              <div class="wb-telemetry-box" id="wb-output-b">
+                <div class="wb-telemetry-header">
+                  <span class="wb-tel-title">Agent B Mathematical Breakdown</span>
+                  <span class="wb-status-tag" id="wb-tag-b">Ready to Calculate</span>
+                </div>
+                <div class="wb-tel-content" id="wb-content-b">
+                  <div class="wb-empty-state">Adjust sliders or click "Compute Priority Math" to see live step-by-step arithmetic.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ==================== PANEL D: AGENT D ==================== -->
+        <div class="wb-panel" id="wb-panel-d">
+          <div class="wb-split-grid">
+            <div class="wb-col-controls">
+              <h4 class="wb-panel-heading">Statutory SLA Escalation Engine (Agent D)</h4>
+              <p class="wb-panel-desc">Monitors elapsed virtual time against statutory deadlines under the Maharashtra Right to Public Services Act (RTS 2015), automatically promoting overdue tickets through 4 administrative tiers.</p>
+
+              <div class="wb-form-row">
+                <div class="wb-form-group flex-1">
+                  <label>Statutory SLA Window:</label>
+                  <select id="wb-sla-hours-d" class="wb-select">
+                    <option value="6">P1 Critical (6 Hours) — Water Supply</option>
+                    <option value="18">P2 High (18 Hours) — Solid Waste / Drainage</option>
+                    <option value="36">P3 Medium (36 Hours) — Streetlighting</option>
+                    <option value="48">P4 Low (48 Hours) — Roads & Paving</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="wb-slider-group mt-3">
+                <div class="wb-slider-header">
+                  <span>Virtual Elapsed Time:</span>
+                  <strong id="val-elapsed-hours">8.0 Hours (133.3% Elapsed)</strong>
+                </div>
+                <input type="range" id="slider-elapsed-d" min="0" max="24" step="0.5" value="8" class="wb-slider" />
+              </div>
+
+              <div class="wb-presets-row">
+                <span class="wb-preset-lbl">Fast Test:</span>
+                <button type="button" class="wb-preset-chip" id="wb-preset-normal-d">2h (Normal L1)</button>
+                <button type="button" class="wb-preset-chip" id="wb-preset-urgent-d">5h (80% Urgent L2)</button>
+                <button type="button" class="wb-preset-chip" id="wb-preset-breach-d">8h (133% Breach L3)</button>
+                <button type="button" class="wb-preset-chip" id="wb-preset-comm-d">14h (&gt;150% Comm L4)</button>
+              </div>
+
+              <button type="button" class="btn-gov-primary wb-exec-btn mt-3" id="btn-run-agent-d">
+                <span>▶ Evaluate 4-Tier Statutory Escalation</span>
+              </button>
+            </div>
+
+            <div class="wb-col-telemetry">
+              <div class="wb-telemetry-box" id="wb-output-d">
+                <div class="wb-telemetry-header">
+                  <span class="wb-tel-title">Agent D 4-Tier Hierarchy Telemetry</span>
+                  <span class="wb-status-tag" id="wb-tag-d">Ready to Evaluate</span>
+                </div>
+                <div class="wb-tel-content" id="wb-content-d">
+                  <div class="wb-empty-state">Drag the elapsed time slider to observe automatic promotion through L1, L2, L3, and L4.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ==================== PANEL F: AGENT F ==================== -->
+        <div class="wb-panel" id="wb-panel-f">
+          <div class="wb-split-grid">
+            <div class="wb-col-controls">
+              <h4 class="wb-panel-heading">Field Action Copilot & Geotag Verification (Agent F)</h4>
+              <p class="wb-panel-desc">Generates engineering Standard Operating Procedure (SOP) checklists, itemized Bill of Materials (BOM), and computes EXIF geotag spatial distance against the 100m statutory threshold.</p>
+
+              <div class="wb-form-group">
+                <label>Municipal Category:</label>
+                <select id="wb-cat-f" class="wb-select">
+                  <option value="Water Supply & Pumping">Water Supply & Pumping (Pipe Burst)</option>
+                  <option value="Solid Waste Management (SWM)">Solid Waste Management (Bin Overflow)</option>
+                  <option value="Drainage & Sewerage">Drainage & Sewerage (Manhole Backup)</option>
+                  <option value="Roads & Traffic Infrastructure">Roads & Traffic Infrastructure (Monsoon Pothole)</option>
+                  <option value="Streetlighting & Electrical">Streetlighting & Electrical (Live Wire Spark)</option>
+                </select>
+              </div>
+
+              <div class="wb-form-row">
+                <div class="wb-form-group flex-1">
+                  <label>Original Incident GPS:</label>
+                  <input type="text" id="wb-incident-gps-f" class="wb-input" value="18.5074, 73.8077" />
+                </div>
+                <div class="wb-form-group flex-1">
+                  <label>Closure Photo GPS (EXIF):</label>
+                  <input type="text" id="wb-closure-gps-f" class="wb-input" value="18.5075, 73.8076" />
+                </div>
+              </div>
+
+              <div class="wb-presets-row">
+                <span class="wb-preset-lbl">Geotag Checks:</span>
+                <button type="button" class="wb-preset-chip" id="wb-sample-valid-f">✓ Valid Geotag (14m &le; 100m)</button>
+                <button type="button" class="wb-preset-chip" id="wb-sample-invalid-f">✗ Fraudulent Geotag (650m &gt; 100m)</button>
+              </div>
+
+              <button type="button" class="btn-gov-primary wb-exec-btn mt-3" id="btn-run-agent-f">
+                <span>▶ Generate SOP & Audit Geotag</span>
+              </button>
+            </div>
+
+            <div class="wb-col-telemetry">
+              <div class="wb-telemetry-box" id="wb-output-f">
+                <div class="wb-telemetry-header">
+                  <span class="wb-tel-title">Agent F SOP & Geotag Audit Telemetry</span>
+                  <span class="wb-status-tag" id="wb-tag-f">Ready to Audit</span>
+                </div>
+                <div class="wb-tel-content" id="wb-content-f">
+                  <div class="wb-empty-state">Click "Generate SOP & Audit Geotag" to inspect repair checklist and geofence proof.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ==================== PANEL E: AGENT E ==================== -->
+        <div class="wb-panel" id="wb-panel-e">
+          <div class="wb-split-grid">
+            <div class="wb-col-controls">
+              <h4 class="wb-panel-heading">Omnichannel Citizen Engagement Simulator (Agent E)</h4>
+              <p class="wb-panel-desc">Dispatches proactive milestone updates via WhatsApp Business API and SMS, and provides an interactive 24-hour post-closure satisfaction verification loop.</p>
+
+              <div class="wb-form-row">
+                <div class="wb-form-group flex-1">
+                  <label>Ticket Reference:</label>
+                  <input type="text" id="wb-ticket-e" class="wb-input" value="PMC-2026-WAT-01" />
+                </div>
+                <div class="wb-form-group flex-1">
+                  <label>Citizen WhatsApp Phone:</label>
+                  <input type="text" id="wb-phone-e" class="wb-input" value="+91 98220 54321" />
+                </div>
+              </div>
+
+              <div class="wb-form-group">
+                <label>Milestone Notification Event:</label>
+                <select id="wb-milestone-e" class="wb-select">
+                  <option value="TICKET_REGISTERED">TICKET_REGISTERED — Acknowledgement with tracking link</option>
+                  <option value="ASSIGNED_TO_OFFICER">ASSIGNED_TO_OFFICER — Junior Engineer dispatched</option>
+                  <option value="ESCALATED">ESCALATED — Statutory SLA breach alert to AMC</option>
+                  <option value="RESOLVED">RESOLVED — Closure photo + 24h feedback poll</option>
+                </select>
+              </div>
+
+              <button type="button" class="btn-gov-primary wb-exec-btn mt-3" id="btn-run-agent-e">
+                <span>▶ Dispatch WhatsApp Milestone Alert</span>
+              </button>
+            </div>
+
+            <div class="wb-col-telemetry">
+              <div class="wb-telemetry-box" id="wb-output-e">
+                <div class="wb-telemetry-header">
+                  <span class="wb-tel-title">Agent E WhatsApp Message & Poll Stream</span>
+                  <span class="wb-status-tag" id="wb-tag-e">Ready to Dispatch</span>
+                </div>
+                <div class="wb-tel-content" id="wb-content-e">
+                  <div class="wb-empty-state">Click "Dispatch WhatsApp Milestone Alert" to simulate real citizen messaging.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- =========================================================================
+       MODAL 1: LODGE GRIEVANCE (CITIZEN FORM)
+       ========================================================================= -->
+  <div class="gov-modal-backdrop" id="citizen-modal">
+    <div class="gov-modal-card">
+      <div class="modal-top">
+        <div>
+          <h3>Lodge Public Infrastructure Grievance</h3>
+          <p>Direct multilingual ingestion to Agent A (Code-mixed Marathi, Hindi, Hinglish)</p>
+        </div>
+        <button class="btn-close-modal" id="btn-close-citizen-modal">&times;</button>
+      </div>
+
+      <form id="grievance-form" class="modal-form">
+        <div class="form-field">
+          <label for="input-complaint-text">Describe the Incident / तक्रारीचे स्वरूप:</label>
+          <textarea id="input-complaint-text" rows="4" placeholder="e.g. Shivaji Chowk javal main water pipeline phutli ahe, rastyavar khoop pani sathlay... (Main pipeline burst near Shivaji Chowk)"></textarea>
+          <span class="field-hint">Agent A extracts landmarks, ward, category, and completeness automatically.</span>
+        </div>
+
+        <div class="form-two-cols">
+          <div class="form-field">
+            <label for="input-ward">Ward Jurisdiction / प्रभाग:</label>
+            <select id="input-ward">
+              <option value="Ward-14 (Kothrud)">Ward-14 (Kothrud)</option>
+              <option value="Ward-08 (Aundh)">Ward-08 (Aundh)</option>
+              <option value="Ward-05 (Shivajinagar)">Ward-05 (Shivajinagar)</option>
+              <option value="Ward-10 (Swargate)">Ward-10 (Swargate)</option>
+              <option value="Ward-18 (Hadapsar)">Ward-18 (Hadapsar)</option>
+            </select>
+          </div>
+          <div class="form-field">
+            <label for="input-phone">Citizen Phone (for WhatsApp SMS Alerts):</label>
+            <input type="text" id="input-phone" value="+91 98220 54321" />
+          </div>
+        </div>
+
+        <div class="form-actions-row">
+          <button type="button" class="btn-sample" id="btn-sample-water">Sample: Water Burst (Marathi)</button>
+          <button type="button" class="btn-sample" id="btn-sample-garbage">Sample: Waste Overflow</button>
+          <button type="submit" class="btn-gov-primary">Submit to Multi-Agent Router</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- =========================================================================
+       MODAL 2: 3-MINUTE HACKATHON DEMO CONTROLLER
+       ========================================================================= -->
+  <div class="gov-modal-backdrop" id="demo-presets-modal">
+    <div class="gov-modal-card presets-card">
+      <div class="modal-top">
+        <div>
+          <h3>⚡ 3-Minute Live Hackathon Demo Controller</h3>
+          <p>Inject 4 pre-calibrated canonical complaints matching PRD Section 7 & 11</p>
+        </div>
+        <button class="btn-close-modal" id="btn-close-presets-modal">&times;</button>
+      </div>
+
+      <div class="presets-intro-text">
+        Clicking <strong>"Load All 4 Canonical Presets"</strong> demonstrates the entire end-to-end multi-agent pipeline: multilingual translation, spatial deduplication clustering on the real map, statutory routing, and +24h virtual time-travel escalation.
+      </div>
+
+      <div class="presets-container-grid">
+        <div class="preset-box border-p1">
+          <div class="preset-tag p1">P1 CRITICAL • 6h SLA</div>
+          <h4>1. Water Pipeline Catastrophic Burst</h4>
+          <p>"Shivaji Chowk javal main water pipeline phutli ahe, rastyavar khoop pani sathlay and water entering shops."</p>
+          <span class="preset-dest">Routes to: Water Supply & Pumping</span>
+        </div>
+
+        <div class="preset-box border-p2">
+          <div class="preset-tag p2">P2 HIGH • 18h SLA</div>
+          <h4>2. Solid Waste Overflowing Bin</h4>
+          <p>"Overflowing community garbage bin on Market Road uncollected for 3 days, foul stench spread everywhere."</p>
+          <span class="preset-dest">Routes to: Solid Waste Management (SWM)</span>
+        </div>
+
+        <div class="preset-box border-p2-cluster">
+          <div class="preset-tag cluster">DUPLICATE DEDUPLICATION (118m)</div>
+          <h4>3. Concurrent Garbage Report (Market Rd)</h4>
+          <p>"Huge garbage pile on Market Road near corner medical, stray dogs gathering around waste."</p>
+          <span class="preset-dest text-amber">Agent C Clusters into Parent Ticket #2!</span>
+        </div>
+
+        <div class="preset-box border-p4">
+          <div class="preset-tag p4">P4 LOW • 48h SLA</div>
+          <h4>4. Monsoon Pothole on Bridge Ramp</h4>
+          <p>"Monsoon pothole after bridge causing two-wheeler skids near Paud Road ramp."</p>
+          <span class="preset-dest">Routes to: Roads & Civil Works</span>
+        </div>
+      </div>
+
+      <div class="modal-bottom-row">
+        <span class="stage-indicator">Demo Script: 0:00 – 1:50 Ingestion & Clustering</span>
+        <button type="button" class="btn-gov-primary btn-large" id="btn-inject-all-presets">
+          <span>Load All 4 Presets Now</span>
+        </button>
       </div>
     </div>
   </div>
 
-  <!-- ============================================== -->
-  <!-- MODAL 2: Live Hackathon 3-Minute Presets -->
-  <!-- ============================================== -->
-  <div class="modal-backdrop" id="demo-presets-modal">
-    <div class="modal-dialog presets-dialog">
-      <div class="modal-header">
-        <div class="modal-title-group">
-          <h3>⚡ Hackathon 3-Minute Live Demo Controller</h3>
-          <span class="modal-subtitle">Inject pre-calibrated multi-agent scenarios matching PRD Section 7</span>
+  <!-- =========================================================================
+       MODAL 3: DEEP AGENT INSPECTION MODAL (SHOWS REAL INDIVIDUAL WORKING OF EACH AGENT)
+       ========================================================================= -->
+  <div class="gov-modal-backdrop" id="agent-inspector-modal">
+    <div class="gov-modal-card inspector-card">
+      <div class="modal-top">
+        <div>
+          <h3>🔬 Autonomous Multi-Agent Deep Dive & Formula Inspector</h3>
+          <p id="inspector-ticket-subheading">Detailed mathematical breakdown & execution telemetry for Ticket PMC-2026-WAT-01</p>
         </div>
-        <button class="modal-close-btn" id="btn-close-presets-modal">&times;</button>
+        <button class="btn-close-modal" id="btn-close-inspector-modal">&times;</button>
       </div>
 
-      <div class="modal-body">
-        <p class="presets-intro">
-          Click <strong>"Load All 4 Canonical Presets"</strong> to immediately populate all departments, test spatial deduplication clustering, and test the +24h SLA time-travel breach escalation live!
-        </p>
+      <!-- Agent Selection Tabs -->
+      <div class="inspector-tabs" id="inspector-tabs">
+        <button class="insp-tab active" data-agent="agent_a">Agent A: Ingestion & NER</button>
+        <button class="insp-tab" data-agent="agent_c">Agent C: Spatial Deduplication</button>
+        <button class="insp-tab" data-agent="agent_b">Agent B: Routing & Priority Math</button>
+        <button class="insp-tab" data-agent="agent_d">Agent D: SLA 4-Tier Escalator</button>
+        <button class="insp-tab" data-agent="agent_f">Agent F: Field Copilot</button>
+        <button class="insp-tab" data-agent="agent_e">Agent E: Citizen Engagement</button>
+      </div>
 
-        <div class="preset-items-grid">
-          <div class="preset-item-card border-p1">
-            <span class="badge-priority p1">P1 CRITICAL (6h SLA)</span>
-            <h4>1. Water Pipeline Catastrophic Burst</h4>
-            <p>"Main pipeline burst near Shivaji Chowk, water flooding entire street and entering shops."</p>
-            <span class="preset-tag">Routes to: Water Supply & Pumping</span>
-          </div>
-
-          <div class="preset-item-card border-p2">
-            <span class="badge-priority p2">P2 HIGH (18h SLA)</span>
-            <h4>2. Solid Waste Overflowing Bin</h4>
-            <p>"Garbage bin overflowing on Market Road uncollected for 3 days, foul stench."</p>
-            <span class="preset-tag">Routes to: Solid Waste Management (SWM)</span>
-          </div>
-
-          <div class="preset-item-card border-p2">
-            <span class="badge-priority p2">DUPLICATE CLUSTER</span>
-            <h4>3. Duplicate Garbage Report (120m away)</h4>
-            <p>"Huge garbage pile on Market Road near corner medical, stray dogs gathering."</p>
-            <span class="preset-tag">Agent C Clusters into Parent Ticket #2!</span>
-          </div>
-
-          <div class="preset-item-card border-p4">
-            <span class="badge-priority p4">P4 LOW (48h SLA)</span>
-            <h4>4. Monsoon Pothole on Bridge Ramp</h4>
-            <p>"Monsoon pothole after bridge causing two-wheeler skids near Paud Road."</p>
-            <span class="preset-tag">Routes to: Roads & Civil Maintenance</span>
-          </div>
-        </div>
-
-        <div class="modal-actions space-between mt-4">
-          <div class="demo-step-guide">
-            <span class="text-cyan font-mono">Stage: 0:00 - 0:40 Ingestion & Clustering</span>
-          </div>
-          <button type="button" class="btn-primary btn-glow" id="btn-inject-all-presets">
-            <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-            <span>Load All 4 Presets Now</span>
-          </button>
-        </div>
+      <!-- Agent Detailed View Body -->
+      <div class="inspector-body" id="inspector-body">
+        <!-- Dynamically rendered per selected agent -->
       </div>
     </div>
   </div>
 
-  <!-- ============================================== -->
-  <!-- MODAL 3: Field Officer Action Copilot & Proof Audit -->
-  <!-- ============================================== -->
-  <div class="modal-backdrop" id="field-copilot-modal">
-    <div class="modal-dialog copilot-dialog">
-      <div class="modal-header">
-        <div class="modal-title-group">
+  <!-- =========================================================================
+       MODAL 4: FIELD OFFICER ACTION COPILOT & PROOF AUDIT
+       ========================================================================= -->
+  <div class="gov-modal-backdrop" id="field-copilot-modal">
+    <div class="gov-modal-card copilot-card">
+      <div class="modal-top">
+        <div>
           <h3>Agent F: Field Officer Action Copilot</h3>
-          <span class="modal-subtitle" id="copilot-ticket-title">Ticket PMC-2026-WAT-01</span>
+          <p id="copilot-ticket-title">Ticket: PMC-2026-WAT-01 • Water Supply</p>
         </div>
-        <button class="modal-close-btn" id="btn-close-copilot-modal">&times;</button>
+        <button class="btn-close-modal" id="btn-close-copilot-modal">&times;</button>
       </div>
 
-      <div class="modal-body">
-        <div class="copilot-grid">
-          <!-- Left: SOP Checklist & Bill of Materials -->
-          <div class="copilot-left">
-            <div class="copilot-sec-title">🔧 Automated SOP Repair Checklist</div>
-            <ul class="sop-checklist" id="copilot-sop-list">
-              <li>1. Isolate primary gate valve at distribution node 4.</li>
-              <li>2. Deploy submersible pump for water dewatering.</li>
-              <li>3. Excavate trench to expose cracked 150mm DI pipe collar.</li>
-              <li>4. Mount mechanical repair clamp with EPDM gasket.</li>
-              <li>5. Pressurize line & test for zero joint weepage before backfill.</li>
-            </ul>
+      <div class="copilot-split-grid">
+        <!-- Left: SOP Checklist & BOM -->
+        <div class="copilot-col-left">
+          <h4 class="sec-title">🔧 Standard Operating Procedure (SOP) Checklist</h4>
+          <ul class="sop-checklist" id="copilot-sop-list"></ul>
 
-            <div class="copilot-sec-title mt-3">📦 Bill of Materials Drafted</div>
-            <div class="bom-tags" id="copilot-bom-tags">
-              <span class="bom-tag">1x 150mm Cast Iron Collar Sleeve</span>
-              <span class="bom-tag">2x EPDM Rubber Gaskets</span>
-              <span class="bom-tag">1.5 Ton Stone Aggregate</span>
+          <h4 class="sec-title mt-4">📦 Drafted Bill of Materials (BOM)</h4>
+          <div class="bom-chips-row" id="copilot-bom-tags"></div>
+        </div>
+
+        <!-- Right: Photographic Proof & Geotag Validation -->
+        <div class="copilot-col-right">
+          <h4 class="sec-title">📸 Geotagged Photographic Verification</h4>
+          <div class="photo-pair-grid">
+            <div class="photo-box">
+              <span class="photo-lbl">BEFORE REPAIR</span>
+              <div class="photo-mock before">
+                <span class="gps-chip">📍 18.5074° N, 73.8077° E</span>
+              </div>
+            </div>
+            <div class="photo-box">
+              <span class="photo-lbl success">AFTER REPAIR (GEO-TAGGED)</span>
+              <div class="photo-mock after">
+                <span class="gps-chip success">✓ Offset 14.2m (&lt; 100m)</span>
+              </div>
             </div>
           </div>
 
-          <!-- Right: Photographic Proof & Geotag Audit -->
-          <div class="copilot-right">
-            <div class="copilot-sec-title">📸 Before & After Photographic Verification</div>
-            <div class="photo-compare-box">
-              <div class="photo-card">
-                <span class="photo-badge">BEFORE REPAIR</span>
-                <div class="photo-placeholder before-bg">
-                  <div class="photo-tag-overlay">📍 18.5074° N, 73.8077° E</div>
-                </div>
-              </div>
-              <div class="photo-card">
-                <span class="photo-badge success">AFTER REPAIR (GEO-VERIFIED)</span>
-                <div class="photo-placeholder after-bg">
-                  <div class="photo-tag-overlay success">✓ Coordinates Match Site (Δ 14m)</div>
-                </div>
-              </div>
+          <div class="closure-actions-bar">
+            <div class="audit-pass-badge">
+              <span class="check-icon">✓</span>
+              <span>Geotag Spatial Audit: <strong>PASSED</strong></span>
             </div>
-
-            <div class="closure-audit-box">
-              <div class="audit-status">
-                <span class="dot-verified"></span>
-                <span>Spatial Geotag Audit: <strong>PASSED (Within 100m threshold)</strong></span>
-              </div>
-              <div class="audit-buttons">
-                <button class="btn-success" id="btn-approve-closure">Approve & Close Ticket</button>
-                <button class="btn-danger" id="btn-reopen-complaint">Citizen Reopen (Auto L2)</button>
-              </div>
+            <div class="action-btn-pair">
+              <button class="btn-gov-success" id="btn-approve-closure">Approve & Close Ticket</button>
+              <button class="btn-gov-danger" id="btn-reopen-complaint">Citizen Reopen (Auto L2)</button>
             </div>
           </div>
         </div>
@@ -520,6 +906,84 @@
     </div>
   </div>
 
+  <!-- =========================================================================
+       UX4G OFFICIAL GOVERNMENT OF INDIA & MAHARASHTRA FOOTER
+       ========================================================================= -->
+  <footer class="ux4g-gov-footer">
+    <div class="gov-tricolor-bar"></div>
+    <div class="footer-container">
+      <div class="footer-cols-grid">
+        <!-- Col 1: Govt Emblem & Corporation Identity -->
+        <div class="footer-col">
+          <div class="footer-emblem-row">
+            <span class="emblem-symbol">🏛️</span>
+            <div>
+              <h4 class="footer-col-title">पुणे महानगरपालिका</h4>
+              <p class="footer-subtitle">Pune Municipal Corporation (PMC Care)</p>
+            </div>
+          </div>
+          <p class="footer-desc">
+            Autonomous multi-agent civic operating system deploying 6 LangGraph agents for natural language multilingual triage, PostGIS spatial deduplication, hazard-weighted routing, and statutory SLA auto-escalation.
+          </p>
+          <div class="footer-initiative-tag">
+            <span>Ministry of Housing and Urban Affairs (MoHUA)</span>
+          </div>
+        </div>
+
+        <!-- Col 2: Statutory Acts & Compliance -->
+        <div class="footer-col">
+          <h4 class="footer-col-title">Statutory Governance & RTS</h4>
+          <ul class="footer-links-list">
+            <li><a href="#agent-workbench-section">⚖️ Maharashtra Right to Public Services Act (RTS 2015)</a></li>
+            <li><a href="#agent-workbench-section">📋 Right to Information (RTI Act 2005) Disclosures</a></li>
+            <li><a href="#agent-workbench-section">📑 Municipal Corporation Act 1949 (BPMC Act)</a></li>
+            <li><a href="#agent-workbench-section">🛡️ Citizen Redressal Charter & Timelines</a></li>
+            <li><a href="#agent-workbench-section">🔍 RTS Act Appellate Authority: Commissioner (L4)</a></li>
+          </ul>
+        </div>
+
+        <!-- Col 3: Municipal Helplines & Ward Offices -->
+        <div class="footer-col">
+          <h4 class="footer-col-title">Citizen Helpdesk & Contacts</h4>
+          <ul class="footer-contact-list">
+            <li><strong>📞 PMC 24x7 Toll-Free:</strong> 1800-1030-222</li>
+            <li><strong>💬 WhatsApp Care Bot:</strong> +91 98220 54321</li>
+            <li><strong>✉️ Grievance Email:</strong> complaints@punecorporation.org</li>
+            <li><strong>🏢 Main Bhavan:</strong> PMC Head Office, Shivajinagar, Pune 411005</li>
+            <li><strong>⏱️ Control Room:</strong> Operating 24/7 with Virtual Clock Sync</li>
+          </ul>
+        </div>
+
+        <!-- Col 4: UX4G & NIC Standards -->
+        <div class="footer-col">
+          <h4 class="footer-col-title">Technical Standards & Hosting</h4>
+          <p class="footer-desc">
+            Built strictly in accordance with <strong>UX4G (Unified Experience for Government)</strong> design system standards by the Ministry of Electronics & Information Technology (MeitY).
+          </p>
+          <div class="compliance-badges-grid">
+            <span class="comp-badge">🇮🇳 UX4G v2.0 Standard</span>
+            <span class="comp-badge">🖥️ NIC Architecture</span>
+            <span class="comp-badge">♿ WCAG 2.2 AA Verified</span>
+            <span class="comp-badge">🗺️ PostGIS + pgvector</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="footer-bottom-strip">
+        <div class="footer-copyright">
+          © 2026 Pune Municipal Corporation, Government of Maharashtra. All rights reserved. Designed and developed for Hackathon PS17 Civic Operating System.
+        </div>
+        <div class="footer-meta-stats">
+          <span>Version: <strong>1.2.0 (LangGraph + UX4G + Real OSM)</strong></span>
+          <span class="meta-dot">•</span>
+          <span>Last Audited: <strong>September 2026</strong></span>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Leaflet.js Real OpenStreetMap Script -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
   <script src="js/app.js"></script>
 </body>
 </html>
