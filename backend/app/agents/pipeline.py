@@ -18,6 +18,7 @@ from app.models.schemas import (
     ComplaintSubmission, AuditLogRecord
 )
 from app.core.clock import ClockService
+from app.core.llm import LLMService
 from app.services.database import db
 
 
@@ -90,46 +91,31 @@ class MunicipalMultiAgentPipeline:
     @classmethod
     def _agent_a_triage(cls, state: MunicipalIncidentAgentState):
         """Agent A: Normalizes Hinglish/Marathi to Canonical English, performs NER, and checks completeness."""
-        raw = state.raw_input_text.lower()
+        # Query LLM Service (Ollama / Gemini / Local Fallback)
+        parsed = LLMService.parse_complaint_multilingual(state.raw_input_text)
         
-        # Detect language
-        if any(w in raw for w in ["phutli", "ahe", "pani", "sathlay", "kachra", "rastyavar", "ghanta", "javal"]):
-            state.detected_language = "Marathi / Hinglish (Code-Mixed)"
-        else:
-            state.detected_language = "English"
+        state.detected_language = parsed.get("detected_language", "English")
+        state.extracted_category = parsed.get("extracted_category", "General Municipal Redressal")
+        state.canonical_english_summary = parsed.get("canonical_english_summary", state.raw_input_text)
+        state.landmark = parsed.get("landmark", state.landmark)
+        state.missing_critical_info = parsed.get("missing_critical_info", False)
 
-        # Entity extraction & Canonical translation
-        if any(w in raw for w in ["water", "pipeline", "burst", "leak", "phutli", "drinking", "jal"]):
-            state.extracted_category = "Water Supply & Pumping"
-            state.canonical_english_summary = "Catastrophic municipal water pipeline burst with active high-pressure flooding."
-            state.landmark = "Near Shivaji Chowk"
-            state.latitude = 18.5074
-            state.longitude = 73.8077
-        elif any(w in raw for w in ["garbage", "bin", "kachra", "waste", "stench", "dump", "safai"]):
-            state.extracted_category = "Solid Waste Management (SWM)"
-            state.canonical_english_summary = "Community waste bin overflow uncollected for multiple days with severe sanitation risk."
-            state.landmark = "Market Road"
-            state.latitude = 18.5080
-            state.longitude = 73.8085
-        elif any(w in raw for w in ["pothole", "road", "bridge", "skid", "rasta", "khadda", "asphalt"]):
-            state.extracted_category = "Roads & Traffic Infrastructure"
-            state.canonical_english_summary = "Monsoon road pothole cavitation causing vehicular hazard on bridge approach ramp."
-            state.landmark = "Paud Road Bridge Ramp"
-            state.latitude = 18.5060
-            state.longitude = 73.8065
-        elif any(w in raw for w in ["streetlight", "light", "dark", "pole", "wire", "cable", "vij"]):
-            state.extracted_category = "Streetlighting & Electrical"
-            state.canonical_english_summary = "Non-functional streetlighting cluster causing public safety hazard in lane."
-            state.landmark = "Behind Bus Terminal"
-            state.latitude = 18.5090
-            state.longitude = 73.8070
-        else:
-            state.extracted_category = "General Municipal Redressal"
-            state.canonical_english_summary = state.raw_input_text
+        # Set default coordinates based on extracted category
+        cat = state.extracted_category.lower()
+        if "water" in cat:
+            state.latitude, state.longitude = 18.5074, 73.8077
+            state.landmark = state.landmark or "Near Shivaji Chowk"
+        elif "waste" in cat:
+            state.latitude, state.longitude = 18.5080, 73.8085
+            state.landmark = state.landmark or "Market Road"
+        elif "road" in cat:
+            state.latitude, state.longitude = 18.5060, 73.8065
+            state.landmark = state.landmark or "Paud Road Bridge Ramp"
+        elif "light" in cat or "electric" in cat:
+            state.latitude, state.longitude = 18.5090, 73.8070
+            state.landmark = state.landmark or "Behind Bus Terminal"
 
-        # Completeness Check
-        if len(state.raw_input_text.strip()) < 10:
-            state.missing_critical_info = True
+        if state.missing_critical_info:
             state.clarification_prompt = "Please provide exact landmark, road name, or share location pin via WhatsApp."
 
         audit = AuditLogRecord(
@@ -281,58 +267,9 @@ class MunicipalMultiAgentPipeline:
     @classmethod
     def _agent_f_field_copilot(cls, state: MunicipalIncidentAgentState):
         """Agent F: Drafts SOP repair checklist and Bill of Materials for field engineer."""
-        cat = state.extracted_category
-
-        if "Water Supply" in cat:
-            state.sop_checklist = [
-                "1. Isolate primary gate valve at distribution node 4.",
-                "2. Deploy submersible dewatering pump to drain trench.",
-                "3. Mount 150mm mechanical repair collar with EPDM gasket.",
-                "4. Conduct step pressure test to 4 bar to verify zero weepage.",
-                "5. Backfill trench with stone aggregate and notify ward desk."
-            ]
-            state.bill_of_materials = [
-                "1x 150mm Cast Iron Collar Sleeve",
-                "2x High-Grade EPDM Gaskets",
-                "1.5 Ton Stone Aggregate"
-            ]
-        elif "Solid Waste" in cat:
-            state.sop_checklist = [
-                "1. Dispatch compaction dumper truck crew to community bin #14.",
-                "2. Clear overflow perimeter within 5-meter radial zone.",
-                "3. Spray organophosphate disinfectant & odor neutralizer.",
-                "4. Log geotagged clearance confirmation with time-stamped photo."
-            ]
-            state.bill_of_materials = [
-                "1x 10-Ton Hydraulic Compactor",
-                "5L Chemical Odor Neutralizer",
-                "Heavy-Duty Sanitation Gloves & Tarps"
-            ]
-        elif "Roads" in cat:
-            state.sop_checklist = [
-                "1. Place cautionary reflective traffic cones around pothole zone.",
-                "2. Cut square edge perimeter using asphalt cutter.",
-                "3. Lay cationic bitumen emulsion tack coat primer.",
-                "4. Compact cold mix asphalt using 3-ton vibratory roller.",
-                "5. Verify smooth grade transition with road surface."
-            ]
-            state.bill_of_materials = [
-                "2.0 Ton Cold Mix Asphalt Compound",
-                "20L Bitumen Emulsion Tack Coat",
-                "4x High-Visibility Traffic Cones"
-            ]
-        else:
-            state.sop_checklist = [
-                "1. Inspect feeder pillar box & circuit breaker status.",
-                "2. Measure voltage drop across pole terminal blocks.",
-                "3. Replace failed LED luminaire driver unit.",
-                "4. Verify photocell timer alignment."
-            ]
-            state.bill_of_materials = [
-                "2x 72W IP66 LED Luminaire Modules",
-                "1x 16A Miniature Circuit Breaker",
-                "50m 3-Core Armored Cable"
-            ]
+        sop_data = LLMService.generate_sop_checklist(state.extracted_category, state.canonical_english_summary)
+        state.sop_checklist = sop_data.get("sop_checklist", [])
+        state.bill_of_materials = sop_data.get("bill_of_materials", [])
 
         audit = AuditLogRecord(
             ticket_id=state.ticket_id,
