@@ -10,13 +10,26 @@ from typing import Dict, Any, Optional, List
 import urllib.request
 import urllib.error
 
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    pass
+
 
 class LLMService:
     """Universal LLM Client supporting Ollama, Gemini, and Local Fallback."""
 
+    last_token_metrics: Dict[str, Any] = {}
+
     @classmethod
     def get_provider(cls) -> str:
-        return os.getenv("LLM_PROVIDER", "ollama").lower()
+        provider = os.getenv("LLM_PROVIDER")
+        if provider:
+            return provider.lower()
+        if os.getenv("GEMINI_API_KEY"):
+            return "gemini"
+        return "ollama"
 
     @classmethod
     def parse_complaint_multilingual(cls, raw_text: str) -> Dict[str, Any]:
@@ -137,10 +150,11 @@ Return ONLY valid JSON:
         if not api_key:
             return None
 
-        model = os.getenv("GEMINI_MODEL", "gemini-2.0-flash")
+        # Standardized on gemini-2.5-flash for speed, high quality, and minimal token cost
+        model = os.getenv("GEMINI_MODEL", "gemini-2.5-flash")
         url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={api_key}"
 
-        prompt = f"""You are a municipal grievance classifier for Indian Municipal Corporations (PMC/PCMC).
+        prompt = f"""You are a municipal grievance classifier for Pune Municipal Corporation (PMC).
 Analyze this code-mixed citizen input: "{raw_text}"
 Return ONLY valid JSON:
 {{
@@ -152,18 +166,26 @@ Return ONLY valid JSON:
 }}"""
 
         try:
+            # Token-Aware Configuration: strictly cap maxOutputTokens to 200 to conserve API quota
             req_data = json.dumps({
                 "contents": [{"parts": [{"text": prompt}]}],
-                "generationConfig": {"response_mime_type": "application/json"}
+                "generationConfig": {
+                    "response_mime_type": "application/json",
+                    "maxOutputTokens": 200,
+                    "temperature": 0.1
+                }
             }).encode('utf-8')
 
             req = urllib.request.Request(url, data=req_data, headers={'Content-Type': 'application/json'})
-            with urllib.request.urlopen(req, timeout=5.0) as response:
+            with urllib.request.urlopen(req, timeout=8.0) as response:
                 if response.status == 200:
                     result = json.loads(response.read().decode('utf-8'))
+                    if "usageMetadata" in result:
+                        cls.last_token_metrics = result["usageMetadata"]
                     text = result['candidates'][0]['content']['parts'][0]['text']
                     return json.loads(text)
-        except Exception:
+        except Exception as e:
+            # Dropdown to deterministic fallback if network or token issue arises
             pass
         return None
 
@@ -173,7 +195,7 @@ Return ONLY valid JSON:
         if not api_key:
             return None
 
-        model = os.getenv("GEMINI_MODEL", "gemini-2.0-flash")
+        model = os.getenv("GEMINI_MODEL", "gemini-2.5-flash")
         url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={api_key}"
 
         prompt = f"""Generate SOP steps and Bill of Materials for:
@@ -187,15 +209,22 @@ Return ONLY valid JSON:
 }}"""
 
         try:
+            # Token-Aware Configuration: maxOutputTokens capped at 250
             req_data = json.dumps({
                 "contents": [{"parts": [{"text": prompt}]}],
-                "generationConfig": {"response_mime_type": "application/json"}
+                "generationConfig": {
+                    "response_mime_type": "application/json",
+                    "maxOutputTokens": 250,
+                    "temperature": 0.1
+                }
             }).encode('utf-8')
 
             req = urllib.request.Request(url, data=req_data, headers={'Content-Type': 'application/json'})
-            with urllib.request.urlopen(req, timeout=5.0) as response:
+            with urllib.request.urlopen(req, timeout=8.0) as response:
                 if response.status == 200:
                     result = json.loads(response.read().decode('utf-8'))
+                    if "usageMetadata" in result:
+                        cls.last_token_metrics = result["usageMetadata"]
                     text = result['candidates'][0]['content']['parts'][0]['text']
                     return json.loads(text)
         except Exception:

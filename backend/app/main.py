@@ -2,19 +2,28 @@
 PS17 Multi-Agent Municipal Complaint Redressal & SLA Escalation System.
 """
 
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
+import hashlib
 import os
 import time
 from typing import Dict, List, Optional, Any
 from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
+
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    pass
+
 from app.models.schemas import (
     TimeTravelRequest, TimeTravelStatus, MunicipalIncidentAgentState,
     Department, Officer, EscalationRecord, AuditLogRecord, ComplaintSubmission,
     TicketStatusEnum, PriorityEnum,
     AgentATestRequest, AgentCTestRequest, AgentBTestRequest,
-    AgentDTestRequest, AgentFTestRequest, AgentETestRequest
+    AgentDTestRequest, AgentFTestRequest, AgentETestRequest,
+    GeotagPhotoRequest, GeotagPhotoResponse
 )
 from app.core.clock import ClockService
 from app.core.llm import LLMService
@@ -43,6 +52,9 @@ def health_check():
     return {
         "status": "healthy",
         "service": "PS17 Municipal Multi-Agent Operating System",
+        "llm_provider": LLMService.get_provider(),
+        "gemini_model": os.getenv("GEMINI_MODEL", "gemini-2.5-flash"),
+        "gemini_key_configured": bool(os.getenv("GEMINI_API_KEY")),
         "clock": ClockService.get_status(),
         "registered_complaints_count": len(db.complaints),
         "escalations_count": len(db.escalations)
@@ -216,6 +228,90 @@ def list_escalations():
 def list_audit_logs():
     """Returns full multi-agent audit trail."""
     return db.audit_logs
+
+
+# =========================================================================
+# GEOTAGGED PHOTO CAPTURE & TAMPER-PROOF VERIFICATION (AGENT F / CITIZEN)
+# =========================================================================
+
+@app.post("/api/complaints/geotag-photo", response_model=GeotagPhotoResponse)
+def tag_and_verify_photo(req: GeotagPhotoRequest):
+    """Processes captured photo with GPS geotag metadata, tamper-proof SHA-256 hash, and 100m geofence audit."""
+    now_utc = ClockService.get_current_virtual_time()
+    # Format IST (+5:30) timestamp
+    now_ist = now_utc + timedelta(hours=5, minutes=30)
+    ist_str = now_ist.strftime("%d-%b-%Y %I:%M:%S %p IST")
+    iso_str = now_utc.isoformat()
+
+    # Compute SHA-256 cryptographic hash of photo data to guarantee tamper-proof audit
+    photo_hash = hashlib.sha256(req.photo_data.encode('utf-8')).hexdigest()
+
+    # Boundary check: Pune Municipal Corporation (PMC) & PCMC bounding box: 18.35°N - 18.75°N, 73.65°E - 74.05°E
+    is_within_pune = (18.35 <= req.latitude <= 18.75) and (73.65 <= req.longitude <= 74.05)
+    geofence_status = "PASSED_PMC_JURISDICTION" if is_within_pune else "OUT_OF_BOUNDS_NON_PMC_COORDINATES"
+
+    offset_m = None
+    within_threshold = is_within_pune
+
+    # If associated with an existing ticket (e.g. Field Officer closure verification)
+    if req.ticket_id and req.ticket_id in db.complaints:
+        parent_ticket = db.complaints[req.ticket_id]
+        offset_m = round(haversine_distance_meters(
+            req.latitude, req.longitude,
+            parent_ticket.latitude, parent_ticket.longitude
+        ), 1)
+        within_threshold = offset_m <= 100.0
+
+        if req.stage == "CLOSURE_PROOF":
+            if within_threshold:
+                parent_ticket.closure_proof_photo_url = f"data:image/jpeg;base64,{photo_hash[:32]}"
+                parent_ticket.closure_approved = True
+                
+                # Log audit record
+                audit = AuditLogRecord(
+                    ticket_id=parent_ticket.ticket_id,
+                    acting_agent="Agent F: Field Action Copilot",
+                    action_type="GEOTAG_PROOF_VALIDATED",
+                    payload_snapshot={
+                        "photo_hash": photo_hash,
+                        "geodesic_offset_meters": offset_m,
+                        "threshold_meters": 100.0,
+                        "timestamp_ist": ist_str
+                    },
+                    created_at=now_utc
+                )
+                parent_ticket.audit_history.append(audit)
+                db.audit_logs.append(audit)
+
+    watermark_stamp = (
+        f"🏛️ PMC CARE | PUNE MUNICIPAL CORPORATION\n"
+        f"WARD: {req.ward_id} | CATEGORY: {req.incident_category}\n"
+        f"GPS: {req.latitude:.5f}° N, {req.longitude:.5f}° E (±{req.accuracy_meters}m)\n"
+        f"TIMESTAMP: {ist_str} | HASH: {photo_hash[:16]}...\n"
+        f"STATUTORY COMPLIANCE: MAHARASHTRA RTS ACT 2015"
+    )
+
+    msg = (
+        f"Geotag verified within 100m geofence (Offset: {offset_m}m)"
+        if offset_m is not None and within_threshold
+        else ("Valid Pune municipal coordinates tagged" if is_within_pune else "Warning: Coordinates outside PMC boundary")
+    )
+
+    return GeotagPhotoResponse(
+        verified=within_threshold and is_within_pune,
+        photo_hash_sha256=photo_hash,
+        latitude=req.latitude,
+        longitude=req.longitude,
+        accuracy_meters=req.accuracy_meters or 5.0,
+        timestamp_iso=iso_str,
+        timestamp_ist=ist_str,
+        ward_id=req.ward_id or "Ward-14 (Kothrud)",
+        watermark_text=watermark_stamp,
+        geofence_status=geofence_status,
+        geodesic_offset_meters=offset_m,
+        within_statutory_threshold=within_threshold,
+        message=msg
+    )
 
 
 # =========================================================================

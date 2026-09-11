@@ -198,3 +198,31 @@ class TimeTravelStatus(BaseModel):
     real_time: datetime
     offset_seconds: int
     offset_hours: float
+
+
+# Geotagged Photo Tagging & Watermarking Schemas
+class GeotagPhotoRequest(BaseModel):
+    photo_data: str = Field(..., description="Base64 encoded photo or image data URL")
+    latitude: float = Field(..., description="GPS Latitude captured from device sensor")
+    longitude: float = Field(..., description="GPS Longitude captured from device sensor")
+    accuracy_meters: Optional[float] = Field(default=5.0, description="Device GPS horizontal accuracy radius")
+    ticket_id: Optional[str] = Field(default=None, description="Optional associated complaint ticket ID")
+    incident_category: Optional[str] = Field(default="Civic Infrastructure")
+    ward_id: Optional[str] = Field(default="Ward-14 (Kothrud)")
+    stage: Optional[str] = Field(default="INCIDENT_REPORT", description="INCIDENT_REPORT or CLOSURE_PROOF")
+
+
+class GeotagPhotoResponse(BaseModel):
+    verified: bool
+    photo_hash_sha256: str
+    latitude: float
+    longitude: float
+    accuracy_meters: float
+    timestamp_iso: str
+    timestamp_ist: str
+    ward_id: str
+    watermark_text: str
+    geofence_status: str
+    geodesic_offset_meters: Optional[float] = None
+    within_statutory_threshold: bool
+    message: str
