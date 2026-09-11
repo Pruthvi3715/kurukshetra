@@ -1963,3 +1963,126 @@ body.ux4g-high-contrast .wb-tab-btn.active {
   color: #000000 !important;
   border: 2px solid #ffffff !important;
 }
+
+/* ==========================================================================
+   GEOTAGGED PHOTO CAPTURE & CIVIC WATERMARK COMPONENT (UX4G COMPLIANT)
+   ========================================================================== */
+.geotag-capture-deck {
+  margin-top: 6px;
+  background: #f8fafc;
+  border: 1px dashed #94a3b8;
+  border-radius: 6px;
+  padding: 10px;
+}
+.geotag-btn-group {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.btn-geotag-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #0b3b60;
+  color: #ffffff;
+  border: none;
+  padding: 7px 14px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+.btn-geotag-action:hover {
+  background: #072a45;
+}
+.btn-geotag-sample {
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  color: #334155;
+  padding: 7px 12px;
+  border-radius: 4px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.btn-geotag-sample:hover {
+  background: #f1f5f9;
+  border-color: #94a3b8;
+}
+.geotag-result-card {
+  margin-top: 10px;
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  overflow: hidden;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+}
+.geotag-preview-frame {
+  position: relative;
+  width: 100%;
+  height: 200px;
+  background: #0f172a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+.geotag-preview-frame img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0.85;
+}
+.geotag-watermark-badge {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(180deg, transparent 0%, rgba(11, 59, 96, 0.95) 30%, rgba(11, 59, 96, 0.98) 100%);
+  color: #ffffff;
+  padding: 8px 12px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.68rem;
+  line-height: 1.35;
+  pointer-events: none;
+}
+.watermark-org {
+  font-weight: 800;
+  color: #ff9933;
+  letter-spacing: 0.5px;
+}
+.watermark-gps {
+  font-weight: 700;
+  color: #ffffff;
+}
+.watermark-time {
+  color: #e2e8f0;
+}
+.watermark-hash {
+  color: #94a3b8;
+  font-size: 0.62rem;
+}
+.geotag-audit-status {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background: #f0fdf4;
+  border-top: 1px solid #bbf7d0;
+  color: #166534;
+  font-size: 0.76rem;
+  font-weight: 700;
+}
+.geo-status-icon {
+  background: #16a34a;
+  color: #ffffff;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.7rem;
+}

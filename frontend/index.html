@@ -755,6 +755,41 @@
           </div>
         </div>
 
+        <!-- Geotag Photo Tagging Feature -->
+        <div class="form-field mt-3">
+          <label>📸 Geotagged Photo Proof / छायाचित्र पुरावा (GPS Watermark & Geofence):</label>
+          <div class="geotag-capture-deck">
+            <input type="file" id="input-geotag-file" accept="image/*" capture="environment" style="display:none;" />
+            <div class="geotag-btn-group">
+              <button type="button" class="btn-geotag-action" id="btn-trigger-camera">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+                <span>Take Geotagged Photo</span>
+              </button>
+              <button type="button" class="btn-geotag-sample" id="btn-sample-geotag">
+                <span>Use Sample Paud Rd Photo</span>
+              </button>
+            </div>
+
+            <!-- Live Watermarked Photo Display Card -->
+            <div id="geotag-result-card" class="geotag-result-card" style="display:none;">
+              <div class="geotag-preview-frame">
+                <img id="geotag-preview-image" src="" alt="Captured Evidence" />
+                <div id="geotag-watermark-badge" class="geotag-watermark-badge">
+                  <div class="watermark-org">🏛️ PMC CARE • PUNE MUNICIPAL CORPORATION</div>
+                  <div class="watermark-gps" id="wm-gps-val">LAT: 18.5074°N, LNG: 73.8077°E (±3.5m)</div>
+                  <div class="watermark-time" id="wm-time-val">11-Sep-2026 03:15:00 PM IST</div>
+                  <div class="watermark-hash" id="wm-hash-val">SHA-256: 472f16b99d6b... • RTS ACT 2015</div>
+                </div>
+              </div>
+              <div class="geotag-audit-status" id="geotag-audit-status">
+                <span class="geo-status-icon">✓</span>
+                <span id="geotag-audit-text">Pune Municipal Corporation Jurisdiction Verified</span>
+              </div>
+            </div>
+          </div>
+          <span class="field-hint">HTML5 GPS sensors stamp device coordinates, timestamp, and cryptographic hash automatically.</span>
+        </div>
+
         <div class="form-actions-row">
           <button type="button" class="btn-sample" id="btn-sample-water">Sample: Water Burst (Marathi)</button>
           <button type="button" class="btn-sample" id="btn-sample-garbage">Sample: Waste Overflow</button>
