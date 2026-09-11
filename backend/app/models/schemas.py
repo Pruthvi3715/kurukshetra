@@ -72,6 +72,48 @@ class ComplaintSubmission(BaseModel):
     complainant_name: Optional[str] = Field(default="Citizen User")
 
 
+# Standalone Agent Testing Schemas
+class AgentATestRequest(BaseModel):
+    raw_text: str
+    ward_id: Optional[str] = "Ward-14 (Kothrud)"
+
+
+class AgentCTestRequest(BaseModel):
+    latitude: float
+    longitude: float
+    category: str
+    raw_text: Optional[str] = ""
+
+
+class AgentBTestRequest(BaseModel):
+    category: str
+    hazard_score: float = Field(..., ge=0, le=100)
+    traffic_score: float = Field(..., ge=0, le=100)
+    density_score: float = Field(..., ge=0, le=100)
+    cluster_size: int = Field(default=1, ge=1)
+
+
+class AgentDTestRequest(BaseModel):
+    sla_hours: float = Field(..., gt=0)
+    elapsed_hours: float = Field(..., ge=0)
+    department_id: Optional[str] = "dept-wat-01"
+
+
+class AgentFTestRequest(BaseModel):
+    category: str
+    summary: str
+    incident_lat: float = 18.5074
+    incident_lng: float = 73.8077
+    closure_lat: float = 18.5075
+    closure_lng: float = 73.8076
+
+
+class AgentETestRequest(BaseModel):
+    ticket_id: str = "PMC-2026-WAT-01"
+    phone: Optional[str] = "+91 98220 54321"
+    milestone: Optional[str] = "TICKET_REGISTERED"
+
+
 class EscalationRecord(BaseModel):
     escalation_id: str = Field(default_factory=lambda: str(uuid4()))
     ticket_id: str
@@ -139,6 +181,9 @@ class MunicipalIncidentAgentState(BaseModel):
     bill_of_materials: List[str] = []
     closure_proof_photo_url: Optional[str] = None
     closure_approved: bool = False
+
+    # Detailed Per-Agent Math & Performance Breakdown
+    agent_metrics: Dict[str, Any] = Field(default_factory=dict)
 
     # Audit Trail
     audit_history: List[AuditLogRecord] = []

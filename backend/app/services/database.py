@@ -286,6 +286,12 @@ class CivicDatabase:
                     ticket.assigned_officer_name = new_officer.name
                     ticket.assigned_officer_designation = new_officer.designation
 
+                    if "agent_d" in ticket.agent_metrics:
+                        ticket.agent_metrics["agent_d"]["escalation_level"] = target_level
+                        ticket.agent_metrics["agent_d"]["active_assigned_officer"] = f"{new_officer.name} ({new_officer.designation})"
+                        ticket.agent_metrics["agent_d"]["overdue_hours"] = overdue_hours
+                        ticket.agent_metrics["agent_d"]["status"] = "SLA_BREACHED_PROMOTED"
+
                     # Create escalation ledger record
                     reason = f"Statutory SLA breached by {overdue_hours}h at virtual time {now.strftime('%Y-%m-%d %H:%M:%S UTC')}."
                     esc = EscalationRecord(
