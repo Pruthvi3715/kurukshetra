@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NagrikSewa AI — Multi-Agent Municipal Complaint Router & SLA Escalation System</title>
+  <meta name="description" content="Autonomous Civic Incident Redressal Platform with LangGraph Multi-Agent Orchestration, Spatial Clustering & Virtual Time-Travel SLA Escalation" />
+  
+  <!-- Fonts: Inter & Outfit -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body class="dark-theme">
+  <!-- Audio context alert chime element -->
+  <div id="audio-indicator" class="sr-only"></div>
+
+  <!-- Top App Navigation -->
+  <header class="app-header">
+    <div class="header-left">
+      <div class="brand-badge">
+        <div class="brand-logo-glow"></div>
+        <svg class="brand-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+        </svg>
+      </div>
+      <div>
+        <div class="brand-title">NagrikSewa <span class="badge-ai">MULTI-AGENT AI</span></div>
+        <div class="brand-subtitle">PMC & PCMC Autonomous Grievance Redressal & SLA Escalator</div>
+      </div>
+    </div>
+
+    <!-- Center: Virtual Time-Travel Simulation Bar -->
+    <div class="time-travel-deck" id="time-travel-deck">
+      <div class="time-display-box">
+        <span class="pulse-dot"></span>
+        <div class="time-content">
+          <span class="time-label">VIRTUAL MUNICIPAL CLOCK</span>
+          <span class="time-value" id="virtual-clock-val">2026-09-11 12:00:00 UTC</span>
+        </div>
+      </div>
+
+      <div class="time-actions">
+        <button class="time-btn btn-advance" data-hours="6" id="btn-advance-6h" title="Fast forward time by 6 Hours">
+          <span class="btn-icon">+6h</span>
+          <span class="btn-text">6h SLA</span>
+        </button>
+        <button class="time-btn btn-advance" data-hours="24" id="btn-advance-24h" title="Fast forward time by 24 Hours">
+          <span class="btn-icon">+24h</span>
+          <span class="btn-text">24h SLA</span>
+        </button>
+        <button class="time-btn btn-advance" data-hours="48" id="btn-advance-48h" title="Fast forward time by 48 Hours">
+          <span class="btn-icon">+48h</span>
+          <span class="btn-text">48h SLA</span>
+        </button>
+        <button class="time-btn btn-reset" id="btn-reset-clock" title="Reset virtual clock to real time">
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
+            <path d="M3 3v5h5"/>
+          </svg>
+          <span>Sync</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="header-right">
+      <button class="btn-primary" id="btn-open-citizen-modal">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M12 5v14M5 12h14"/>
+        </svg>
+        <span>Report Grievance</span>
+      </button>
+      <button class="btn-secondary" id="btn-open-demo-presets">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+          <polygon points="5 3 19 12 5 21 5 3"/>
+        </svg>
+        <span>Live 3-Min Demo</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Metric Overview Cards -->
+  <section class="metrics-row">
+    <div class="metric-card card-total">
+      <div class="metric-info">
+        <span class="metric-label">TOTAL REGISTERED</span>
+        <span class="metric-val" id="metric-total">0</span>
+        <span class="metric-sub">Across 5 Ward Zones</span>
+      </div>
+      <div class="metric-icon-box cyan">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+      </div>
+    </div>
+
+    <div class="metric-card card-active">
+      <div class="metric-info">
+        <span class="metric-label">IN-FIELD ACTIVE</span>
+        <span class="metric-val" id="metric-active">0</span>
+        <span class="metric-sub">Assigned to Ward Teams</span>
+      </div>
+      <div class="metric-icon-box amber">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      </div>
+    </div>
+
+    <div class="metric-card card-escalated" id="metric-escalated-card">
+      <div class="metric-info">
+        <span class="metric-label">SLA BREACHED / ESCALATED</span>
+        <span class="metric-val text-rose" id="metric-escalated">0</span>
+        <span class="metric-sub">Promoted to L2 / L3 / L4</span>
+      </div>
+      <div class="metric-icon-box rose">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+      </div>
+    </div>
+
+    <div class="metric-card card-resolved">
+      <div class="metric-info">
+        <span class="metric-label">RESOLVED & VERIFIED</span>
+        <span class="metric-val text-emerald" id="metric-resolved">0</span>
+        <span class="metric-sub">Photo Proof Approved</span>
+      </div>
+      <div class="metric-icon-box emerald">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+      </div>
+    </div>
+  </section>
+
+  <!-- Main Grid: Left Command Center + Right Map & Agent Trace -->
+  <main class="main-dashboard-grid">
+    
+    <!-- Left Column: Department Filtering & Kanban Command Board -->
+    <section class="dashboard-pane left-pane">
+      <div class="pane-header">
+        <div class="pane-title-group">
+          <h2>Department Redressal Board</h2>
+          <span class="pane-subtitle">Live statutory SLA status by ward jurisdiction</span>
+        </div>
+        
+        <!-- Department Filter Pills -->
+        <div class="dept-pills-bar" id="dept-pills">
+          <button class="dept-pill active" data-dept="ALL">All Departments</button>
+          <button class="dept-pill" data-dept="Water Supply">Water Supply</button>
+          <button class="dept-pill" data-dept="Solid Waste">Solid Waste</button>
+          <button class="dept-pill" data-dept="Drainage">Drainage</button>
+          <button class="dept-pill" data-dept="Electrical">Electrical</button>
+          <button class="dept-pill" data-dept="Roads">Roads & Civil</button>
+        </div>
+      </div>
+
+      <!-- Kanban Columns -->
+      <div class="kanban-board" id="kanban-board">
+        <!-- Col 1: Registered -->
+        <div class="kanban-col" data-status="REGISTERED">
+          <div class="kanban-col-head">
+            <span class="col-dot cyan"></span>
+            <span class="col-title">REGISTERED</span>
+            <span class="col-count" id="count-registered">0</span>
+          </div>
+          <div class="kanban-cards-wrapper" id="col-cards-registered">
+            <!-- Cards dynamically inserted -->
+          </div>
+        </div>
+
+        <!-- Col 2: In-Progress / Assigned Tier 1 -->
+        <div class="kanban-col" data-status="IN_PROGRESS">
+          <div class="kanban-col-head">
+            <span class="col-dot amber"></span>
+            <span class="col-title">ASSIGNED / FIELD (L1)</span>
+            <span class="col-count" id="count-inprogress">0</span>
+          </div>
+          <div class="kanban-cards-wrapper" id="col-cards-inprogress">
+            <!-- Cards dynamically inserted -->
+          </div>
+        </div>
+
+        <!-- Col 3: Escalated (L2 / L3 / L4) -->
+        <div class="kanban-col col-breach" data-status="ESCALATED">
+          <div class="kanban-col-head">
+            <span class="col-dot rose"></span>
+            <span class="col-title">SLA ESCALATED</span>
+            <span class="col-count text-rose" id="count-escalated">0</span>
+          </div>
+          <div class="kanban-cards-wrapper" id="col-cards-escalated">
+            <!-- Cards dynamically inserted -->
+          </div>
+        </div>
+
+        <!-- Col 4: Resolved -->
+        <div class="kanban-col" data-status="RESOLVED">
+          <div class="kanban-col-head">
+            <span class="col-dot emerald"></span>
+            <span class="col-title">RESOLVED</span>
+            <span class="col-count" id="count-resolved">0</span>
+          </div>
+          <div class="kanban-cards-wrapper" id="col-cards-resolved">
+            <!-- Cards dynamically inserted -->
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Right Column: Interactive Ward Map & Live Agent Execution Stream -->
+    <aside class="dashboard-pane right-pane">
+      
+      <!-- Ward Map Box -->
+      <div class="pane-card ward-map-card">
+        <div class="card-head">
+          <div class="card-title-group">
+            <h3>Pune/PCMC Ward Geospatial View</h3>
+            <span class="card-subtitle">Spatial deduplication (< 150m radius) & incident clustering</span>
+          </div>
+          <div class="map-legend">
+            <span class="legend-item"><span class="dot-p1"></span> P1 Critical</span>
+            <span class="legend-item"><span class="dot-p2"></span> P2 High</span>
+            <span class="legend-item"><span class="dot-cluster"></span> Clustered</span>
+          </div>
+        </div>
+        
+        <!-- Interactive Vector Ward Map Canvas -->
+        <div class="map-container" id="map-container">
+          <svg id="ward-map-svg" viewBox="0 0 600 380" class="ward-map-svg">
+            <defs>
+              <radialGradient id="radar-glow" cx="50%" cy="50%" r="50%">
+                <stop offset="0%" stop-color="#06B6D4" stop-opacity="0.6"/>
+                <stop offset="100%" stop-color="#06B6D4" stop-opacity="0"/>
+              </radialGradient>
+              <filter id="glow-filter" x="-20%" y="-20%" width="140%" height="140%">
+                <feGaussianBlur stdDeviation="3" result="glow"/>
+                <feMerge>
+                  <feMergeNode in="glow"/>
+                  <feMergeNode in="SourceGraphic"/>
+                </feMerge>
+              </filter>
+            </defs>
+
+            <!-- Municipal Ward Boundaries (Polygon outlines of Kothrud, Aundh, Shivaji Nagar, Swargate, Hadapsar) -->
+            <g class="ward-polygons">
+              <!-- Ward 14: Kothrud -->
+              <polygon points="40,90 190,70 230,170 140,250 50,210" class="ward-poly" id="ward-14" data-name="Ward 14 (Kothrud)"/>
+              <text x="110" y="160" class="ward-label">Ward 14 (Kothrud)</text>
+              
+              <!-- Ward 08: Aundh / Baner -->
+              <polygon points="190,70 340,50 370,140 230,170" class="ward-poly" id="ward-08" data-name="Ward 08 (Aundh)"/>
+              <text x="260" y="110" class="ward-label">Ward 08 (Aundh)</text>
+              
+              <!-- Ward 05: Shivajinagar / Central HQ -->
+              <polygon points="230,170 370,140 420,240 280,270" class="ward-poly active-hq" id="ward-05" data-name="Shivajinagar (HQ)"/>
+              <text x="300" y="210" class="ward-label hq-label">Shivajinagar (HQ)</text>
+
+              <!-- Ward 10: Swargate / Parvati -->
+              <polygon points="140,250 280,270 310,360 170,350" class="ward-poly" id="ward-10" data-name="Ward 10 (Swargate)"/>
+              <text x="200" y="310" class="ward-label">Ward 10 (Swargate)</text>
+
+              <!-- Ward 18: Hadapsar -->
+              <polygon points="420,240 560,190 580,310 440,340 310,360 280,270" class="ward-poly" id="ward-18" data-name="Ward 18 (Hadapsar)"/>
+              <text x="470" y="270" class="ward-label">Ward 18 (Hadapsar)</text>
+            </g>
+
+            <!-- Dynamic Incident Marker Pins Layer -->
+            <g id="map-pins-layer"></g>
+          </svg>
+          
+          <div class="map-overlay-tooltip" id="map-tooltip"></div>
+        </div>
+      </div>
+
+      <!-- LangGraph Multi-Agent Execution Stream -->
+      <div class="pane-card agent-stream-card">
+        <div class="card-head">
+          <div class="card-title-group">
+            <h3>LangGraph Autonomous Agent Pipeline</h3>
+            <span class="card-subtitle">State transitions & reasoning trace</span>
+          </div>
+          <span class="live-pill"><span class="pulse-dot-mini"></span> ACTIVE</span>
+        </div>
+
+        <!-- 6 Agent Pipeline Stepper -->
+        <div class="agent-stepper" id="agent-stepper">
+          <div class="agent-step-item" id="step-agent-a">
+            <div class="step-circle">A</div>
+            <div class="step-text">
+              <span class="step-title">Agent A: Ingestion & NER</span>
+              <span class="step-status">Code-mix parser</span>
+            </div>
+          </div>
+          <div class="step-connector"></div>
+
+          <div class="agent-step-item" id="step-agent-c">
+            <div class="step-circle">C</div>
+            <div class="step-text">
+              <span class="step-title">Agent C: Spatial Deduplication</span>
+              <span class="step-status">Haversine & Vector</span>
+            </div>
+          </div>
+          <div class="step-connector"></div>
+
+          <div class="agent-step-item" id="step-agent-b">
+            <div class="step-circle">B</div>
+            <div class="step-text">
+              <span class="step-title">Agent B: Routing & SLA</span>
+              <span class="step-status">Hazard scoring</span>
+            </div>
+          </div>
+          <div class="step-connector"></div>
+
+          <div class="agent-step-item" id="step-agent-d">
+            <div class="step-circle">D</div>
+            <div class="step-text">
+              <span class="step-title">Agent D: SLA Orchestrator</span>
+              <span class="step-status">4-Tier Escalator</span>
+            </div>
+          </div>
+          <div class="step-connector"></div>
+
+          <div class="agent-step-item" id="step-agent-f">
+            <div class="step-circle">F</div>
+            <div class="step-text">
+              <span class="step-title">Agent F: Field Copilot</span>
+              <span class="step-status">SOP checklist & Proof</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Real-Time Agent Stream Logs -->
+        <div class="agent-log-terminal" id="agent-log-terminal">
+          <div class="terminal-line text-cyan">[SYSTEM] Multi-Agent Municipal Redressal Kernel initialized.</div>
+          <div class="terminal-line text-muted">[AGENT:Ingestion] Ready to parse English, Marathi & Hinglish citizen voice/text.</div>
+          <div class="terminal-line text-muted">[AGENT:SpatialCluster] PostGIS & pgvector cluster threshold set to 150m / 0.85 similarity.</div>
+          <div class="terminal-line text-muted">[CLOCK] Virtual Clock synchronized with statutory Maharashtra Right to Services Act SLAs.</div>
+        </div>
+      </div>
+    </aside>
+  </main>
+
+  <!-- ============================================== -->
+  <!-- MODAL 1: Citizen Grievance Submission -->
+  <!-- ============================================== -->
+  <div class="modal-backdrop" id="citizen-modal">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <div class="modal-title-group">
+          <h3>Submit Citizen Grievance</h3>
+          <span class="modal-subtitle">Direct multi-channel interface to Agent A (Multilingual Ingestion)</span>
+        </div>
+        <button class="modal-close-btn" id="btn-close-citizen-modal">&times;</button>
+      </div>
+
+      <div class="modal-body">
+        <div class="channel-tabs">
+          <button class="channel-tab active" data-channel="WEB">🌐 Web Form</button>
+          <button class="channel-tab" data-channel="WHATSAPP">💬 WhatsApp Chat</button>
+          <button class="channel-tab" data-channel="VOICE">🎙️ Voice Note</button>
+        </div>
+
+        <form id="grievance-form">
+          <div class="form-group">
+            <label for="input-complaint-text">Describe the Incident (Hinglish / Marathi / English accepted):</label>
+            <textarea id="input-complaint-text" rows="4" placeholder="e.g. Shivaji Chowk javal main water pipeline phutli ahe, rastyavar khoop pani sathlay... (Main pipeline burst near Shivaji Chowk)"></textarea>
+            <span class="input-hint">Agent A extracts landmarks, ward, category, and completeness automatically.</span>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group flex-1">
+              <label for="input-ward">Ward Jurisdiction:</label>
+              <select id="input-ward">
+                <option value="Ward-14 (Kothrud)">Ward-14 (Kothrud)</option>
+                <option value="Ward-08 (Aundh)">Ward-08 (Aundh)</option>
+                <option value="Ward-05 (Shivajinagar)">Ward-05 (Shivajinagar)</option>
+                <option value="Ward-10 (Swargate)">Ward-10 (Swargate)</option>
+                <option value="Ward-18 (Hadapsar)">Ward-18 (Hadapsar)</option>
+              </select>
+            </div>
+            <div class="form-group flex-1">
+              <label for="input-phone">Citizen Phone (for WhatsApp SLA alerts):</label>
+              <input type="text" id="input-phone" value="+91 98220 54321" />
+            </div>
+          </div>
+
+          <div class="modal-actions">
+            <button type="button" class="btn-secondary" id="btn-sample-water">Sample: Water Burst</button>
+            <button type="button" class="btn-secondary" id="btn-sample-garbage">Sample: Garbage Dump</button>
+            <button type="submit" class="btn-primary" id="btn-submit-complaint">
+              <span>Submit to Multi-Agent Router</span>
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================== -->
+  <!-- MODAL 2: Live Hackathon 3-Minute Presets -->
+  <!-- ============================================== -->
+  <div class="modal-backdrop" id="demo-presets-modal">
+    <div class="modal-dialog presets-dialog">
+      <div class="modal-header">
+        <div class="modal-title-group">
+          <h3>⚡ Hackathon 3-Minute Live Demo Controller</h3>
+          <span class="modal-subtitle">Inject pre-calibrated multi-agent scenarios matching PRD Section 7</span>
+        </div>
+        <button class="modal-close-btn" id="btn-close-presets-modal">&times;</button>
+      </div>
+
+      <div class="modal-body">
+        <p class="presets-intro">
+          Click <strong>"Load All 4 Canonical Presets"</strong> to immediately populate all departments, test spatial deduplication clustering, and test the +24h SLA time-travel breach escalation live!
+        </p>
+
+        <div class="preset-items-grid">
+          <div class="preset-item-card border-p1">
+            <span class="badge-priority p1">P1 CRITICAL (6h SLA)</span>
+            <h4>1. Water Pipeline Catastrophic Burst</h4>
+            <p>"Main pipeline burst near Shivaji Chowk, water flooding entire street and entering shops."</p>
+            <span class="preset-tag">Routes to: Water Supply & Pumping</span>
+          </div>
+
+          <div class="preset-item-card border-p2">
+            <span class="badge-priority p2">P2 HIGH (18h SLA)</span>
+            <h4>2. Solid Waste Overflowing Bin</h4>
+            <p>"Garbage bin overflowing on Market Road uncollected for 3 days, foul stench."</p>
+            <span class="preset-tag">Routes to: Solid Waste Management (SWM)</span>
+          </div>
+
+          <div class="preset-item-card border-p2">
+            <span class="badge-priority p2">DUPLICATE CLUSTER</span>
+            <h4>3. Duplicate Garbage Report (120m away)</h4>
+            <p>"Huge garbage pile on Market Road near corner medical, stray dogs gathering."</p>
+            <span class="preset-tag">Agent C Clusters into Parent Ticket #2!</span>
+          </div>
+
+          <div class="preset-item-card border-p4">
+            <span class="badge-priority p4">P4 LOW (48h SLA)</span>
+            <h4>4. Monsoon Pothole on Bridge Ramp</h4>
+            <p>"Monsoon pothole after bridge causing two-wheeler skids near Paud Road."</p>
+            <span class="preset-tag">Routes to: Roads & Civil Maintenance</span>
+          </div>
+        </div>
+
+        <div class="modal-actions space-between mt-4">
+          <div class="demo-step-guide">
+            <span class="text-cyan font-mono">Stage: 0:00 - 0:40 Ingestion & Clustering</span>
+          </div>
+          <button type="button" class="btn-primary btn-glow" id="btn-inject-all-presets">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+            <span>Load All 4 Presets Now</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================== -->
+  <!-- MODAL 3: Field Officer Action Copilot & Proof Audit -->
+  <!-- ============================================== -->
+  <div class="modal-backdrop" id="field-copilot-modal">
+    <div class="modal-dialog copilot-dialog">
+      <div class="modal-header">
+        <div class="modal-title-group">
+          <h3>Agent F: Field Officer Action Copilot</h3>
+          <span class="modal-subtitle" id="copilot-ticket-title">Ticket PMC-2026-WAT-01</span>
+        </div>
+        <button class="modal-close-btn" id="btn-close-copilot-modal">&times;</button>
+      </div>
+
+      <div class="modal-body">
+        <div class="copilot-grid">
+          <!-- Left: SOP Checklist & Bill of Materials -->
+          <div class="copilot-left">
+            <div class="copilot-sec-title">🔧 Automated SOP Repair Checklist</div>
+            <ul class="sop-checklist" id="copilot-sop-list">
+              <li>1. Isolate primary gate valve at distribution node 4.</li>
+              <li>2. Deploy submersible pump for water dewatering.</li>
+              <li>3. Excavate trench to expose cracked 150mm DI pipe collar.</li>
+              <li>4. Mount mechanical repair clamp with EPDM gasket.</li>
+              <li>5. Pressurize line & test for zero joint weepage before backfill.</li>
+            </ul>
+
+            <div class="copilot-sec-title mt-3">📦 Bill of Materials Drafted</div>
+            <div class="bom-tags" id="copilot-bom-tags">
+              <span class="bom-tag">1x 150mm Cast Iron Collar Sleeve</span>
+              <span class="bom-tag">2x EPDM Rubber Gaskets</span>
+              <span class="bom-tag">1.5 Ton Stone Aggregate</span>
+            </div>
+          </div>
+
+          <!-- Right: Photographic Proof & Geotag Audit -->
+          <div class="copilot-right">
+            <div class="copilot-sec-title">📸 Before & After Photographic Verification</div>
+            <div class="photo-compare-box">
+              <div class="photo-card">
+                <span class="photo-badge">BEFORE REPAIR</span>
+                <div class="photo-placeholder before-bg">
+                  <div class="photo-tag-overlay">📍 18.5074° N, 73.8077° E</div>
+                </div>
+              </div>
+              <div class="photo-card">
+                <span class="photo-badge success">AFTER REPAIR (GEO-VERIFIED)</span>
+                <div class="photo-placeholder after-bg">
+                  <div class="photo-tag-overlay success">✓ Coordinates Match Site (Δ 14m)</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="closure-audit-box">
+              <div class="audit-status">
+                <span class="dot-verified"></span>
+                <span>Spatial Geotag Audit: <strong>PASSED (Within 100m threshold)</strong></span>
+              </div>
+              <div class="audit-buttons">
+                <button class="btn-success" id="btn-approve-closure">Approve & Close Ticket</button>
+                <button class="btn-danger" id="btn-reopen-complaint">Citizen Reopen (Auto L2)</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/app.js"></script>
+</body>
+</html>
