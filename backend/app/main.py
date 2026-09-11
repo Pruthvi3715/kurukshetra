@@ -29,6 +29,7 @@ from app.core.clock import ClockService
 from app.core.llm import LLMService
 from app.services.database import db
 from app.agents.pipeline import MunicipalMultiAgentPipeline, haversine_distance_meters
+from app.agents.langgraph_workflow import get_langgraph_ascii, get_langgraph_mermaid, run_langgraph
 
 app = FastAPI(
     title="PS17 Multi-Agent Municipal Complaint Router",
@@ -554,6 +555,45 @@ def execute_agent_e(req: AgentETestRequest):
         "execution_time_ms": latency_ms,
         "whatsapp_payload": wa_msg
     }
+
+
+# =========================================================================
+# OFFICIAL LANGGRAPH STATEGRAPH VISUALIZATION & RUNNER ENDPOINTS
+# =========================================================================
+
+@app.get("/api/langgraph/graph")
+def get_langgraph_graph_visualization():
+    """Returns the compiled LangGraph StateGraph in both ASCII and Mermaid formats."""
+    return {
+        "status": "compiled",
+        "framework": "LangGraph v1.0.1",
+        "ascii_graph": get_langgraph_ascii(),
+        "mermaid_diagram": get_langgraph_mermaid(),
+        "nodes": [
+            {"id": "agent_a_triage", "label": "Agent A: Multilingual Ingestion & NER (Gemini 2.5 Flash / Marathi)"},
+            {"id": "route_completeness_gate", "label": "Conditional Edge 1: Spatial Completeness Gatekeeper"},
+            {"id": "agent_e_clarify", "label": "Agent E (Clarification): Location Pin Request Prompt"},
+            {"id": "agent_c_deduplication", "label": "Agent C: PostGIS Geodesic Deduplication (<= 150m)"},
+            {"id": "agent_b_priority", "label": "Agent B: Multi-Factor Priority Math & Statutory RTS Act SLA"},
+            {"id": "agent_d_dispatch", "label": "Agent D: 4-Tier Statutory Escalation Ladder & Officer Dispatch"},
+            {"id": "agent_f_copilot", "label": "Agent F: Field Action Copilot (SOP Checklist & Bill of Materials)"},
+            {"id": "agent_e_milestones", "label": "Agent E: Omnichannel WhatsApp Milestone Alert & 24h Reopen Loop"}
+        ]
+    }
+
+
+@app.post("/api/langgraph/run")
+def execute_langgraph_pipeline(sub: ComplaintSubmission):
+    """Executes citizen complaint through the official compiled LangGraph StateGraph."""
+    return run_langgraph({
+        "raw_text": sub.raw_text,
+        "channel": sub.channel,
+        "ward_id": sub.ward_id,
+        "latitude": sub.latitude,
+        "longitude": sub.longitude,
+        "complainant_name": sub.complainant_name,
+        "complainant_phone": sub.complainant_phone
+    })
 
 
 # ==========================================

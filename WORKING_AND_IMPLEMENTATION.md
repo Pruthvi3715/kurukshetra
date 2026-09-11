@@ -93,6 +93,106 @@ flowchart TD
 
 ---
 
+## 2.1 Official LangGraph Multi-Agent State Machine (`langgraph.graph.StateGraph`)
+
+The system uses **LangGraph v1.0.1** to coordinate the autonomous agents as a stateful directed acyclic graph (DAG) with conditional branch routing:
+
+```python
+from langgraph.graph import StateGraph, END
+from app.agents.langgraph_workflow import CivicIncidentState, build_civic_langgraph
+
+# StateGraph compilation
+workflow = StateGraph(CivicIncidentState)
+workflow.add_node("agent_a_triage", node_agent_a_triage)
+workflow.add_node("agent_e_clarify", node_agent_e_clarify)
+workflow.add_node("agent_c_deduplication", node_agent_c_deduplication)
+workflow.add_node("agent_b_priority", node_agent_b_priority)
+workflow.add_node("agent_d_dispatch", node_agent_d_dispatch)
+workflow.add_node("agent_f_copilot", node_agent_f_copilot)
+workflow.add_node("agent_e_milestones", node_agent_e_milestones)
+
+# Conditional Branch 1: Spatial Completeness Gatekeeper
+workflow.add_conditional_edges("agent_a_triage", route_completeness_gate, {
+    "agent_e_clarify": "agent_e_clarify",
+    "agent_c_deduplication": "agent_c_deduplication"
+})
+```
+
+### LangGraph Native ASCII Graph (`graph.get_graph().draw_ascii()`)
+```
+                      +-----------+                     
+                      | __start__ |                     
+                      +-----------+                     
+                             *                          
+                             *                          
+                             *                          
+                    +----------------+                  
+                    | agent_a_triage |                  
+                    +----------------+                  
+                    ..               ...                
+                 ...                    ..              
+               ..                         ...           
++-----------------------+                    ..         
+| agent_c_deduplication |                     .         
++-----------------------+                     .         
+            *                                 .         
+            *                                 .         
+            *                                 .         
+  +------------------+                        .         
+  | agent_b_priority |                        .         
+  +------------------+                        .         
+            *                                 .         
+            *                                 .         
+            *                                 .         
+  +------------------+                        .         
+  | agent_d_dispatch |                        .         
+  +------------------+                        .         
+            *                                 .         
+            *                                 .         
+            *                                 .         
+   +-----------------+                        .         
+   | agent_f_copilot |                        .         
+   +-----------------+                        .         
+            *                                 .         
+            *                                 .         
+            *                                 .         
+  +--------------------+            +-----------------+ 
+  | agent_e_milestones |            | agent_e_clarify | 
+  +--------------------+            +-----------------+ 
+                    **               **                 
+                      ***         ***                   
+                         **     **                      
+                        +---------+                     
+                        | __end__ |                     
+                        +---------+                     
+```
+
+### LangGraph Native Mermaid Flowchart (`graph.get_graph().draw_mermaid()`)
+```mermaid
+graph TD;
+	__start__([__start__])
+	agent_a_triage(Agent A: Multilingual Triage & NER)
+	agent_e_clarify(Agent E: Spatial Clarification Prompt)
+	agent_c_deduplication(Agent C: Spatial Deduplication & 150m Clustering)
+	agent_b_priority(Agent B: Priority Math & RTS SLA Mapping)
+	agent_d_dispatch(Agent D: 4-Tier Officer Dispatch)
+	agent_f_copilot(Agent F: Field Copilot & SOP Generator)
+	agent_e_milestones(Agent E: WhatsApp Milestones & 24h Reopen)
+	__end__([__end__])
+
+	__start__ --> agent_a_triage;
+	agent_a_triage -.->|Missing Spatial Anchors| agent_e_clarify;
+	agent_a_triage -.->|Location Anchors Passed| agent_c_deduplication;
+	agent_c_deduplication --> agent_b_priority;
+	agent_b_priority --> agent_d_dispatch;
+	agent_d_dispatch --> agent_f_copilot;
+	agent_f_copilot --> agent_e_milestones;
+	agent_e_clarify --> __end__;
+	agent_e_milestones --> __end__;
+```
+
+---
+
 ## 3. Deep-Dive: The 6 Autonomous Municipal Agents
 
 Each of the 6 agents is decoupled, stateless, and observable. Below are the exact roles, mathematical equations, schemas, and terminal execution logs for each.
