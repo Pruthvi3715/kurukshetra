@@ -3,15 +3,19 @@ PS17 Multi-Agent Municipal Complaint Redressal & SLA Escalation System.
 """
 
 from datetime import datetime, timezone
+import os
 from typing import Dict, List, Optional, Any
 from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 from app.models.schemas import (
     TimeTravelRequest, TimeTravelStatus, MunicipalIncidentAgentState,
-    Department, Officer, EscalationRecord, AuditLogRecord
+    Department, Officer, EscalationRecord, AuditLogRecord, ComplaintSubmission,
+    TicketStatusEnum
 )
 from app.core.clock import ClockService
 from app.services.database import db
+from app.agents.pipeline import MunicipalMultiAgentPipeline
 
 app = FastAPI(
     title="PS17 Multi-Agent Municipal Complaint Router",
@@ -107,8 +111,8 @@ def list_officers(tier: Optional[int] = Query(None, description="Filter by admin
 def get_dashboard_stats():
     """Returns aggregated high-level civic intelligence metrics."""
     total = len(db.complaints)
-    resolved = sum(1 for c in db.complaints.values() if c.status == "RESOLVED")
-    escalated = sum(1 for c in db.complaints.values() if c.status == "ESCALATED")
+    resolved = sum(1 for c in db.complaints.values() if c.status == TicketStatusEnum.RESOLVED)
+    escalated = sum(1 for c in db.complaints.values() if c.status == TicketStatusEnum.ESCALATED or c.is_breached)
     active = total - resolved
 
     dept_counts: Dict[str, int] = {}
@@ -127,10 +131,13 @@ def get_dashboard_stats():
     }
 
 
+# ==========================================
+# Complaints & Multi-Agent Ingestion Endpoints
+# ==========================================
+
 @app.get("/api/complaints", response_model=List[MunicipalIncidentAgentState])
 def list_complaints(status: Optional[str] = None, department: Optional[str] = None):
     """Lists complaints, optionally filtered by status or department."""
-    # Ensure SLA check runs before returning
     db.evaluate_all_slas()
     results = list(db.complaints.values())
     if status:
@@ -140,6 +147,12 @@ def list_complaints(status: Optional[str] = None, department: Optional[str] = No
     return results
 
 
+@app.post("/api/complaints", response_model=MunicipalIncidentAgentState)
+def submit_complaint(sub: ComplaintSubmission):
+    """Ingests a citizen complaint through the 6-agent LangGraph pipeline."""
+    return MunicipalMultiAgentPipeline.run_agent_pipeline(sub)
+
+
 @app.get("/api/complaints/{ticket_id}", response_model=MunicipalIncidentAgentState)
 def get_complaint(ticket_id: str):
     """Fetches full state, audit history, and SOP checklist for a complaint."""
@@ -147,6 +160,46 @@ def get_complaint(ticket_id: str):
     if ticket_id not in db.complaints:
         raise HTTPException(status_code=404, detail="Complaint ticket not found")
     return db.complaints[ticket_id]
+
+
+@app.post("/api/complaints/{ticket_id}/resolve")
+def resolve_complaint(ticket_id: str):
+    """Simulates Field Officer submitting photo proof and closing the ticket."""
+    if ticket_id not in db.complaints:
+        raise HTTPException(status_code=404, detail="Complaint ticket not found")
+    ticket = db.complaints[ticket_id]
+    ticket.status = TicketStatusEnum.RESOLVED
+    ticket.closure_approved = True
+    ticket.is_breached = False
+    return {"message": "Ticket successfully marked as resolved", "ticket": ticket}
+
+
+@app.post("/api/complaints/{ticket_id}/reopen")
+def reopen_complaint(ticket_id: str):
+    """Citizen marks ticket as unresolved during post-closure poll. Auto-escalates to Tier 2."""
+    if ticket_id not in db.complaints:
+        raise HTTPException(status_code=404, detail="Complaint ticket not found")
+    ticket = db.complaints[ticket_id]
+    now = ClockService.get_current_virtual_time()
+
+    ticket.status = TicketStatusEnum.ESCALATED
+    ticket.escalation_level = max(2, ticket.escalation_level)
+    amc = db.get_tier_officer(ticket.assigned_department_id, 2)
+    ticket.assigned_officer_id = amc.officer_id
+    ticket.assigned_officer_name = amc.name
+    ticket.assigned_officer_designation = amc.designation
+
+    audit = AuditLogRecord(
+        ticket_id=ticket.ticket_id,
+        acting_agent="Agent E: Citizen Engagement Bot",
+        action_type="CITIZEN_REOPEN_AUTO_L2",
+        payload_snapshot={"reopened_by": "Citizen Poll", "escalated_to": amc.designation},
+        created_at=now
+    )
+    ticket.audit_history.append(audit)
+    db.audit_logs.append(audit)
+
+    return {"message": "Ticket reopened and escalated to Tier 2 AMC", "ticket": ticket}
 
 
 @app.get("/api/escalations", response_model=List[EscalationRecord])
@@ -159,3 +212,11 @@ def list_escalations():
 def list_audit_logs():
     """Returns full multi-agent audit trail."""
     return db.audit_logs
+
+
+# ==========================================
+# Static Files Serving for Frontend Dashboard
+# ==========================================
+frontend_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "frontend"))
+if os.path.isdir(frontend_dir):
+    app.mount("/", StaticFiles(directory=frontend_dir, html=True), name="frontend")
