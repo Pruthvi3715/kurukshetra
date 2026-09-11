@@ -166,13 +166,16 @@ Return ONLY valid JSON:
 }}"""
 
         try:
-            # Token-Aware Configuration: strictly cap maxOutputTokens to 200 to conserve API quota
+            # Token-Aware Configuration: thinkingBudget: 0 disables chain-of-thought overhead, ensuring fast and non-truncated JSON
             req_data = json.dumps({
                 "contents": [{"parts": [{"text": prompt}]}],
                 "generationConfig": {
                     "response_mime_type": "application/json",
-                    "maxOutputTokens": 200,
-                    "temperature": 0.1
+                    "maxOutputTokens": 800,
+                    "temperature": 0.1,
+                    "thinkingConfig": {
+                        "thinkingBudget": 0
+                    }
                 }
             }).encode('utf-8')
 
@@ -209,13 +212,16 @@ Return ONLY valid JSON:
 }}"""
 
         try:
-            # Token-Aware Configuration: maxOutputTokens capped at 250
+            # Token-Aware Configuration: thinkingBudget: 0 ensures complete SOP and BOM JSON
             req_data = json.dumps({
                 "contents": [{"parts": [{"text": prompt}]}],
                 "generationConfig": {
                     "response_mime_type": "application/json",
-                    "maxOutputTokens": 250,
-                    "temperature": 0.1
+                    "maxOutputTokens": 800,
+                    "temperature": 0.1,
+                    "thinkingConfig": {
+                        "thinkingBudget": 0
+                    }
                 }
             }).encode('utf-8')
 

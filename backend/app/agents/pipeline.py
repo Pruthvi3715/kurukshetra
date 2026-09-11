@@ -51,13 +51,17 @@ class MunicipalMultiAgentPipeline:
             raw_input_text=sub.raw_text,
             channel=sub.channel,
             ward_id=sub.ward_id or "Ward-14 (Kothrud)",
+            latitude=sub.latitude or 18.5074,
+            longitude=sub.longitude or 73.8077,
+            complainant_name=sub.complainant_name or "Citizen User",
+            complainant_phone=sub.complainant_phone or "+919876543210",
             sla_deadline=now + timedelta(hours=24)
         )
 
         # -------------------------------------------------------------
         # 1. AGENT A: Ingestion & Multilingual Triage Agent
         # -------------------------------------------------------------
-        cls._agent_a_triage(state)
+        cls._agent_a_triage(state, sub.latitude, sub.longitude)
 
         # -------------------------------------------------------------
         # 2. AGENT C: Spatial Deduplication & Clustering Agent
@@ -89,7 +93,7 @@ class MunicipalMultiAgentPipeline:
         return state
 
     @classmethod
-    def _agent_a_triage(cls, state: MunicipalIncidentAgentState):
+    def _agent_a_triage(cls, state: MunicipalIncidentAgentState, custom_lat: Optional[float] = None, custom_lng: Optional[float] = None):
         """Agent A: Normalizes Hinglish/Marathi to Canonical English, performs NER, and checks completeness."""
         # Query LLM Service (Ollama / Gemini / Local Fallback)
         parsed = LLMService.parse_complaint_multilingual(state.raw_input_text)
@@ -100,20 +104,28 @@ class MunicipalMultiAgentPipeline:
         state.landmark = parsed.get("landmark", state.landmark)
         state.missing_critical_info = parsed.get("missing_critical_info", False)
 
-        # Set default coordinates based on extracted category
-        cat = state.extracted_category.lower()
-        if "water" in cat:
-            state.latitude, state.longitude = 18.5074, 73.8077
-            state.landmark = state.landmark or "Near Shivaji Chowk"
-        elif "waste" in cat:
-            state.latitude, state.longitude = 18.5080, 73.8085
-            state.landmark = state.landmark or "Market Road"
-        elif "road" in cat:
-            state.latitude, state.longitude = 18.5060, 73.8065
-            state.landmark = state.landmark or "Paud Road Bridge Ramp"
-        elif "light" in cat or "electric" in cat:
-            state.latitude, state.longitude = 18.5090, 73.8070
-            state.landmark = state.landmark or "Behind Bus Terminal"
+        # Preserve custom coordinates if provided (e.g. from geotag photo or form)
+        if custom_lat is not None and custom_lng is not None:
+            state.latitude = custom_lat
+            state.longitude = custom_lng
+        else:
+            # Set default coordinates based on extracted category
+            cat = state.extracted_category.lower()
+            if "water" in cat:
+                state.latitude, state.longitude = 18.5074, 73.8077
+                state.landmark = state.landmark or "Near Shivaji Chowk"
+            elif "waste" in cat:
+                state.latitude, state.longitude = 18.5080, 73.8085
+                state.landmark = state.landmark or "Market Road"
+            elif "drain" in cat or "sewer" in cat or "manhole" in cat:
+                state.latitude, state.longitude = 18.5580, 73.8070
+                state.landmark = state.landmark or "Parihar Chowk Aundh"
+            elif "road" in cat:
+                state.latitude, state.longitude = 18.5060, 73.8065
+                state.landmark = state.landmark or "Paud Road Bridge Ramp"
+            elif "light" in cat or "electric" in cat:
+                state.latitude, state.longitude = 18.5090, 73.8070
+                state.landmark = state.landmark or "Behind Bus Terminal"
 
         if state.missing_critical_info:
             state.clarification_prompt = "Please provide exact landmark, road name, or share location pin via WhatsApp."
