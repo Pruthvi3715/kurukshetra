@@ -2050,6 +2050,55 @@ async def telegram_webhook_handler(request: Request, background_tasks: Backgroun
 
     register_chat_id(chat_id)
 
+    # 0. Voice Note Ingestion (Whisper ASR for Telegram Voice Notes)
+    voice_obj = message.get("voice") or message.get("audio")
+    if voice_obj and not text:
+        file_id = voice_obj.get("file_id")
+        duration = voice_obj.get("duration", 0)
+        send_telegram_message(
+            chat_id,
+            f"🎙️ <i>Received {duration}s voice note. Transcribing with Whisper AI (Marathi / Hindi / English)...</i>"
+        )
+        try:
+            # Step A: Get file path from Telegram API
+            file_info_url = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/getFile?file_id={file_id}"
+            req = urllib.request.Request(file_info_url, headers={"User-Agent": "PMC-Civic-Bot"})
+            with urllib.request.urlopen(req, timeout=12) as resp:
+                file_info = json.loads(resp.read().decode("utf-8"))
+            file_path = file_info.get("result", {}).get("file_path")
+
+            if file_path:
+                # Step B: Download audio bytes
+                download_url = f"https://api.telegram.org/file/bot{TELEGRAM_BOT_TOKEN}/{file_path}"
+                dl_req = urllib.request.Request(download_url, headers={"User-Agent": "PMC-Civic-Bot"})
+                with urllib.request.urlopen(dl_req, timeout=20) as dl_resp:
+                    audio_bytes = dl_resp.read()
+
+                # Step C: Transcribe using Whisper
+                whisper_res = VoiceService.transcribe_audio_bytes(audio_bytes, file_ext=".ogg")
+                if whisper_res.get("success") and whisper_res.get("transcribed_text"):
+                    text = whisper_res["transcribed_text"].strip()
+                    lang = whisper_res.get("detected_language", "Regional")
+                    send_telegram_message(
+                        chat_id,
+                        f"📝 <b>Transcribed Speech ({lang}):</b>\n<i>\"{text}\"</i>\n\n"
+                        f"🤖 <i>Passing to PMC 6-Agent LangGraph Pipeline...</i>"
+                    )
+                else:
+                    err = whisper_res.get("error", "Speech could not be resolved clearly")
+                    send_telegram_message(
+                        chat_id,
+                        f"⚠️ Could not transcribe voice note: {err}. Please try typing your grievance or send another recording."
+                    )
+                    return {"ok": True}
+            else:
+                send_telegram_message(chat_id, "⚠️ Telegram could not provide audio file path. Please send text.")
+                return {"ok": True}
+        except Exception as e:
+            logger.error("Telegram voice download/transcription failed: %s", e)
+            send_telegram_message(chat_id, f"⚠️ Voice note error: {str(e)[:120]}. Please type your grievance.")
+            return {"ok": True}
+
     # 1. /start command
     if text == "/start":
         welcome = (
