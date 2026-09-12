@@ -500,6 +500,36 @@ class PersistentCivicDatabase:
             ))
             conn.commit()
 
+    def get_complaint(self, ticket_id: str) -> Optional[MunicipalIncidentAgentState]:
+        """Fetches a complaint by ticket_id from in-memory cache or SQLite database."""
+        if ticket_id in self.complaints:
+            return self.complaints[ticket_id]
+        with self._get_conn() as conn:
+            c = conn.cursor()
+            c.execute("SELECT * FROM complaints WHERE ticket_id = ?", (ticket_id,))
+            r = c.fetchone()
+            if not r:
+                return None
+            d = dict(r)
+            d["created_at"] = datetime.fromisoformat(d["created_at"])
+            d["sla_deadline"] = datetime.fromisoformat(d["sla_deadline"])
+            d["similar_ticket_ids"] = json.loads(d.pop("similar_ticket_ids_json", "[]") or "[]")
+            d["sop_checklist"] = json.loads(d.pop("sop_checklist_json", "[]") or "[]")
+            d["bill_of_materials"] = json.loads(d.pop("bill_of_materials_json", "[]") or "[]")
+            d["agent_metrics"] = json.loads(d.pop("agent_metrics_json", "{}") or "{}")
+            emb = json.loads(d.pop("embedding_json", "[]") or "[]")
+            if emb:
+                self.embeddings[d["ticket_id"]] = emb
+            d["is_duplicate"] = bool(d["is_duplicate"])
+            d["missing_critical_info"] = bool(d["missing_critical_info"])
+            d["is_breached"] = bool(d["is_breached"])
+            d["closure_approved"] = bool(d["closure_approved"])
+            d["status"] = TicketStatusEnum(d["status"])
+            d["priority_level"] = PriorityEnum(d["priority_level"])
+            ticket = MunicipalIncidentAgentState(**d)
+            self.complaints[ticket.ticket_id] = ticket
+            return ticket
+
     def get_tier_officer(self, department_id: str, tier: int) -> Officer:
         if tier == 4:
             return self.officers["off-l4-commissioner"]

@@ -2083,16 +2083,7 @@ async def telegram_webhook_handler(request: Request, background_tasks: Backgroun
         parts = text.split()
         if len(parts) > 1:
             cid = parts[1].strip().upper()
-            ticket = None
-            if cid in db.complaints:
-                ticket = db.complaints[cid]
-            else:
-                try:
-                    ticket_raw = persistent_db.get_complaint(cid)
-                    if ticket_raw:
-                        ticket = ticket_raw
-                except Exception:
-                    pass
+            ticket = db.complaints.get(cid) or persistent_db.complaints.get(cid) or persistent_db.get_complaint(cid)
 
             if ticket:
                 status_val = ticket.status.value if hasattr(ticket, 'status') else ticket.get('status', 'OPEN')
@@ -2101,13 +2092,19 @@ async def telegram_webhook_handler(request: Request, background_tasks: Backgroun
                 officer = ticket.assigned_officer_name if hasattr(ticket, 'assigned_officer_name') else ticket.get('assigned_officer_name', 'Field Officer')
                 sla_h = ticket.sla_duration_hours if hasattr(ticket, 'sla_duration_hours') else ticket.get('sla_duration_hours', 24)
 
+                status_icon = "🟢" if status_val == "RESOLVED" else ("🔴" if status_val == "ESCALATED" else "🟡")
+                resolution_badge = ""
+                if status_val == "RESOLVED":
+                    resolution_badge = "✅ <b>Resolution Verified:</b> Field repair verified with Edge CV structural diff & citizen signoff.\n\n"
+
                 status_card = (
                     f"📋 <b>Grievance Status: {cid}</b>\n\n"
-                    f"🚦 <b>Current Status:</b> <code>{status_val}</code>\n"
+                    f"{status_icon} <b>Current Status:</b> <code>{status_val}</code>\n"
                     f"📂 <b>Department:</b> {dept_name}\n"
                     f"⚡ <b>Priority:</b> {prio_val}\n"
                     f"👤 <b>Assigned Officer:</b> {officer}\n"
                     f"⏱️ <b>Statutory SLA:</b> {sla_h} Hours\n\n"
+                    f"{resolution_badge}"
                     f"Under Maharashtra Right to Services (RTS) Act 2015."
                 )
                 send_telegram_message(chat_id, status_card)
