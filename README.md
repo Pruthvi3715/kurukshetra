@@ -13,10 +13,10 @@ For the complete technical breakdown, mathematical formulas, agent schemas, and 
 ---
 
 ## 👥 Contributor Team
-- **[@Pruthvi3715](https://github.com/Pruthvi3715)** — Project Lead & System Architect
-- **[@Devendra-006](https://github.com/Devendra-006)** — Fullstack & Multi-Agent Pipeline Engineer
-- **[@sampada-11](https://github.com/sampada-11)** — Civic UX & Statutory Domain Logic Specialist
-- **[@rushil-cody](https://github.com/rushil-cody)** — Data Modeling & Core Evaluation
+- Pruthvi3715  (https://github.com/Pruthvi3715)
+- Devendra-006 (https://github.com/Devendra-006) 
+- sampada-11   (https://github.com/sampada-11) 
+- rushil-cody  (https://github.com/rushil-cody) 
 
 ---
 
