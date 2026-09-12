@@ -175,21 +175,7 @@ python test_new_scenario.py
 python test_terminal_agents.py
 ```
 
----
 
-## 🌐 Deploy to Vercel
-
-The project is pre-configured for **1-Click Vercel Deployment**:
-- [`vercel.json`](file:///c:/Users/pshin/CODEE/kurkshetra/vercel.json): Routes `/api/*` to Python serverless functions and serves static frontend from Edge CDN.
-- [`api/index.py`](file:///c:/Users/pshin/CODEE/kurkshetra/api/index.py): ASGI serverless bridge for FastAPI.
-
-### Deployment Steps:
-1. Push code to GitHub: `git push origin main`.
-2. Open [Vercel Dashboard](https://vercel.com/) $\rightarrow$ **"Add New..."** $\rightarrow$ **"Project"** $\rightarrow$ Import `kurkshetra`.
-3. Under **Environment Variables**, add `GEMINI_API_KEY`.
-4. Click **Deploy**.
-
----
 
 ## 👥 Contributor Team
 
