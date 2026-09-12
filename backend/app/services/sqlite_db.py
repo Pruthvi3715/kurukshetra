@@ -1,696 +1,1079 @@
-"""Persistent SQLite Database & Civic Vector Storage for backend_v2.
-Stores departments, officers, SLA policies, complaints, escalations, audit logs,
-and vector embeddings matching PRD Part 6.
+"""
+sqlite_db.py — NagrikSewa AI (PS17)
+PersistentCivicDatabase — full CRUD layer over SQLite for all 16 PRD tables.
+
+All heavy schema DDL lives in backend/app/db/db_schema.py.
+All seed data lives in backend/app/db/db_seed.py.
+This module is the single runtime access object used by FastAPI routes and agents.
+
+Design choices:
+  - Every write goes straight through to SQLite (no deferred flush).
+  - An in-memory dict cache is kept for complaints + reference tables to avoid
+    repeated SELECT round-trips for hot paths (agent pipeline).
+  - JSON columns are serialised/deserialised transparently inside this class.
+  - FK enforcement is enabled on every connection via PRAGMA.
+  - Thread safety: sqlite3 connections are opened per-call (not shared across
+    threads) to avoid "SQLite objects created in a thread can only be used in
+    that same thread" errors under uvicorn multi-worker mode.
 """
 
 import json
 import os
 import sqlite3
-from datetime import datetime, timezone
-from typing import Dict, List, Optional, Any
+import uuid
+from datetime import datetime, timedelta, timezone
+from pathlib import Path
+from typing import Any, Dict, List, Optional
 
 from app.models.schemas import (
-    Department, Officer, SlaPolicy, PriorityEnum,
-    TicketStatusEnum, EscalationRecord, AuditLogRecord, MunicipalIncidentAgentState
+    AuditLogRecord,
+    Department,
+    EscalationRecord,
+    MunicipalIncidentAgentState,
+    Officer,
+    PriorityEnum,
+    SlaPolicy,
+    TicketStatusEnum,
 )
 from app.core.clock import ClockService
-from app.core.llm import LLMService
 
+
+# ---------------------------------------------------------------------------
+# Connection helper
+# ---------------------------------------------------------------------------
+
+def _get_conn(db_path: str) -> sqlite3.Connection:
+    conn = sqlite3.connect(db_path, check_same_thread=False)
+    conn.row_factory = sqlite3.Row
+    conn.execute("PRAGMA foreign_keys = ON")
+    conn.execute("PRAGMA journal_mode = WAL")
+    conn.execute("PRAGMA synchronous = NORMAL")
+    conn.execute("PRAGMA temp_store = MEMORY")
+    return conn
+
+
+# ---------------------------------------------------------------------------
+# JSON helpers
+# ---------------------------------------------------------------------------
+
+def _jdump(obj: Any) -> str:
+    if obj is None:
+        return "[]"
+    return json.dumps(obj)
+
+
+def _jload(s: Optional[str], default=None):
+    if not s:
+        return default if default is not None else []
+    try:
+        return json.loads(s)
+    except (ValueError, TypeError):
+        return default if default is not None else []
+
+
+def _now_iso() -> str:
+    return datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+
+
+def _parse_dt(s: Optional[str]) -> datetime:
+    if not s:
+        return datetime.now(timezone.utc)
+    # Accept both with and without timezone suffix
+    for fmt in ("%Y-%m-%dT%H:%M:%S%z", "%Y-%m-%dT%H:%M:%SZ", "%Y-%m-%dT%H:%M:%S"):
+        try:
+            dt = datetime.strptime(s, fmt)
+            if dt.tzinfo is None:
+                dt = dt.replace(tzinfo=timezone.utc)
+            return dt
+        except ValueError:
+            continue
+    return datetime.now(timezone.utc)
+
+
+# ---------------------------------------------------------------------------
+# PersistentCivicDatabase
+# ---------------------------------------------------------------------------
 
 class PersistentCivicDatabase:
-    """Thread-safe persistent SQLite civic store."""
+    """
+    Thread-safe persistent SQLite civic store.
+    Schema is applied + reference data seeded on first instantiation.
+    """
 
     def __init__(self, db_path: Optional[str] = None):
-        if db_path is None:
-            base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-            data_dir = os.path.join(base_dir, "data")
-            os.makedirs(data_dir, exist_ok=True)
-            self.db_path = os.path.join(data_dir, "kurkshetra.db")
-        else:
-            self.db_path = db_path
+        self.db_path = self._resolve_path(db_path)
 
-        self.departments: Dict[str, Department] = {}
-        self.officers: Dict[str, Officer] = {}
-        self.sla_policies: Dict[str, SlaPolicy] = {}
-        self.complaints: Dict[str, MunicipalIncidentAgentState] = {}
-        self.escalations: List[EscalationRecord] = []
-        self.audit_logs: List[AuditLogRecord] = []
-        self.embeddings: Dict[str, List[float]] = {}
+        # In-memory caches (hot-path lookups)
+        self.departments:  Dict[str, Department]                  = {}
+        self.officers:     Dict[str, Officer]                     = {}
+        self.sla_policies: Dict[str, SlaPolicy]                   = {}
+        self.complaints:   Dict[str, MunicipalIncidentAgentState] = {}
+        self.escalations:  List[EscalationRecord]                 = []
+        self.audit_logs:   List[AuditLogRecord]                   = []
+        self.embeddings:   Dict[str, List[float]]                 = {}
 
-        self._init_sqlite_tables()
-        self._seed_or_load()
+        self._bootstrap()
 
-    def _get_conn(self) -> sqlite3.Connection:
-        conn = sqlite3.connect(self.db_path)
-        conn.row_factory = sqlite3.Row
-        return conn
+    # ------------------------------------------------------------------
+    # Initialisation
+    # ------------------------------------------------------------------
 
-    def _init_sqlite_tables(self):
-        with self._get_conn() as conn:
-            cursor = conn.cursor()
-            cursor.execute("""
-            CREATE TABLE IF NOT EXISTS departments (
-                department_id TEXT PRIMARY KEY,
-                name TEXT NOT NULL,
-                code TEXT NOT NULL,
-                head_officer_email TEXT
-            )
-            """)
+    @staticmethod
+    def _resolve_path(override: Optional[str]) -> str:
+        if override:
+            return override
+        env = os.getenv("DATABASE_PATH")
+        if env:
+            return env
+        # Serverless environments write only to /tmp
+        if os.getenv("VERCEL") or os.getenv("AWS_LAMBDA_FUNCTION_NAME"):
+            return "/tmp/kurkshetra.db"
+        base = Path(__file__).resolve().parent.parent / "data"
+        base.mkdir(parents=True, exist_ok=True)
+        return str(base / "kurkshetra.db")
 
-            cursor.execute("""
-            CREATE TABLE IF NOT EXISTS officers (
-                officer_id TEXT PRIMARY KEY,
-                department_id TEXT NOT NULL,
-                name TEXT NOT NULL,
-                designation TEXT NOT NULL,
-                hierarchy_tier INTEGER NOT NULL,
-                ward_id TEXT,
-                phone_number TEXT,
-                email TEXT
-            )
-            """)
+    def _bootstrap(self) -> None:
+        """Apply schema + seed reference data if the DB is empty."""
+        import sys
+        # Allow import from either installed package or direct script run
+        try:
+            from backend.app.db.db_schema import apply_schema
+            from backend.app.db.db_seed   import ALL_SEED_GROUPS
+        except ModuleNotFoundError:
+            root = Path(__file__).resolve().parents[3]
+            if str(root) not in sys.path:
+                sys.path.insert(0, str(root))
+            from backend.app.db.db_schema import apply_schema   # type: ignore
+            from backend.app.db.db_seed   import ALL_SEED_GROUPS  # type: ignore
 
-            cursor.execute("""
-            CREATE TABLE IF NOT EXISTS sla_policies (
-                policy_id TEXT PRIMARY KEY,
-                department_id TEXT NOT NULL,
-                category TEXT NOT NULL,
-                priority_tier TEXT NOT NULL,
-                resolution_sla_hours INTEGER NOT NULL,
-                l2_escalation_hours INTEGER NOT NULL,
-                l3_escalation_hours INTEGER NOT NULL
-            )
-            """)
+        conn = _get_conn(self.db_path)
+        apply_schema(conn)
 
-            cursor.execute("""
-            CREATE TABLE IF NOT EXISTS complaints (
-                ticket_id TEXT PRIMARY KEY,
-                created_at TEXT NOT NULL,
-                raw_input_text TEXT NOT NULL,
-                channel TEXT NOT NULL,
-                ward_id TEXT,
-                latitude REAL,
-                longitude REAL,
-                complainant_name TEXT,
-                complainant_phone TEXT,
-                detected_language TEXT,
-                extracted_category TEXT,
-                canonical_english_summary TEXT,
-                landmark TEXT,
-                missing_critical_info INTEGER,
-                clarification_prompt TEXT,
-                is_duplicate INTEGER,
-                parent_ticket_id TEXT,
-                cluster_size INTEGER,
-                similar_ticket_ids_json TEXT,
-                priority_level TEXT,
-                priority_score REAL,
-                assigned_department_id TEXT,
-                assigned_department_name TEXT,
-                assigned_officer_id TEXT,
-                assigned_officer_name TEXT,
-                assigned_officer_designation TEXT,
-                sla_duration_hours INTEGER,
-                sla_deadline TEXT,
-                status TEXT,
-                escalation_level INTEGER,
-                is_breached INTEGER,
-                sop_checklist_json TEXT,
-                bill_of_materials_json TEXT,
-                closure_proof_photo_url TEXT,
-                closure_approved INTEGER,
-                agent_metrics_json TEXT,
-                embedding_json TEXT
-            )
-            """)
-
-            cursor.execute("""
-            CREATE TABLE IF NOT EXISTS escalations (
-                escalation_id TEXT PRIMARY KEY,
-                ticket_id TEXT NOT NULL,
-                previous_level INTEGER,
-                new_level INTEGER,
-                previous_officer_name TEXT,
-                new_officer_name TEXT,
-                trigger_reason TEXT,
-                hours_overdue REAL,
-                timestamp TEXT NOT NULL
-            )
-            """)
-
-            cursor.execute("""
-            CREATE TABLE IF NOT EXISTS audit_logs (
-                log_id TEXT PRIMARY KEY,
-                ticket_id TEXT NOT NULL,
-                acting_agent TEXT NOT NULL,
-                action_type TEXT NOT NULL,
-                payload_snapshot_json TEXT,
-                created_at TEXT NOT NULL
-            )
-            """)
-
-            cursor.execute("""
-            CREATE TABLE IF NOT EXISTS citizens (
-                citizen_id TEXT PRIMARY KEY,
-                phone_number TEXT UNIQUE NOT NULL,
-                display_name TEXT,
-                preferred_language TEXT DEFAULT 'auto',
-                created_at TEXT NOT NULL
-            )
-            """)
-
-            cursor.execute("""
-            CREATE TABLE IF NOT EXISTS complaint_subscribers (
-                complaint_id TEXT NOT NULL,
-                citizen_id TEXT NOT NULL,
-                is_original_filer INTEGER NOT NULL DEFAULT 0,
-                subscribed_at TEXT NOT NULL,
-                PRIMARY KEY (complaint_id, citizen_id)
-            )
-            """)
-
-            cursor.execute("""
-            CREATE TABLE IF NOT EXISTS notification_log (
-                notification_id TEXT PRIMARY KEY,
-                ticket_id TEXT NOT NULL,
-                citizen_id TEXT,
-                channel TEXT NOT NULL,
-                direction TEXT NOT NULL,
-                milestone TEXT,
-                message_body TEXT NOT NULL,
-                delivery_status TEXT DEFAULT 'DELIVERED',
-                provider_message_id TEXT,
-                created_at TEXT NOT NULL
-            )
-            """)
-
-            cursor.execute("""
-            CREATE TABLE IF NOT EXISTS feedback_polls (
-                poll_id TEXT PRIMARY KEY,
-                ticket_id TEXT NOT NULL,
-                sent_at TEXT NOT NULL,
-                expires_at TEXT NOT NULL,
-                response TEXT,
-                responded_at TEXT
-            )
-            """)
-
-            cursor.execute("""
-            CREATE TABLE IF NOT EXISTS media_assets (
-                media_id TEXT PRIMARY KEY,
-                ticket_id TEXT NOT NULL,
-                asset_type TEXT NOT NULL,
-                storage_url TEXT NOT NULL,
-                geotag_lat REAL,
-                geotag_lng REAL,
-                geotag_valid INTEGER,
-                uploaded_by_officer_id TEXT,
-                created_at TEXT NOT NULL
-            )
-            """)
-
-            cursor.execute("""
-            CREATE TABLE IF NOT EXISTS sop_templates (
-                template_id TEXT PRIMARY KEY,
-                category TEXT NOT NULL,
-                checklist_items_json TEXT NOT NULL,
-                bill_of_materials_json TEXT,
-                created_at TEXT NOT NULL
-            )
-            """)
-
-            cursor.execute("""
-            CREATE TABLE IF NOT EXISTS closure_verifications (
-                verification_id TEXT PRIMARY KEY,
-                ticket_id TEXT NOT NULL,
-                token TEXT UNIQUE NOT NULL,
-                required_signatures INTEGER NOT NULL,
-                collected_signatures INTEGER NOT NULL DEFAULT 0,
-                signers_json TEXT NOT NULL DEFAULT '[]',
-                cv_structural_score REAL,
-                cv_verified INTEGER DEFAULT 0,
-                status TEXT NOT NULL,
-                created_at TEXT NOT NULL
-            )
-            """)
-
-            cursor.execute("""
-            CREATE TABLE IF NOT EXISTS capex_proposals (
-                proposal_id TEXT PRIMARY KEY,
-                resolution_number TEXT,
-                corridor_id TEXT,
-                corridor_name TEXT NOT NULL,
-                ward_id TEXT NOT NULL,
-                department_id TEXT NOT NULL,
-                department_name TEXT NOT NULL,
-                incident_count_90d INTEGER NOT NULL,
-                centroid_lat REAL NOT NULL,
-                centroid_lng REAL NOT NULL,
-                radius_meters REAL NOT NULL,
-                failure_mode TEXT NOT NULL,
-                root_cause_diagnosis TEXT NOT NULL,
-                recommended_action TEXT NOT NULL,
-                budget_head TEXT NOT NULL,
-                estimated_cost_inr REAL NOT NULL,
-                estimated_cost_lakhs REAL NOT NULL,
-                dsr_items_json TEXT NOT NULL,
-                standing_committee_draft_md TEXT NOT NULL,
-                status TEXT NOT NULL DEFAULT 'DRAFT_PENDING_COMMITTEE',
-                created_at TEXT NOT NULL
-            )
-            """)
+        # Seed only if reference tables are empty
+        cur = conn.execute("SELECT COUNT(*) AS cnt FROM departments")
+        if cur.fetchone()["cnt"] == 0:
+            for table, pk_col, rows in ALL_SEED_GROUPS:
+                for row in rows:
+                    cols    = list(row.keys())
+                    ph      = ", ".join(["?"] * len(cols))
+                    col_str = ", ".join(cols)
+                    vals    = [row[c] for c in cols]
+                    try:
+                        conn.execute(
+                            f"INSERT OR IGNORE INTO {table} ({col_str}) VALUES ({ph})",
+                            vals,
+                        )
+                    except sqlite3.Error:
+                        pass
             conn.commit()
 
-    def _seed_or_load(self):
-        """Loads data from SQLite, or seeds initial statutory data if empty."""
-        with self._get_conn() as conn:
-            c = conn.cursor()
-            c.execute("SELECT COUNT(*) as cnt FROM departments")
-            if c.fetchone()["cnt"] == 0:
-                self._seed_statutory_defaults()
-            else:
-                self._load_from_sqlite()
+        conn.close()
+        self._load_reference_tables()
+        self._load_complaints_from_db()
 
-            c.execute("SELECT COUNT(*) as cnt FROM capex_proposals")
-            if c.fetchone()["cnt"] == 0:
-                self._seed_canonical_capex_proposals()
+    def _load_reference_tables(self) -> None:
+        conn = _get_conn(self.db_path)
+        for row in conn.execute("SELECT * FROM departments"):
+            d = dict(row)
+            self.departments[d["department_id"]] = Department(**d)
+        for row in conn.execute("SELECT * FROM officers"):
+            o = dict(row)
+            self.officers[o["officer_id"]] = Officer(**o)
+        for row in conn.execute("SELECT * FROM sla_policies"):
+            r = dict(row)
+            self.sla_policies[r["policy_id"]] = SlaPolicy(
+                policy_id           = r["policy_id"],
+                department_id       = r["department_id"],
+                category            = r["category"],
+                priority_tier       = PriorityEnum(r["priority_tier"]),
+                resolution_sla_hours= r["resolution_sla_hours"],
+                l2_escalation_hours = r["l2_escalation_hours"],
+                l3_escalation_hours = r["l3_escalation_hours"],
+            )
+        conn.close()
 
-    def _seed_canonical_capex_proposals(self):
-        from app.services.capex_service import CapExService
-        p1 = CapExService.generate_capex_proposal("CORR-PUN-01")
-        p2 = CapExService.generate_capex_proposal("CORR-PUN-02")
-        self.save_capex_proposal(p1)
-        self.save_capex_proposal(p2)
-
-    def _seed_statutory_defaults(self):
-        depts = [
-            Department(department_id="dept-wat-01", name="Water Supply & Pumping", code="WAT", head_officer_email="ce.watersupply@punecorporation.org"),
-            Department(department_id="dept-swm-02", name="Solid Waste Management (SWM)", code="SWM", head_officer_email="dmc.solidwaste@punecorporation.org"),
-            Department(department_id="dept-drn-03", name="Drainage & Sewerage", code="DRN", head_officer_email="ee.drainage@punecorporation.org"),
-            Department(department_id="dept-ele-04", name="Streetlighting & Electrical", code="ELE", head_officer_email="ee.electrical@punecorporation.org"),
-            Department(department_id="dept-rdm-05", name="Roads & Traffic Infrastructure", code="RDM", head_officer_email="ce.roads@punecorporation.org"),
-        ]
-        with self._get_conn() as conn:
-            c = conn.cursor()
-            for d in depts:
-                self.departments[d.department_id] = d
-                c.execute("INSERT OR REPLACE INTO departments VALUES (?, ?, ?, ?)",
-                          (d.department_id, d.name, d.code, d.head_officer_email))
-
-            officers = [
-                Officer(officer_id="off-l1-wat", department_id="dept-wat-01", name="Junior Engineer (Water Works)", designation="Ward 14 Field Responder (Water Works)", hierarchy_tier=1, ward_id="Ward-14 (Kothrud)", phone_number="+91-20-25501001", email="je.water.ward14@pmc.gov.in"),
-                Officer(officer_id="off-l1-swm", department_id="dept-swm-02", name="Sanitary Inspector (SWM)", designation="Ward 14 Field Responder (Sanitation)", hierarchy_tier=1, ward_id="Ward-14 (Kothrud)", phone_number="+91-20-25501002", email="si.swm.ward14@pmc.gov.in"),
-                Officer(officer_id="off-l1-drn", department_id="dept-drn-03", name="Drainage Inspector", designation="Ward 14 Field Responder (Drainage)", hierarchy_tier=1, ward_id="Ward-14 (Kothrud)", phone_number="+91-20-25501003", email="di.drainage.ward14@pmc.gov.in"),
-                Officer(officer_id="off-l1-ele", department_id="dept-ele-04", name="Junior Engineer (Electrical)", designation="Ward 14 Field Responder (Streetlighting)", hierarchy_tier=1, ward_id="Ward-14 (Kothrud)", phone_number="+91-20-25501004", email="je.elec.ward14@pmc.gov.in"),
-                Officer(officer_id="off-l1-rdm", department_id="dept-rdm-05", name="Junior Engineer (Civil - Roads)", designation="Ward 14 Field Responder (Roads & Traffic)", hierarchy_tier=1, ward_id="Ward-14 (Kothrud)", phone_number="+91-20-25501005", email="je.roads.ward14@pmc.gov.in"),
-                Officer(officer_id="off-l2-amc", department_id="dept-wat-01", name="Assistant Municipal Commissioner (AMC)", designation="Ward 14 Administrative Officer", hierarchy_tier=2, ward_id="Ward-14 (Kothrud)", phone_number="+91-20-25502001", email="amc.kothrud@pmc.gov.in"),
-                Officer(officer_id="off-l2-ee", department_id="dept-rdm-05", name="Executive Engineer (EE)", designation="Zone 3 Executive Officer", hierarchy_tier=2, ward_id="Ward-14 (Kothrud)", phone_number="+91-20-25502002", email="ee.zone3@pmc.gov.in"),
-                Officer(officer_id="off-l3-dmc-eng", department_id="dept-wat-01", name="Deputy Municipal Commissioner (Engineering)", designation="DMC Engineering & Infrastructure", hierarchy_tier=3, ward_id="City Central HQ", phone_number="+91-20-25503001", email="dmc.engineering@pmc.gov.in"),
-                Officer(officer_id="off-l3-dmc-swm", department_id="dept-swm-02", name="Deputy Municipal Commissioner (Solid Waste)", designation="DMC Solid Waste Management", hierarchy_tier=3, ward_id="City Central HQ", phone_number="+91-20-25503002", email="dmc.swm@pmc.gov.in"),
-                Officer(officer_id="off-l4-commissioner", department_id="dept-wat-01", name="Municipal Commissioner & Appellate Authority", designation="Municipal Commissioner & Appellate Authority", hierarchy_tier=4, ward_id="PMC Main Bhavan, Shivajinagar", phone_number="+91-20-25504001", email="commissioner@punecorporation.org")
-            ]
-            for o in officers:
-                self.officers[o.officer_id] = o
-                c.execute("INSERT OR REPLACE INTO officers VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
-                          (o.officer_id, o.department_id, o.name, o.designation, o.hierarchy_tier, o.ward_id, o.phone_number, o.email))
-
-            policies = [
-                ("pol-p1", "dept-wat-01", "Water Supply & Pumping", "P1_CRITICAL", 6, 4, 6),
-                ("pol-p2", "dept-swm-02", "Solid Waste Management", "P2_HIGH", 18, 14, 18),
-                ("pol-p3", "dept-ele-04", "Streetlighting & Electrical", "P3_MEDIUM", 36, 30, 36),
-                ("pol-p4", "dept-rdm-05", "Roads & Civil Works", "P4_LOW", 48, 40, 48),
-            ]
-            for p in policies:
-                c.execute("INSERT OR REPLACE INTO sla_policies VALUES (?, ?, ?, ?, ?, ?, ?)", p)
-
-            # Pre-seed SOP templates per PRD Section 6.2.2 & 4.6
-            sop_templates_data = [
-                (
-                    "sop-wat-01",
-                    "Water Supply & Pumping",
-                    json.dumps([
-                        "Dispatch emergency valve squad to isolate feeder line section",
-                        "Excavate trench with JCB backhoe to expose fractured main pipeline",
-                        "Fit high-pressure ductile iron repair clamp / split sleeve collar",
-                        "Perform hydraulic pressure test up to 6.5 bar",
-                        "Backfill trench with compacted quarry sand and reinstate bitumen road cover"
-                    ]),
-                    json.dumps([
-                        {"item": "Ductile Iron Pipeline Collar (150mm)", "quantity": 1, "unit": "Nos"},
-                        {"item": "Rubber Gasket Joint Seal Ring", "quantity": 2, "unit": "Nos"},
-                        {"item": "High-Tensile Galvanized Fasteners", "quantity": 8, "unit": "Nos"},
-                        {"item": "Crushed Stone Aggregates / Wet Mix", "quantity": 1.5, "unit": "Tons"}
-                    ]),
-                    datetime.now(timezone.utc).isoformat()
-                ),
-                (
-                    "sop-swm-02",
-                    "Solid Waste Management",
-                    json.dumps([
-                        "Deploy hydraulic tipper compactor truck to overflowing location",
-                        "Sanitation crew mechanical shoveling and secondary waste containment",
-                        "Apply disinfectant lime and sodium hypochlorite chemical wash",
-                        "Capture time-stamped clean site photograph for digital audit"
-                    ]),
-                    json.dumps([
-                        {"item": "10-Yard Refuse Compactor Vehicle", "quantity": 1, "unit": "Shift"},
-                        {"item": "Hydrated Disinfectant Lime Powder", "quantity": 25, "unit": "Kg"},
-                        {"item": "Sodium Hypochlorite Disinfectant Solution (5%)", "quantity": 10, "unit": "Liters"}
-                    ]),
-                    datetime.now(timezone.utc).isoformat()
-                ),
-                (
-                    "sop-drn-03",
-                    "Drainage & Sewerage",
-                    json.dumps([
-                        "Cordon off manhole hazard perimeter with reflective barricades",
-                        "Deploy high-velocity sewer jetting machine and vacuum suction tanker",
-                        "Remove silt and non-biodegradable blockages from chamber",
-                        "Install heavy-duty SFRC manhole frame and cover",
-                        "Verify free gravity flow along downstream branch"
-                    ]),
-                    json.dumps([
-                        {"item": "Heavy-Duty SFRC Manhole Frame & Lid (Class D400)", "quantity": 1, "unit": "Set"},
-                        {"item": "High-Pressure Jetting Vacuum Suction Unit", "quantity": 1, "unit": "Shift"},
-                        {"item": "Quick-Setting High Early Strength Mortar", "quantity": 40, "unit": "Kg"}
-                    ]),
-                    datetime.now(timezone.utc).isoformat()
-                ),
-                (
-                    "sop-ele-04",
-                    "Streetlighting & Electrical",
-                    json.dumps([
-                        "De-energize feeder pillar circuit and lock out tag out (LOTO)",
-                        "Lineman squad aerial inspection using hydraulic boom ladder",
-                        "Replace damaged cable / junction box / LED driver",
-                        "Check earthing resistance (<= 2 ohms)",
-                        "Re-energize feeder circuit and verify light lux output"
-                    ]),
-                    json.dumps([
-                        {"item": "Armored Underground Aluminum Cable (4-Core 16 sq mm)", "quantity": 15, "unit": "Meters"},
-                        {"item": "IP67 Weatherproof Junction Enclosure Box", "quantity": 1, "unit": "Nos"},
-                        {"item": "90W Outdoor Streetlight LED Driver Unit", "quantity": 1, "unit": "Nos"}
-                    ]),
-                    datetime.now(timezone.utc).isoformat()
-                ),
-                (
-                    "sop-rdm-05",
-                    "Roads & Civil Works",
-                    json.dumps([
-                        "Erect traffic safety cones and retroreflective diversion signage",
-                        "Square cut pothole edges using diamond asphalt cutter to sound pavement",
-                        "Blow out moisture and loose debris with compressed air",
-                        "Apply rapid-curing cationic tack coat primer emulsion",
-                        "Lay high-performance cold mix polymer modified bitumen patch and mechanical plate compactor roll"
-                    ]),
-                    json.dumps([
-                        {"item": "Ready-to-use Polymer Modified Cold Bituminous Mix", "quantity": 120, "unit": "Kg"},
-                        {"item": "Rapid Curing Bitumen Emulsion Tack Coat (RS-1)", "quantity": 15, "unit": "Liters"},
-                        {"item": "Vibratory Plate Compactor Equipment", "quantity": 1, "unit": "Shift"}
-                    ]),
-                    datetime.now(timezone.utc).isoformat()
-                )
-            ]
-            for t in sop_templates_data:
-                c.execute("INSERT OR REPLACE INTO sop_templates VALUES (?, ?, ?, ?, ?)", t)
-
-            conn.commit()
-
-    def _load_from_sqlite(self):
-        with self._get_conn() as conn:
-            c = conn.cursor()
-            for r in c.execute("SELECT * FROM departments"):
-                self.departments[r["department_id"]] = Department(**dict(r))
-            for r in c.execute("SELECT * FROM officers"):
-                self.officers[r["officer_id"]] = Officer(**dict(r))
-            for r in c.execute("SELECT * FROM complaints"):
-                d = dict(r)
-                # Parse JSON fields
-                d["created_at"] = datetime.fromisoformat(d["created_at"])
-                d["sla_deadline"] = datetime.fromisoformat(d["sla_deadline"])
-                d["similar_ticket_ids"] = json.loads(d.pop("similar_ticket_ids_json", "[]") or "[]")
-                d["sop_checklist"] = json.loads(d.pop("sop_checklist_json", "[]") or "[]")
-                d["bill_of_materials"] = json.loads(d.pop("bill_of_materials_json", "[]") or "[]")
-                d["agent_metrics"] = json.loads(d.pop("agent_metrics_json", "{}") or "{}")
-                emb = json.loads(d.pop("embedding_json", "[]") or "[]")
-                if emb:
-                    self.embeddings[d["ticket_id"]] = emb
-                d["is_duplicate"] = bool(d["is_duplicate"])
-                d["missing_critical_info"] = bool(d["missing_critical_info"])
-                d["is_breached"] = bool(d["is_breached"])
-                d["closure_approved"] = bool(d["closure_approved"])
-                d["status"] = TicketStatusEnum(d["status"])
-                d["priority_level"] = PriorityEnum(d["priority_level"])
-                ticket = MunicipalIncidentAgentState(**d)
+    def _load_complaints_from_db(self) -> None:
+        conn = _get_conn(self.db_path)
+        for row in conn.execute("SELECT * FROM complaints"):
+            try:
+                ticket = self._row_to_complaint(dict(row))
                 self.complaints[ticket.ticket_id] = ticket
+            except Exception:
+                pass  # Skip malformed legacy rows
+        conn.close()
 
-    def save_complaint(self, state: MunicipalIncidentAgentState, embedding: Optional[List[float]] = None):
-        """Persists complaint state into memory and SQLite database."""
+    # ------------------------------------------------------------------
+    # Internal: row ↔ complaint conversion
+    # ------------------------------------------------------------------
+
+    @staticmethod
+    def _complaint_to_row(state: MunicipalIncidentAgentState,
+                          embedding: Optional[List[float]] = None) -> tuple:
+        return (
+            state.ticket_id,
+            getattr(state, "ticket_number", state.ticket_id),
+            state.parent_ticket_id,
+            state.raw_input_text,
+            state.canonical_english_summary or "",
+            state.detected_language or "en",
+            state.extracted_category or "",
+            state.priority_level.value,
+            float(state.priority_score),
+            state.status.value,
+            state.channel,
+            state.complainant_name,
+            state.complainant_phone,
+            state.ward_id or "",
+            getattr(state, "location_address", ""),
+            state.landmark,
+            state.latitude,
+            state.longitude,
+            state.cluster_size,
+            1 if state.is_duplicate else 0,
+            state.assigned_department_id or "",
+            state.assigned_officer_id or "",
+            state.escalation_level,
+            state.sla_duration_hours,
+            state.sla_deadline.isoformat() if state.sla_deadline else _now_iso(),
+            1 if state.is_breached else 0,
+            float(state.breach_hours),
+            1 if state.missing_critical_info else 0,
+            state.clarification_prompt,
+            _jdump(state.sop_checklist),
+            _jdump(state.bill_of_materials),
+            state.closure_proof_photo_url,
+            1 if state.closure_approved else 0,
+            float(getattr(state, "cv_structural_score", 0.0)),
+            1 if getattr(state, "cv_verified", False) else 0,
+            getattr(state, "closure_verification_id", None),
+            1 if getattr(state, "closure_dual_signed", False) else 0,
+            _jdump(embedding or []),
+            _jdump(state.agent_metrics),
+            state.resolved_at.isoformat() if getattr(state, "resolved_at", None) else None,
+            state.created_at.isoformat() if state.created_at else _now_iso(),
+        )
+
+    @staticmethod
+    def _row_to_complaint(d: dict) -> MunicipalIncidentAgentState:
+        return MunicipalIncidentAgentState(
+            ticket_id                 = d["ticket_id"],
+            parent_ticket_id          = d.get("parent_ticket_id"),
+            created_at                = _parse_dt(d.get("created_at")),
+            raw_input_text            = d.get("raw_text") or d.get("raw_input_text", ""),
+            canonical_english_summary = d.get("canonical_text") or d.get("canonical_english_summary", ""),
+            detected_language         = d.get("detected_language", "en"),
+            channel                   = d.get("channel", "WEB"),
+            complainant_name          = d.get("complainant_name"),
+            complainant_phone         = d.get("complainant_phone"),
+            ward_id                   = d.get("ward_id", ""),
+            landmark                  = d.get("landmark"),
+            latitude                  = float(d["latitude"]) if d.get("latitude") else 18.5074,
+            longitude                 = float(d["longitude"]) if d.get("longitude") else 73.8077,
+            extracted_category        = d.get("category") or d.get("extracted_category", ""),
+            priority_level            = PriorityEnum(d.get("priority", "P3_MEDIUM")),
+            priority_score            = float(d.get("priority_score", 50.0)),
+            status                    = TicketStatusEnum(d.get("status", "REGISTERED")),
+            cluster_size              = int(d.get("cluster_size", 1)),
+            is_duplicate              = bool(int(d.get("is_duplicate", 0))),
+            assigned_department_id    = d.get("assigned_department_id", ""),
+            assigned_officer_id       = d.get("assigned_officer_id", ""),
+            assigned_department_name  = d.get("assigned_department_name", ""),
+            assigned_officer_name     = d.get("assigned_officer_name", ""),
+            assigned_officer_designation = d.get("assigned_officer_designation", ""),
+            escalation_level          = int(d.get("escalation_level", 1)),
+            sla_duration_hours        = int(d.get("sla_duration_hours", 24)),
+            sla_deadline              = _parse_dt(d.get("sla_deadline")),
+            is_breached               = bool(int(d.get("is_breached", 0))),
+            breach_hours              = float(d.get("breach_hours", 0.0)),
+            missing_critical_info     = bool(int(d.get("missing_critical_info", 0))),
+            clarification_prompt      = d.get("clarification_prompt"),
+            sop_checklist             = _jload(d.get("sop_checklist_json"), []),
+            bill_of_materials         = _jload(d.get("bill_of_materials_json"), []),
+            closure_proof_photo_url   = d.get("closure_proof_photo_url"),
+            closure_approved          = bool(int(d.get("closure_approved", 0))),
+            cv_structural_score       = float(d.get("cv_structural_score", 0.0)),
+            cv_verified               = bool(int(d.get("cv_verified", 0))),
+            closure_verification_id   = d.get("closure_verification_id"),
+            closure_dual_signed       = bool(int(d.get("closure_dual_signed", 0))),
+            agent_metrics             = _jload(d.get("agent_metrics_json"), {}),
+        )
+
+    # ------------------------------------------------------------------
+    # COMPLAINTS — create / read / update
+    # ------------------------------------------------------------------
+
+    def save_complaint(self,
+                       state: MunicipalIncidentAgentState,
+                       embedding: Optional[List[float]] = None) -> None:
+        """Upserts a complaint into memory cache and SQLite."""
         self.complaints[state.ticket_id] = state
         if embedding:
             self.embeddings[state.ticket_id] = embedding
 
-        with self._get_conn() as conn:
-            c = conn.cursor()
-            c.execute("""
-            INSERT OR REPLACE INTO complaints VALUES (
-                ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
-                ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
-                ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
-                ?, ?, ?, ?, ?, ?, ?
+        row = self._complaint_to_row(state, embedding)
+        conn = _get_conn(self.db_path)
+        conn.execute("""
+            INSERT OR REPLACE INTO complaints (
+                ticket_id, ticket_number, parent_ticket_id,
+                raw_text, canonical_text, detected_language,
+                category, priority, priority_score, status,
+                channel, complainant_name, complainant_phone,
+                ward_id, location_address, landmark, latitude, longitude,
+                cluster_size, is_duplicate,
+                assigned_department_id, assigned_officer_id,
+                escalation_level, sla_duration_hours, sla_deadline,
+                is_breached, breach_hours,
+                missing_critical_info, clarification_prompt,
+                sop_checklist_json, bill_of_materials_json,
+                closure_proof_photo_url, closure_approved,
+                cv_structural_score, cv_verified,
+                closure_verification_id, closure_dual_signed,
+                embedding_json, agent_metrics_json,
+                resolved_at, created_at
+            ) VALUES (
+                ?,?,?,?,?,?,?,?,?,?,
+                ?,?,?,?,?,?,?,?,?,?,
+                ?,?,?,?,?,?,?,?,?,?,
+                ?,?,?,?,?,?,?,?,?,?,
+                ?,?
             )
-            """, (
-                state.ticket_id,
-                state.created_at.isoformat(),
-                state.raw_input_text,
-                state.channel,
-                state.ward_id,
-                state.latitude,
-                state.longitude,
-                state.complainant_name,
-                state.complainant_phone,
-                state.detected_language,
-                state.extracted_category,
-                state.canonical_english_summary,
-                state.landmark,
-                1 if state.missing_critical_info else 0,
-                state.clarification_prompt,
-                1 if state.is_duplicate else 0,
-                state.parent_ticket_id,
-                state.cluster_size,
-                json.dumps(state.similar_ticket_ids),
-                state.priority_level.value,
-                state.priority_score,
-                state.assigned_department_id,
-                state.assigned_department_name,
-                state.assigned_officer_id,
-                state.assigned_officer_name,
-                state.assigned_officer_designation,
-                state.sla_duration_hours,
-                state.sla_deadline.isoformat(),
-                state.status.value,
-                state.escalation_level,
-                1 if state.is_breached else 0,
-                json.dumps(state.sop_checklist),
-                json.dumps(state.bill_of_materials),
-                state.closure_proof_photo_url,
-                1 if state.closure_approved else 0,
-                json.dumps(state.agent_metrics),
-                json.dumps(embedding or self.embeddings.get(state.ticket_id, []))
-            ))
-            conn.commit()
+        """, row)
+        conn.commit()
+        conn.close()
 
     def get_complaint(self, ticket_id: str) -> Optional[MunicipalIncidentAgentState]:
-        """Fetches a complaint by ticket_id from in-memory cache or SQLite database."""
+        """Returns complaint from cache; falls back to SQLite."""
         if ticket_id in self.complaints:
             return self.complaints[ticket_id]
-        with self._get_conn() as conn:
-            c = conn.cursor()
-            c.execute("SELECT * FROM complaints WHERE ticket_id = ?", (ticket_id,))
-            r = c.fetchone()
-            if not r:
-                return None
+        conn = _get_conn(self.db_path)
+        row = conn.execute(
+            "SELECT * FROM complaints WHERE ticket_id = ?", (ticket_id,)
+        ).fetchone()
+        conn.close()
+        if not row:
+            return None
+        ticket = self._row_to_complaint(dict(row))
+        self.complaints[ticket_id] = ticket
+        return ticket
+
+    def list_complaints(self,
+                        status: Optional[str]          = None,
+                        department_id: Optional[str]   = None,
+                        ward_id: Optional[str]          = None,
+                        priority: Optional[str]         = None,
+                        escalation_level: Optional[int] = None,
+                        limit: int                      = 200) -> List[MunicipalIncidentAgentState]:
+        """Filtered list of complaints for Kanban / map views."""
+        wheres, vals = [], []
+        if status:
+            wheres.append("status = ?"); vals.append(status)
+        if department_id:
+            wheres.append("assigned_department_id = ?"); vals.append(department_id)
+        if ward_id:
+            wheres.append("ward_id = ?"); vals.append(ward_id)
+        if priority:
+            wheres.append("priority = ?"); vals.append(priority)
+        if escalation_level is not None:
+            wheres.append("escalation_level = ?"); vals.append(escalation_level)
+
+        where_sql = ("WHERE " + " AND ".join(wheres)) if wheres else ""
+        sql = f"SELECT * FROM complaints {where_sql} ORDER BY sla_deadline ASC LIMIT ?"
+        vals.append(limit)
+
+        conn = _get_conn(self.db_path)
+        rows = conn.execute(sql, vals).fetchall()
+        conn.close()
+        results = []
+        for r in rows:
+            try:
+                results.append(self._row_to_complaint(dict(r)))
+            except Exception:
+                pass
+        return results
+
+    def update_complaint_status(self, ticket_id: str,
+                                 new_status: TicketStatusEnum,
+                                 resolved_at: Optional[datetime] = None) -> bool:
+        ticket = self.get_complaint(ticket_id)
+        if not ticket:
+            return False
+        ticket.status = new_status
+        if resolved_at:
+            ticket.resolved_at = resolved_at
+        self.save_complaint(ticket)
+        return True
+
+    # ------------------------------------------------------------------
+    # ESCALATIONS — append / read
+    # ------------------------------------------------------------------
+
+    def save_escalation(self, rec: EscalationRecord) -> None:
+        """Appends an escalation record (immutable — INSERT OR IGNORE)."""
+        self.escalations.append(rec)
+        conn = _get_conn(self.db_path)
+        conn.execute("""
+            INSERT OR IGNORE INTO escalations (
+                escalation_id, ticket_id,
+                from_officer_id, to_officer_id,
+                from_officer_name, to_officer_name,
+                previous_level, new_level,
+                breach_hours_overdue, trigger_reason, escalated_at
+            ) VALUES (?,?,?,?,?,?,?,?,?,?,?)
+        """, (
+            rec.escalation_id,
+            rec.ticket_id,
+            rec.from_officer_id,
+            rec.to_officer_id,
+            rec.from_officer_name,
+            rec.to_officer_name,
+            rec.previous_level,
+            rec.new_level,
+            float(rec.breach_hours_overdue),
+            rec.trigger_reason,
+            rec.escalated_at.isoformat() if rec.escalated_at else _now_iso(),
+        ))
+        conn.commit()
+        conn.close()
+
+    def get_escalations_for_ticket(self, ticket_id: str) -> List[dict]:
+        conn = _get_conn(self.db_path)
+        rows = conn.execute(
+            "SELECT * FROM escalations WHERE ticket_id = ? ORDER BY escalated_at ASC",
+            (ticket_id,)
+        ).fetchall()
+        conn.close()
+        return [dict(r) for r in rows]
+
+    # ------------------------------------------------------------------
+    # AUDIT LOGS — append / read
+    # ------------------------------------------------------------------
+
+    def save_audit_log(self, rec: AuditLogRecord) -> None:
+        """Appends an audit log entry (immutable — INSERT OR IGNORE)."""
+        self.audit_logs.append(rec)
+        conn = _get_conn(self.db_path)
+        conn.execute("""
+            INSERT OR IGNORE INTO audit_logs (
+                log_id, ticket_id, acting_agent, action_type,
+                payload_snapshot, created_at
+            ) VALUES (?,?,?,?,?,?)
+        """, (
+            rec.log_id,
+            rec.ticket_id,
+            rec.acting_agent,
+            rec.action_type,
+            json.dumps(rec.payload_snapshot) if rec.payload_snapshot else "{}",
+            rec.created_at.isoformat() if rec.created_at else _now_iso(),
+        ))
+        conn.commit()
+        conn.close()
+
+    def get_audit_trail(self, ticket_id: str) -> List[dict]:
+        conn = _get_conn(self.db_path)
+        rows = conn.execute(
+            "SELECT * FROM audit_logs WHERE ticket_id = ? ORDER BY created_at ASC",
+            (ticket_id,)
+        ).fetchall()
+        conn.close()
+        results = []
+        for r in rows:
             d = dict(r)
-            d["created_at"] = datetime.fromisoformat(d["created_at"])
-            d["sla_deadline"] = datetime.fromisoformat(d["sla_deadline"])
-            d["similar_ticket_ids"] = json.loads(d.pop("similar_ticket_ids_json", "[]") or "[]")
-            d["sop_checklist"] = json.loads(d.pop("sop_checklist_json", "[]") or "[]")
-            d["bill_of_materials"] = json.loads(d.pop("bill_of_materials_json", "[]") or "[]")
-            d["agent_metrics"] = json.loads(d.pop("agent_metrics_json", "{}") or "{}")
-            emb = json.loads(d.pop("embedding_json", "[]") or "[]")
-            if emb:
-                self.embeddings[d["ticket_id"]] = emb
-            d["is_duplicate"] = bool(d["is_duplicate"])
-            d["missing_critical_info"] = bool(d["missing_critical_info"])
-            d["is_breached"] = bool(d["is_breached"])
-            d["closure_approved"] = bool(d["closure_approved"])
-            d["status"] = TicketStatusEnum(d["status"])
-            d["priority_level"] = PriorityEnum(d["priority_level"])
-            ticket = MunicipalIncidentAgentState(**d)
-            self.complaints[ticket.ticket_id] = ticket
-            return ticket
+            d["payload_snapshot"] = _jload(d.get("payload_snapshot"), {})
+            results.append(d)
+        return results
+
+    # ------------------------------------------------------------------
+    # CITIZENS — upsert / read
+    # ------------------------------------------------------------------
+
+    def upsert_citizen(self, phone_number: str,
+                       display_name: Optional[str] = None,
+                       preferred_language: str = "auto") -> str:
+        """Creates or returns citizen_id for the given phone number."""
+        conn = _get_conn(self.db_path)
+        row = conn.execute(
+            "SELECT citizen_id FROM citizens WHERE phone_number = ?", (phone_number,)
+        ).fetchone()
+        if row:
+            conn.close()
+            return row["citizen_id"]
+        cid = str(uuid.uuid4())
+        conn.execute("""
+            INSERT INTO citizens (citizen_id, phone_number, display_name, preferred_language, created_at)
+            VALUES (?,?,?,?,?)
+        """, (cid, phone_number, display_name, preferred_language, _now_iso()))
+        conn.commit()
+        conn.close()
+        return cid
+
+    def get_citizen_by_phone(self, phone_number: str) -> Optional[dict]:
+        conn = _get_conn(self.db_path)
+        row = conn.execute(
+            "SELECT * FROM citizens WHERE phone_number = ?", (phone_number,)
+        ).fetchone()
+        conn.close()
+        return dict(row) if row else None
+
+    # ------------------------------------------------------------------
+    # COMPLAINT SUBSCRIBERS — link / read
+    # ------------------------------------------------------------------
+
+    def add_complaint_subscriber(self, complaint_id: str,
+                                  citizen_id: str,
+                                  is_original_filer: bool = False) -> None:
+        conn = _get_conn(self.db_path)
+        conn.execute("""
+            INSERT OR IGNORE INTO complaint_subscribers
+                (complaint_id, citizen_id, is_original_filer, subscribed_at)
+            VALUES (?,?,?,?)
+        """, (complaint_id, citizen_id, 1 if is_original_filer else 0, _now_iso()))
+        conn.commit()
+        conn.close()
+
+    def get_complaint_subscribers(self, complaint_id: str) -> List[dict]:
+        conn = _get_conn(self.db_path)
+        rows = conn.execute("""
+            SELECT cs.*, c.phone_number, c.display_name, c.preferred_language
+            FROM complaint_subscribers cs
+            JOIN citizens c ON c.citizen_id = cs.citizen_id
+            WHERE cs.complaint_id = ?
+        """, (complaint_id,)).fetchall()
+        conn.close()
+        return [dict(r) for r in rows]
+
+    # ------------------------------------------------------------------
+    # NOTIFICATION LOG — insert / read
+    # ------------------------------------------------------------------
+
+    def log_notification(self,
+                          ticket_id: str,
+                          channel: str,
+                          direction: str,
+                          message_body: str,
+                          milestone: Optional[str]       = None,
+                          citizen_id: Optional[str]      = None,
+                          delivery_status: str           = "PENDING",
+                          provider_message_id: Optional[str] = None) -> str:
+        nid = str(uuid.uuid4())
+        conn = _get_conn(self.db_path)
+        conn.execute("""
+            INSERT INTO notification_log (
+                notification_id, ticket_id, citizen_id, channel, direction,
+                milestone, message_body, delivery_status, provider_message_id, created_at
+            ) VALUES (?,?,?,?,?,?,?,?,?,?)
+        """, (nid, ticket_id, citizen_id, channel, direction,
+              milestone, message_body, delivery_status, provider_message_id, _now_iso()))
+        conn.commit()
+        conn.close()
+        return nid
+
+    def update_notification_status(self, notification_id: str, status: str,
+                                    provider_message_id: Optional[str] = None) -> None:
+        conn = _get_conn(self.db_path)
+        if provider_message_id:
+            conn.execute(
+                "UPDATE notification_log SET delivery_status=?, provider_message_id=? WHERE notification_id=?",
+                (status, provider_message_id, notification_id)
+            )
+        else:
+            conn.execute(
+                "UPDATE notification_log SET delivery_status=? WHERE notification_id=?",
+                (status, notification_id)
+            )
+        conn.commit()
+        conn.close()
+
+    def get_notifications_for_ticket(self, ticket_id: str) -> List[dict]:
+        conn = _get_conn(self.db_path)
+        rows = conn.execute(
+            "SELECT * FROM notification_log WHERE ticket_id = ? ORDER BY created_at ASC",
+            (ticket_id,)
+        ).fetchall()
+        conn.close()
+        return [dict(r) for r in rows]
+
+    # ------------------------------------------------------------------
+    # FEEDBACK POLLS — create / respond
+    # ------------------------------------------------------------------
+
+    def create_feedback_poll(self, ticket_id: str) -> str:
+        pid  = str(uuid.uuid4())
+        now  = datetime.now(timezone.utc)
+        expires = (now + timedelta(hours=24)).strftime("%Y-%m-%dT%H:%M:%SZ")
+        conn = _get_conn(self.db_path)
+        conn.execute("""
+            INSERT INTO feedback_polls (poll_id, ticket_id, sent_at, expires_at)
+            VALUES (?,?,?,?)
+        """, (pid, ticket_id, now.strftime("%Y-%m-%dT%H:%M:%SZ"), expires))
+        conn.commit()
+        conn.close()
+        return pid
+
+    def record_poll_response(self, ticket_id: str, response: str) -> bool:
+        """Records citizen poll response ('RESOLVED_CONFIRMED' or 'UNRESOLVED')."""
+        conn = _get_conn(self.db_path)
+        cur = conn.execute("""
+            UPDATE feedback_polls
+            SET response = ?, responded_at = ?
+            WHERE ticket_id = ? AND response IS NULL
+        """, (response, _now_iso(), ticket_id))
+        conn.commit()
+        conn.close()
+        return cur.rowcount > 0
+
+    def get_poll_for_ticket(self, ticket_id: str) -> Optional[dict]:
+        conn = _get_conn(self.db_path)
+        row = conn.execute(
+            "SELECT * FROM feedback_polls WHERE ticket_id = ? ORDER BY sent_at DESC LIMIT 1",
+            (ticket_id,)
+        ).fetchone()
+        conn.close()
+        return dict(row) if row else None
+
+    # ------------------------------------------------------------------
+    # MEDIA ASSETS — save / read
+    # ------------------------------------------------------------------
+
+    def save_media_asset(self,
+                          ticket_id: str,
+                          asset_type: str,
+                          storage_url: str,
+                          geotag_lat: Optional[float]        = None,
+                          geotag_lng: Optional[float]        = None,
+                          geotag_valid: Optional[bool]       = None,
+                          sha256_hash: Optional[str]         = None,
+                          uploaded_by_officer_id: Optional[str] = None) -> str:
+        mid = str(uuid.uuid4())
+        gv  = None if geotag_valid is None else (1 if geotag_valid else 0)
+        conn = _get_conn(self.db_path)
+        conn.execute("""
+            INSERT INTO media_assets (
+                media_id, ticket_id, asset_type, storage_url,
+                geotag_lat, geotag_lng, geotag_valid, sha256_hash,
+                uploaded_by_officer_id, created_at
+            ) VALUES (?,?,?,?,?,?,?,?,?,?)
+        """, (mid, ticket_id, asset_type, storage_url,
+              geotag_lat, geotag_lng, gv, sha256_hash,
+              uploaded_by_officer_id, _now_iso()))
+        conn.commit()
+        conn.close()
+        return mid
+
+    def get_media_for_ticket(self, ticket_id: str) -> List[dict]:
+        conn = _get_conn(self.db_path)
+        rows = conn.execute(
+            "SELECT * FROM media_assets WHERE ticket_id = ? ORDER BY created_at ASC",
+            (ticket_id,)
+        ).fetchall()
+        conn.close()
+        return [dict(r) for r in rows]
+
+    # ------------------------------------------------------------------
+    # SOP TEMPLATES — read
+    # ------------------------------------------------------------------
+
+    def get_sop_template(self, category: str) -> Optional[dict]:
+        conn = _get_conn(self.db_path)
+        row = conn.execute(
+            "SELECT * FROM sop_templates WHERE category = ?", (category,)
+        ).fetchone()
+        conn.close()
+        if not row:
+            return None
+        d = dict(row)
+        d["checklist_items"]     = _jload(d.get("checklist_items_json"), [])
+        d["bill_of_materials"]   = _jload(d.get("bill_of_materials_json"), [])
+        return d
+
+    def list_sop_templates(self) -> List[dict]:
+        conn = _get_conn(self.db_path)
+        rows = conn.execute("SELECT * FROM sop_templates ORDER BY category").fetchall()
+        conn.close()
+        results = []
+        for r in rows:
+            d = dict(r)
+            d["checklist_items"]   = _jload(d.get("checklist_items_json"), [])
+            d["bill_of_materials"] = _jload(d.get("bill_of_materials_json"), [])
+            results.append(d)
+        return results
+
+    # ------------------------------------------------------------------
+    # PRIORITY WEIGHTS — read (Agent B)
+    # ------------------------------------------------------------------
+
+    def get_priority_weights(self, category: str) -> Optional[dict]:
+        conn = _get_conn(self.db_path)
+        row = conn.execute(
+            "SELECT * FROM priority_weights WHERE category = ?", (category,)
+        ).fetchone()
+        conn.close()
+        return dict(row) if row else None
+
+    def list_priority_weights(self) -> List[dict]:
+        conn = _get_conn(self.db_path)
+        rows = conn.execute("SELECT * FROM priority_weights ORDER BY category").fetchall()
+        conn.close()
+        return [dict(r) for r in rows]
+
+    # ------------------------------------------------------------------
+    # CLOSURE VERIFICATIONS — save / read / update
+    # ------------------------------------------------------------------
+
+    def save_closure_verification(self, verif: dict) -> None:
+        conn = _get_conn(self.db_path)
+        conn.execute("""
+            INSERT OR REPLACE INTO closure_verifications (
+                verification_id, ticket_id, token,
+                required_signatures, collected_signatures, signers_json,
+                cv_structural_score, cv_verified, status, created_at
+            ) VALUES (?,?,?,?,?,?,?,?,?,?)
+        """, (
+            verif.get("verification_id"),
+            verif.get("ticket_id"),
+            verif.get("token"),
+            int(verif.get("required_signatures", 1)),
+            int(verif.get("collected_signatures", 0)),
+            json.dumps(verif.get("signers", [])),
+            float(verif.get("cv_structural_score", 0.0)),
+            1 if verif.get("cv_verified", False) else 0,
+            verif.get("status", "PENDING_CITIZEN_SIGNOFF"),
+            verif.get("created_at") or _now_iso(),
+        ))
+        conn.commit()
+        conn.close()
+
+    def get_closure_verification(self, ticket_id: str) -> Optional[dict]:
+        conn = _get_conn(self.db_path)
+        row = conn.execute(
+            "SELECT * FROM closure_verifications WHERE ticket_id = ? ORDER BY created_at DESC LIMIT 1",
+            (ticket_id,)
+        ).fetchone()
+        conn.close()
+        if not row:
+            return None
+        d = dict(row)
+        d["signers"]     = _jload(d.get("signers_json"), [])
+        d["cv_verified"] = bool(d.get("cv_verified", 0))
+        return d
+
+    def get_closure_verification_by_token(self, token: str) -> Optional[dict]:
+        conn = _get_conn(self.db_path)
+        row = conn.execute(
+            "SELECT * FROM closure_verifications WHERE token = ?", (token,)
+        ).fetchone()
+        conn.close()
+        if not row:
+            return None
+        d = dict(row)
+        d["signers"]     = _jload(d.get("signers_json"), [])
+        d["cv_verified"] = bool(d.get("cv_verified", 0))
+        return d
+
+    # ------------------------------------------------------------------
+    # CAPEX PROPOSALS — save / read / update
+    # ------------------------------------------------------------------
+
+    def save_capex_proposal(self, proposal: dict) -> None:
+        conn = _get_conn(self.db_path)
+        conn.execute("""
+            INSERT OR REPLACE INTO capex_proposals (
+                proposal_id, resolution_number, corridor_id, corridor_name,
+                ward_id, department_id, department_name,
+                incident_count_90d, centroid_lat, centroid_lng, radius_meters,
+                failure_mode, root_cause_diagnosis, recommended_action,
+                budget_head, estimated_cost_inr, estimated_cost_lakhs,
+                dsr_items_json, standing_committee_draft_md, status, created_at
+            ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+        """, (
+            proposal["proposal_id"],
+            proposal.get("resolution_number"),
+            proposal.get("corridor_id"),
+            proposal["corridor_name"],
+            proposal["ward_id"],
+            proposal["department_id"],
+            proposal.get("department_name", ""),
+            int(proposal.get("incident_count_90d", 0)),
+            float(proposal.get("centroid_lat", 18.5074)),
+            float(proposal.get("centroid_lng", 73.8077)),
+            float(proposal.get("radius_meters", 200.0)),
+            proposal.get("failure_mode", ""),
+            proposal.get("root_cause_diagnosis", ""),
+            proposal.get("recommended_action", ""),
+            proposal.get("budget_head", ""),
+            float(proposal.get("estimated_cost_inr", 0.0)),
+            float(proposal.get("estimated_cost_lakhs", 0.0)),
+            json.dumps(proposal.get("dsr_items", [])),
+            proposal.get("standing_committee_draft_md", ""),
+            proposal.get("status", "DRAFT_PENDING_COMMITTEE"),
+            proposal.get("created_at") or _now_iso(),
+        ))
+        conn.commit()
+        conn.close()
+
+    def get_capex_proposals(self) -> List[dict]:
+        conn = _get_conn(self.db_path)
+        rows = conn.execute(
+            "SELECT * FROM capex_proposals ORDER BY created_at DESC"
+        ).fetchall()
+        conn.close()
+        results = []
+        for r in rows:
+            d = dict(r)
+            d["dsr_items"] = _jload(d.get("dsr_items_json"), [])
+            results.append(d)
+        return results
+
+    def get_capex_proposal(self, proposal_id: str) -> Optional[dict]:
+        conn = _get_conn(self.db_path)
+        row = conn.execute(
+            "SELECT * FROM capex_proposals WHERE proposal_id = ?", (proposal_id,)
+        ).fetchone()
+        conn.close()
+        if not row:
+            return None
+        d = dict(row)
+        d["dsr_items"] = _jload(d.get("dsr_items_json"), [])
+        return d
+
+    def update_capex_proposal_status(self, proposal_id: str, status: str) -> None:
+        conn = _get_conn(self.db_path)
+        conn.execute(
+            "UPDATE capex_proposals SET status = ? WHERE proposal_id = ?",
+            (status, proposal_id)
+        )
+        conn.commit()
+        conn.close()
+
+    # ------------------------------------------------------------------
+    # OFFICER LOOKUP HELPERS (used by Agent D + escalation)
+    # ------------------------------------------------------------------
 
     def get_tier_officer(self, department_id: str, tier: int) -> Officer:
-        if tier == 4:
+        """Returns the designated officer for a given department + tier."""
+        # Tier 4 — always the Municipal Commissioner
+        if tier >= 4:
             return self.officers["off-l4-commissioner"]
+
+        # Tier 3 — DMC per department cluster
         if tier == 3:
             if "swm" in department_id.lower():
-                return self.officers["off-l3-dmc-swm"]
-            return self.officers["off-l3-dmc-eng"]
+                return self.officers.get("off-l3-dmc-swm", self.officers["off-l4-commissioner"])
+            if "drn" in department_id.lower():
+                return self.officers.get("off-l3-dmc-drn", self.officers["off-l3-dmc-eng"])
+            return self.officers.get("off-l3-dmc-eng", self.officers["off-l4-commissioner"])
+
+        # Tier 2 — AMC (default) or EE (roads/civil)
         if tier == 2:
-            if "rdm" in department_id.lower() or "civil" in department_id.lower():
-                return self.officers["off-l2-ee"]
-            return self.officers["off-l2-amc"]
+            if "rdm" in department_id.lower():
+                return self.officers.get("off-l2-ee-w14", self.officers.get("off-l2-amc-w14"))
+            return self.officers.get("off-l2-amc-w14", list(self.officers.values())[0])
+
+        # Tier 1 — ward field responder matching department
         for off in self.officers.values():
             if off.department_id == department_id and off.hierarchy_tier == 1:
                 return off
-        return self.officers["off-l1-wat"]
+
+        # Fallback
+        return self.officers.get("off-l1-wat-w14", list(self.officers.values())[0])
+
+    def get_officer(self, officer_id: str) -> Optional[Officer]:
+        return self.officers.get(officer_id)
+
+    def list_officers(self, department_id: Optional[str] = None,
+                      hierarchy_tier: Optional[int] = None,
+                      ward_id: Optional[str] = None) -> List[Officer]:
+        result = list(self.officers.values())
+        if department_id:
+            result = [o for o in result if o.department_id == department_id]
+        if hierarchy_tier is not None:
+            result = [o for o in result if o.hierarchy_tier == hierarchy_tier]
+        if ward_id:
+            result = [o for o in result if o.ward_id == ward_id]
+        return result
+
+    def list_departments(self) -> List[Department]:
+        return list(self.departments.values())
+
+    def list_sla_policies(self) -> List[SlaPolicy]:
+        return list(self.sla_policies.values())
+
+    # ------------------------------------------------------------------
+    # SLA EVALUATION (Agent D — virtual clock sweep)
+    # ------------------------------------------------------------------
 
     def evaluate_all_slas(self) -> List[Dict[str, Any]]:
-        now = ClockService.get_current_virtual_time()
-        escalated_events = []
-        for ticket in self.complaints.values():
-            if ticket.status == TicketStatusEnum.RESOLVED:
+        """
+        Evaluates every non-resolved ticket against the current virtual clock.
+        Enforces the 4-tier RTS Act 2015 escalation ladder:
+          - 80% elapsed or 6h unacknowledged  → L2  (AMC/EE)
+          - 100% elapsed (hard breach)         → L3  (DMC)
+          - 150% elapsed or repeated reopen    → L4  (Commissioner)
+
+        Inserts EscalationRecord + AuditLogRecord for each promotion.
+        Returns list of escalation event dicts for WebSocket broadcast.
+        """
+        now              = ClockService.get_current_virtual_time()
+        escalated_events: List[Dict[str, Any]] = []
+
+        for ticket in list(self.complaints.values()):
+            if ticket.status in (TicketStatusEnum.RESOLVED,):
                 continue
-            elapsed_hours = (now - ticket.created_at).total_seconds() / 3600.0
-            sla_hours = max(1.0, float(ticket.sla_duration_hours))
-            ratio = elapsed_hours / sla_hours
 
-            target_tier = 1
+            sla_hours  = max(1.0, float(ticket.sla_duration_hours))
+            elapsed_h  = (now - ticket.created_at).total_seconds() / 3600.0
+            ratio      = elapsed_h / sla_hours
+
+            # Determine target escalation tier
             if ratio >= 1.5:
-                target_tier = 4
-                reason = "Overdue > 150% of statutory SLA. Escalated to Municipal Commissioner."
+                target  = 4
+                reason  = (f"Ticket overdue by {ratio:.1f}× statutory SLA "
+                           f"({elapsed_h:.1f}h elapsed vs {sla_hours}h SLA). "
+                           f"Escalated to Municipal Commissioner per RTS Act 2015 §12.")
             elif ratio >= 1.0:
-                target_tier = 3
-                reason = "Hard statutory SLA breach reached. Escalated to DMC."
-            elif ratio >= 0.8 or elapsed_hours >= 6.0:
-                target_tier = 2
-                reason = "Unacknowledged within 6h or 80% SLA elapsed. Escalated to AMC."
+                target  = 3
+                reason  = (f"Hard 100% SLA breach — {elapsed_h:.1f}h elapsed vs {sla_hours}h SLA. "
+                           f"Escalated to DMC per RTS Act 2015 §10.")
+            elif ratio >= 0.8 or elapsed_h >= 6.0:
+                target  = 2
+                reason  = (f"Ticket unacknowledged for {elapsed_h:.1f}h "
+                           f"({ratio*100:.0f}% SLA elapsed). "
+                           f"Escalated to AMC per RTS Act 2015 §8.")
+            else:
+                continue  # Within safe window — no action
 
-            if target_tier > ticket.escalation_level:
-                prev_lvl = ticket.escalation_level
-                ticket.escalation_level = target_tier
-                if target_tier >= 3:
-                    ticket.status = TicketStatusEnum.ESCALATED
-                    ticket.is_breached = True
+            if target <= ticket.escalation_level:
+                continue  # Already at or above this tier
 
-                new_off = self.get_tier_officer(ticket.assigned_department_id, target_tier)
-                ticket.assigned_officer_id = new_off.officer_id
-                ticket.assigned_officer_name = new_off.name
-                ticket.assigned_officer_designation = new_off.designation
+            prev_level     = ticket.escalation_level
+            prev_officer_id = ticket.assigned_officer_id
+            prev_officer_name = ticket.assigned_officer_name
 
-                rec = EscalationRecord(
-                    ticket_id=ticket.ticket_id,
-                    previous_level=prev_lvl,
-                    new_level=target_tier,
-                    previous_officer_name="Field Team",
-                    new_officer_name=f"{new_off.name} ({new_off.designation})",
-                    trigger_reason=reason,
-                    hours_overdue=round(max(0.0, elapsed_hours - sla_hours), 2),
-                    timestamp=now
-                )
-                self.escalations.append(rec)
-                self.save_complaint(ticket)
-                escalated_events.append({"ticket_id": ticket.ticket_id, "new_level": target_tier, "officer": new_off.name, "reason": reason})
+            # Promote
+            ticket.escalation_level = target
+            if target >= 3:
+                ticket.status     = TicketStatusEnum.ESCALATED
+                ticket.is_breached = True
+                ticket.breach_hours = max(0.0, round(elapsed_h - sla_hours, 2))
+
+            new_officer = self.get_tier_officer(ticket.assigned_department_id, target)
+            ticket.assigned_officer_id          = new_officer.officer_id
+            ticket.assigned_officer_name        = new_officer.name
+            ticket.assigned_officer_designation = new_officer.designation
+
+            # Persist escalation ledger row
+            breach_over = max(0.0, round(elapsed_h - sla_hours, 2))
+            esc = EscalationRecord(
+                ticket_id         = ticket.ticket_id,
+                from_officer_id   = prev_officer_id,
+                from_officer_name = prev_officer_name,
+                to_officer_id     = new_officer.officer_id,
+                to_officer_name   = new_officer.name,
+                previous_level    = prev_level,
+                new_level         = target,
+                breach_hours_overdue = breach_over,
+                trigger_reason    = reason,
+                escalated_at      = now,
+            )
+            self.save_escalation(esc)
+
+            # Immutable audit log entry
+            audit = AuditLogRecord(
+                ticket_id     = ticket.ticket_id,
+                acting_agent  = "Agent:SLA_Orchestrator",
+                action_type   = f"AUTO_ESCALATED_L{prev_level}_TO_L{target}",
+                payload_snapshot = {
+                    "previous_level":    prev_level,
+                    "new_level":         target,
+                    "elapsed_hours":     round(elapsed_h, 2),
+                    "sla_hours":         sla_hours,
+                    "breach_hours_overdue": breach_over,
+                    "new_officer":       new_officer.name,
+                    "new_designation":   new_officer.designation,
+                    "trigger_reason":    reason,
+                    "virtual_time":      now.isoformat(),
+                },
+                created_at = now,
+            )
+            self.save_audit_log(audit)
+            self.save_complaint(ticket)
+
+            escalated_events.append({
+                "ticket_id":   ticket.ticket_id,
+                "old_level":   prev_level,
+                "new_level":   target,
+                "elapsed_hours": round(elapsed_h, 2),
+                "breach_hours":  breach_over,
+                "assigned_to": f"{new_officer.name} ({new_officer.designation})",
+                "reason":      reason,
+            })
 
         return escalated_events
 
-    def save_closure_verification(self, verif: dict):
-        """Inserts or updates a cryptographic closure verification record."""
-        with self._get_conn() as conn:
-            c = conn.cursor()
-            c.execute("""
-            INSERT OR REPLACE INTO closure_verifications VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            """, (
-                verif.get("verification_id"),
-                verif.get("ticket_id"),
-                verif.get("token"),
-                verif.get("required_signatures", 1),
-                verif.get("collected_signatures", 0),
-                json.dumps(verif.get("signers", [])),
-                verif.get("cv_structural_score", 0.0),
-                1 if verif.get("cv_verified", True) else 0,
-                verif.get("status", "PENDING_CITIZEN_SIGNOFF"),
-                verif.get("created_at")
-            ))
-            conn.commit()
+    # ------------------------------------------------------------------
+    # EMBEDDINGS (Agent C — semantic cosine deduplication)
+    # ------------------------------------------------------------------
 
-    def get_closure_verification(self, ticket_id: str) -> Optional[dict]:
-        """Fetches closure verification state for a ticket."""
-        with self._get_conn() as conn:
-            c = conn.cursor()
-            c.execute("SELECT * FROM closure_verifications WHERE ticket_id = ? ORDER BY created_at DESC LIMIT 1", (ticket_id,))
-            row = c.fetchone()
-            if not row:
-                return None
-            d = dict(row)
-            d["signers"] = json.loads(d.get("signers_json") or "[]")
-            d["cv_verified"] = bool(d.get("cv_verified", 0))
-            return d
+    def get_all_embeddings(self) -> Dict[str, List[float]]:
+        """Returns {ticket_id: embedding_vector} for all active tickets."""
+        if self.embeddings:
+            return self.embeddings
+        conn = _get_conn(self.db_path)
+        rows = conn.execute(
+            "SELECT ticket_id, embedding_json FROM complaints WHERE embedding_json != '[]'"
+        ).fetchall()
+        conn.close()
+        result = {}
+        for r in rows:
+            emb = _jload(r["embedding_json"], [])
+            if emb:
+                result[r["ticket_id"]] = emb
+                self.embeddings[r["ticket_id"]] = emb
+        return result
 
-    def save_capex_proposal(self, proposal: dict):
-        """Saves or updates a synthesized CapEx proposal."""
-        with self._get_conn() as conn:
-            c = conn.cursor()
-            c.execute("""
-            INSERT OR REPLACE INTO capex_proposals VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            """, (
-                proposal["proposal_id"],
-                proposal.get("resolution_number"),
-                proposal.get("corridor_id"),
-                proposal["corridor_name"],
-                proposal["ward_id"],
-                proposal["department_id"],
-                proposal.get("department_name", "Public Works"),
-                proposal.get("incident_count_90d", 3),
-                proposal.get("centroid_lat", 18.5074),
-                proposal.get("centroid_lng", 73.8077),
-                proposal.get("radius_meters", 200.0),
-                proposal.get("failure_mode", "STRUCTURAL_ASSET_FAILURE"),
-                proposal.get("root_cause_diagnosis", ""),
-                proposal.get("recommended_action", ""),
-                proposal.get("budget_head", "410-20-84"),
-                proposal.get("estimated_cost_inr", 0.0),
-                proposal.get("estimated_cost_lakhs", 0.0),
-                json.dumps(proposal.get("dsr_items", [])),
-                proposal.get("standing_committee_draft_md", ""),
-                proposal.get("status", "DRAFT_PENDING_COMMITTEE"),
-                proposal.get("created_at")
-            ))
-            conn.commit()
+    # ------------------------------------------------------------------
+    # DASHBOARD STATS
+    # ------------------------------------------------------------------
 
-    def get_capex_proposals(self) -> List[dict]:
-        """Returns all synthesized CapEx proposals."""
-        with self._get_conn() as conn:
-            c = conn.cursor()
-            c.execute("SELECT * FROM capex_proposals ORDER BY created_at DESC")
-            rows = c.fetchall()
-            out = []
-            for r in rows:
-                d = dict(r)
-                d["dsr_items"] = json.loads(d.get("dsr_items_json") or "[]")
-                out.append(d)
-            return out
+    def get_dashboard_stats(self) -> dict:
+        conn = _get_conn(self.db_path)
+        stats: Dict[str, Any] = {}
 
-    def get_capex_proposal(self, proposal_id: str) -> Optional[dict]:
-        """Fetches a specific CapEx proposal by ID."""
-        with self._get_conn() as conn:
-            c = conn.cursor()
-            c.execute("SELECT * FROM capex_proposals WHERE proposal_id = ?", (proposal_id,))
-            row = c.fetchone()
-            if not row:
-                return None
-            d = dict(row)
-            d["dsr_items"] = json.loads(d.get("dsr_items_json") or "[]")
-            return d
+        for row in conn.execute("""
+            SELECT status, COUNT(*) AS cnt FROM complaints GROUP BY status
+        """):
+            stats[f"status_{row['status'].lower()}"] = row["cnt"]
 
-    def update_capex_proposal_status(self, proposal_id: str, status: str):
-        """Updates approval status of a proposal."""
-        with self._get_conn() as conn:
-            c = conn.cursor()
-            c.execute("UPDATE capex_proposals SET status = ? WHERE proposal_id = ?", (status, proposal_id))
-            conn.commit()
+        for row in conn.execute("""
+            SELECT priority, COUNT(*) AS cnt FROM complaints GROUP BY priority
+        """):
+            stats[f"priority_{row['priority'].lower()}"] = row["cnt"]
+
+        stats["total_complaints"] = conn.execute(
+            "SELECT COUNT(*) AS cnt FROM complaints"
+        ).fetchone()["cnt"]
+
+        stats["total_escalations"] = conn.execute(
+            "SELECT COUNT(*) AS cnt FROM escalations"
+        ).fetchone()["cnt"]
+
+        stats["active_breaches"] = conn.execute(
+            "SELECT COUNT(*) AS cnt FROM complaints WHERE is_breached = 1 AND status != 'RESOLVED'"
+        ).fetchone()["cnt"]
+
+        stats["total_citizens"] = conn.execute(
+            "SELECT COUNT(*) AS cnt FROM citizens"
+        ).fetchone()["cnt"]
+
+        stats["pending_polls"] = conn.execute(
+            "SELECT COUNT(*) AS cnt FROM feedback_polls WHERE response IS NULL"
+        ).fetchone()["cnt"]
+
+        conn.close()
+        return stats
 
 
-# Singleton persistent database instance for backend_v2
+# ---------------------------------------------------------------------------
+# Singleton instance  (imported by FastAPI routes and agents)
+# ---------------------------------------------------------------------------
+
 persistent_db = PersistentCivicDatabase()
