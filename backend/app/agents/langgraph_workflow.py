@@ -320,27 +320,73 @@ def node_agent_e_milestones(state: CivicIncidentState) -> Dict[str, Any]:
     ticket_id = state.get("ticket_id", "PMC-2026-UNKNOWN")
     dept = state.get("assigned_department_name", "Municipal Corporation")
     sla = state.get("sla_duration_hours", 24)
-    phone = state.get("complainant_phone", "+919800000000")
+    phone = state.get("complainant_phone", "")
+    officer = state.get("assigned_officer_name", "Field Officer")
+    category = state.get("category", "General")
+    priority = state.get("priority_label", state.get("priority", "MEDIUM"))
+    location = state.get("location_text", state.get("ward_id", "Unknown"))
 
     wa_payload = {
         "channel": "WHATSAPP_BUSINESS_API",
         "recipient": phone,
-        "header": "🏛️ Pune Municipal Corporation (PMC Care)",
-        "body": f"Namaskar! Your grievance #{ticket_id} has been registered under {dept}. Statutory SLA under Maharashtra RTS Act 2015 is {sla} Hours. Officer {state.get('assigned_officer_name')} has been dispatched.",
+        "header": "Pune Municipal Corporation (PMC Care)",
+        "body": (
+            f"Namaskar! Your grievance #{ticket_id} has been registered under {dept}. "
+            f"Statutory SLA under Maharashtra RTS Act 2015 is {sla} Hours. "
+            f"Officer {officer} has been dispatched."
+        ),
         "interactive_buttons": [
-            {"id": "btn_track", "label": "📍 Track Location"},
-            {"id": "btn_reopen", "label": "🔄 Reopen (Auto L2 AMC)"}
+            {"id": "btn_track", "label": "Track Location"},
+            {"id": "btn_reopen", "label": "Reopen (Auto L2 AMC)"}
         ],
-        "delivery_status": "DELIVERED"
+        "delivery_status": "PENDING"
     }
+
+    # --- REAL TWILIO DISPATCH ---
+    twilio_sid = None
+    if phone and len(phone) >= 10:
+        try:
+            from app.services.notification_service import notify_complaint_received
+            twilio_sid = notify_complaint_received(
+                citizen_phone=phone,
+                complaint_id=ticket_id,
+                category=category,
+                priority=str(priority),
+                location=location,
+            )
+            wa_payload["delivery_status"] = "DELIVERED" if twilio_sid else "QUEUED"
+        except Exception as exc:
+            wa_payload["delivery_status"] = f"ERROR: {exc}"
+
+    # --- REAL TELEGRAM DISPATCH ---
+    telegram_sent = False
+    try:
+        from app.services.telegram_service import notify_complaint_received_tg, get_active_chat_ids
+        # Send to complainant if phone is a chat ID or broadcast to active demo chats
+        target_chats = [phone] if (phone and phone.isdigit() and len(phone) < 15) else get_active_chat_ids()
+        for cid in target_chats:
+            res = notify_complaint_received_tg(
+                chat_id=cid,
+                complaint_id=ticket_id,
+                category=category,
+                priority=str(priority),
+                location=location
+            )
+            if res and res.get("ok"):
+                telegram_sent = True
+    except Exception as exc:
+        pass
 
     return {
         "whatsapp_payload": wa_payload,
         "notification_dispatched": True,
+        "telegram_dispatched": telegram_sent,
         "audit_trail": state.get("audit_trail", []) + [{
             "agent": "Agent E: Omnichannel Citizen Engagement",
-            "action": "WHATSAPP_MILESTONE_DELIVERED",
-            "details": f"Delivered to {phone} for ticket #{ticket_id}"
+            "action": "OMNICHANNEL_MILESTONE_DELIVERED",
+            "details": f"Dispatched for ticket #{ticket_id} | Twilio={twilio_sid} | Telegram={telegram_sent}",
+            "twilio_sid": twilio_sid,
+            "telegram_sent": telegram_sent
         }]
     }
 

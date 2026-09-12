@@ -37,8 +37,20 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
+# Database & Runtime State
+*.db
+*.sqlite
+*.sqlite3
+backend/app/data/*.db
+data/*.db
+
+# Vercel & Deployment
+.vercel
+.vercel/
+
 # IDE / OS
 .DS_Store
 Thumbs.db
 .vscode/
 .idea/
+

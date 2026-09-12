@@ -64,12 +64,15 @@ class SlaPolicy(BaseModel):
 
 class ComplaintSubmission(BaseModel):
     raw_text: str = Field(..., description="Citizen grievance text or transcribed voice note")
+    category: Optional[str] = Field(default=None, description="Pre-selected department/category from citizen portal")
     channel: str = Field(default="WEB", description="WEB, WHATSAPP, or VOICE")
     ward_id: Optional[str] = Field(default=None, description="Optional pre-selected ward")
     latitude: Optional[float] = Field(default=None)
     longitude: Optional[float] = Field(default=None)
     complainant_phone: Optional[str] = Field(default="+919876543210")
     complainant_name: Optional[str] = Field(default="Citizen User")
+    incident_photo_data: Optional[str] = Field(default=None, description="Base64 encoded initial incident defect photo")
+    photo_data: Optional[str] = Field(default=None, description="Alias for incident_photo_data")
 
 
 # Standalone Agent Testing Schemas
@@ -144,6 +147,8 @@ class MunicipalIncidentAgentState(BaseModel):
     raw_input_text: str
     detected_language: str = "English"
     channel: str = "WEB"  # WEB, WHATSAPP, VOICE
+    complainant_name: Optional[str] = "Citizen Filer"
+    complainant_phone: Optional[str] = "+919800000000"
 
     # Extracted Spatial & Categorical Data (Agent A)
     canonical_english_summary: str = ""
@@ -176,11 +181,16 @@ class MunicipalIncidentAgentState(BaseModel):
     is_breached: bool = False
     breach_hours: float = 0.0
 
-    # Actions & Proof (Agent F)
+    # Actions & Proof (Agent F & Zero-Trust Verification)
+    incident_photo_url: Optional[str] = None
     sop_checklist: List[str] = []
     bill_of_materials: List[str] = []
     closure_proof_photo_url: Optional[str] = None
     closure_approved: bool = False
+    cv_structural_verified: bool = False
+    cv_structural_score: float = 0.0
+    closure_verification_id: Optional[str] = None
+    closure_dual_signed: bool = False
 
     # Detailed Per-Agent Math & Performance Breakdown
     agent_metrics: Dict[str, Any] = Field(default_factory=dict)
@@ -210,6 +220,7 @@ class GeotagPhotoRequest(BaseModel):
     incident_category: Optional[str] = Field(default="Civic Infrastructure")
     ward_id: Optional[str] = Field(default="Ward-14 (Kothrud)")
     stage: Optional[str] = Field(default="INCIDENT_REPORT", description="INCIDENT_REPORT or CLOSURE_PROOF")
+    formatted_address: Optional[str] = Field(default=None, description="Optional reverse-geocoded address string")
 
 
 class GeotagPhotoResponse(BaseModel):
@@ -226,3 +237,120 @@ class GeotagPhotoResponse(BaseModel):
     geodesic_offset_meters: Optional[float] = None
     within_statutory_threshold: bool
     message: str
+    location_title: Optional[str] = "Pune, Maharashtra, India 🇮🇳"
+    formatted_address: Optional[str] = None
+    satellite_tile_url: Optional[str] = None
+    osm_tile_url: Optional[str] = None
+
+
+class StatusUpdateRequest(BaseModel):
+    status: TicketStatusEnum = Field(..., description="Target status, e.g. IN_PROGRESS, ASSIGNED, RESOLVED")
+
+
+class ClarificationRequest(BaseModel):
+    clarification_text: str = Field(..., description="Citizen reply providing missing landmark/location info")
+    latitude: Optional[float] = Field(default=None, description="Updated GPS latitude pin if provided")
+    longitude: Optional[float] = Field(default=None, description="Updated GPS longitude pin if provided")
+    landmark: Optional[str] = Field(default=None, description="Explicit landmark name if provided")
+
+
+class FeedbackRequest(BaseModel):
+    response: str = Field(..., description="'RESOLVED_CONFIRMED' or 'UNRESOLVED'")
+    comments: Optional[str] = Field(default=None, description="Citizen feedback comment or grievance notes")
+
+
+class HITLDecisionRequest(BaseModel):
+    approved: bool = Field(..., description="True if closure photo and repair quality are approved; False if rejected")
+    override_reason: Optional[str] = Field(default=None, description="Reason if manual officer override was performed")
+    officer_notes: Optional[str] = Field(default=None, description="Notes from reviewing officer")
+
+
+class ClosureSubmissionRequest(BaseModel):
+    photo_data: str = Field(..., description="Base64 encoded closure photo")
+    latitude: float = Field(..., description="GPS latitude captured at closure site")
+    longitude: float = Field(..., description="GPS longitude captured at closure site")
+    remarks: Optional[str] = Field(default=None, description="Field repair completion notes")
+    incident_photo_data: Optional[str] = Field(default=None, description="Optional original incident photo for Edge CV diffing")
+
+
+# Zero-Trust Proof-of-Resolution Models
+class VisualDiffResult(BaseModel):
+    verified: bool
+    background_aligned: bool
+    defect_remedy_verified: bool
+    confidence_score: float
+    geometric_alignment_score: float
+    defect_remedy_score: float
+    orb_inliers_count: int
+    orb_inlier_ratio: float
+    repaired_patches_detected: int
+    field_gaming_detected: bool
+    anti_spoofing_verdict: str
+    diff_overlay_url: Optional[str] = None
+    execution_latency_ms: float
+    algorithm: str
+
+
+class CitizenSignoffRequest(BaseModel):
+    token: str = Field(..., description="Cryptographic HMAC-SHA256 verification challenge token")
+    signer_phone: str = Field(default="+919822011001", description="Phone of citizen signing off")
+    is_original_filer: bool = Field(default=True, description="True if original reporting citizen; False if nearby resident")
+    decision: str = Field(default="CONFIRM_REPAIR", description="'CONFIRM_REPAIR' or 'FLAG_FRAUD'")
+    remarks: Optional[str] = Field(default=None, description="Citizen feedback or fraud contestation remarks")
+
+
+class ClosureVerificationStatus(BaseModel):
+    verification_id: str
+    ticket_id: str
+    token: str
+    required_signatures: int
+    collected_signatures: int
+    signers: List[Dict[str, Any]] = []
+    cv_structural_score: float
+    cv_verified: bool
+    status: str
+    created_at: str
+
+
+# Spatial Recurrence & CapEx Models
+class CapExProposal(BaseModel):
+    proposal_id: str
+    resolution_number: Optional[str] = None
+    corridor_id: Optional[str] = None
+    corridor_name: str
+    ward_id: str
+    department_id: str
+    department_name: str
+    incident_count_90d: int
+    centroid_lat: float
+    centroid_lng: float
+    radius_meters: float
+    failure_mode: str
+    root_cause_diagnosis: str
+    recommended_action: str
+    budget_head: str
+    estimated_cost_inr: float
+    estimated_cost_lakhs: float
+    dsr_items: List[Dict[str, Any]]
+    standing_committee_draft_md: str
+    status: str
+    created_at: str
+
+
+class CorridorAnomaly(BaseModel):
+    corridor_id: str
+    corridor_name: str
+    ward_id: str
+    department_id: str
+    department_name: str
+    centroid: List[float]
+    spatial_buffer_meters: float
+    temporal_window_days: int
+    incident_count_90d: int
+    incident_threshold: int
+    anomaly_flagged: bool
+    failure_mode: str
+    root_cause_diagnosis: str
+    recommended_action: str
+    incident_tickets: List[Dict[str, Any]] = []
+

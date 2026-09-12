@@ -24,15 +24,15 @@
   <header class="ux4g-main-header">
     <div class="header-container">
 
-      <!-- Brand Identity (Aligned & Prominent) -->
+      <!-- Brand Identity (Clean, Modern, No Logo, No Government Name) -->
       <div class="brand-titles">
-        <div class="brand-main-title" id="main-brand-title">NagrikSewa AI</div>
-        <div class="brand-sub-title" id="main-brand-subtitle">
-          Multi-Agent Civic Grievance Redressal &amp; Statutory SLA Escalation Platform
+        <div style="display:flex; align-items:baseline; gap:10px;">
+          <div class="brand-main-title" id="main-brand-title">NagrikSewa AI</div>
+          <div class="brand-sub-title" id="main-brand-subtitle">Multi-Agent Civic Grievance Operating System</div>
         </div>
         <div class="brand-meta-tags">
           <span class="meta-tag green" id="badge-engine-langgraph">6-Agent LangGraph Engine Active</span>
-          <span class="meta-tag saffron" id="agent-provider-tag">Local Engine / Gemini Active</span>
+          <span class="meta-tag saffron" id="agent-provider-tag">Gemini 2.5 Flash Connected</span>
           <span class="meta-tag blue">RTS Act 2015 Compliant</span>
         </div>
       </div>
@@ -53,23 +53,23 @@
 
         <!-- Action Buttons Row -->
         <div class="header-main-actions">
-          <!-- Lodge Grievance (Citizen only — shown by JS) -->
-          <button class="btn-header-action btn-lodge" id="btn-open-citizen-modal" style="display:none;" title="Lodge a new civic grievance">
-            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
-            <span>Lodge Grievance</span>
-          </button>
-
-          <!-- Inject Live Scenario (was 3-Min Demo Presets) -->
+          <!-- Inject Live Scenario (Admin only) -->
           <button class="btn-header-action btn-scenario" id="btn-open-demo-presets" title="Inject real-world civic scenarios to simulate multi-agent processing">
             <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
             <span>Inject Live Scenario</span>
           </button>
 
-          <!-- 6-Agent Lab -->
+          <!-- 6-Agent Lab (Admin only) -->
           <button class="btn-header-action btn-lab" id="btn-jump-workbench-header" title="Open the 6-Agent Autonomous Execution Laboratory">
             <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 2v7.31a2 2 0 0 1-.5 1.34L3.6 17.5A2 2 0 0 0 5.1 21h13.8a2 2 0 0 0 1.5-3.5L14.5 10.65a2 2 0 0 1-.5-1.34V2"/><path d="M8.5 2h7"/></svg>
             <span>6-Agent Lab</span>
           </button>
+
+          <!-- Role Indicator Pill -->
+          <div id="header-user-badge" style="display:inline-flex; align-items:center; gap:6px; background:rgba(255,255,255,0.14); border:1px solid rgba(255,255,255,0.25); color:#fff; font-size:0.75rem; font-weight:700; padding:6px 12px; border-radius:6px;">
+            <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            <span id="header-role-text">Admin Session</span>
+          </div>
 
           <!-- Sign Out -->
           <button class="btn-header-signout" id="btn-logout" title="Sign out and return to Login screen">
@@ -86,8 +86,9 @@
       <div class="breadcrumb-container">
         <span class="bc-item">Home</span>
         <span class="bc-sep">/</span>
-        <span class="bc-item active">Civic Grievance Multi-Agent Command Center</span>
-        <span class="rts-badge" id="rts-badge-strip">RTS Act 2015 Compliant</span>
+        <span class="bc-item" id="bc-role-label">Admin Command Center</span>
+        <span class="bc-sep">/</span>
+        <span class="bc-item active" id="bc-active-view">Statutory Metrics Overview</span>
       </div>
     </div>
   </header>
@@ -98,7 +99,7 @@
        Provides single-click navigation between the component views (no emojis)
        ========================================================================= -->
   <nav class="page-nav-bar">
-    <div class="max-w-[1700px] mx-auto flex items-center justify-between gap-4 flex-wrap">
+    <div class="page-nav-container">
 
       <!-- ADMIN NAV TABS: shown when role = admin (default, hidden for citizen) -->
       <div class="page-tab-group" id="nav-admin-tabs">
@@ -128,12 +129,8 @@
         </button>
         <button type="button" class="page-tab-btn" data-page="map" id="nav-citizen-btn-map">
           <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>
-          <span>Map</span>
+          <span>City Grievance Map</span>
         </button>
-      </div>
-
-      <div class="rts-badge" style="margin-left:auto;">
-        RTS Act 2015 Statutory Tracking
       </div>
     </div>
   </nav>
@@ -287,54 +284,77 @@
         </div>
         <button class="btn-inspect-latest" id="btn-inspect-current-ticket">
           <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-          <span>Inspect Agent Math</span>
+          <span>Inspect Agent Telemetry</span>
         </button>
       </div>
 
       <!-- Stepper of all 6 agents -->
       <div class="gov-agent-stepper">
-        <div class="stepper-node active" id="node-agent-a" title="Agent A: Multilingual Triage & NER">
+        <div class="stepper-node active" id="node-agent-a" title="Agent A: Multilingual Intake &amp; NER Triage">
           <div class="node-circle">A</div>
-          <div class="node-label">Triage/NER</div>
+          <div class="node-label">Intake &amp; Triage</div>
         </div>
         <div class="stepper-line"></div>
 
-        <div class="stepper-node" id="node-agent-c" title="Agent C: Spatial Deduplication & Clustering">
+        <div class="stepper-node" id="node-agent-c" title="Agent C: Spatial Deduplication &amp; Incident Clustering">
           <div class="node-circle">C</div>
           <div class="node-label">Spatial Dedup</div>
         </div>
         <div class="stepper-line"></div>
 
-        <div class="stepper-node" id="node-agent-b" title="Agent B: Department Routing & Priority Scoring">
+        <div class="stepper-node" id="node-agent-b" title="Agent B: Priority Scoring &amp; Department Dispatch">
           <div class="node-circle">B</div>
-          <div class="node-label">P-Score/SLA</div>
+          <div class="node-label">Priority &amp; Dispatch</div>
         </div>
         <div class="stepper-line"></div>
 
-        <div class="stepper-node" id="node-agent-d" title="Agent D: SLA Tracker & 4-Tier Escalator">
+        <div class="stepper-node" id="node-agent-d" title="Agent D: Statutory SLA Tracking &amp; Escalation">
           <div class="node-circle">D</div>
-          <div class="node-label">SLA Tracker</div>
+          <div class="node-label">SLA &amp; Escalation</div>
         </div>
         <div class="stepper-line"></div>
 
-        <div class="stepper-node" id="node-agent-f" title="Agent F: Field Officer Action Copilot">
+        <div class="stepper-node" id="node-agent-f" title="Agent F: Field Operations Copilot &amp; Geotag Verification">
           <div class="node-circle">F</div>
           <div class="node-label">Field Copilot</div>
         </div>
         <div class="stepper-line"></div>
 
-        <div class="stepper-node" id="node-agent-e" title="Agent E: Citizen Engagement Bot">
+        <div class="stepper-node" id="node-agent-e" title="Agent E: Citizen Communication &amp; Feedback">
           <div class="node-circle">E</div>
-          <div class="node-label">Citizen Bot</div>
+          <div class="node-label">Citizen Feedback</div>
         </div>
       </div>
 
       <!-- Terminal log for agent outputs -->
-      <div class="agent-terminal" id="agent-log-terminal">
-        <div class="term-line info">[SYSTEM] UX4G Municipal Engine initialized.</div>
-        <div class="term-line info">[LANGGRAPH] StateGraph topology compiled: 6 agents linked with conditional edges.</div>
-        <div class="term-line success">[LEAFLET] Real OpenStreetMap tile layer active at Pune coordinates.</div>
-        <div class="term-line info">[RTS_ACT] Statutory deadlines loaded: Water 6h (P1), SWM 18h (P2), Roads 48h (P4).</div>
+      <div class="terminal-window-wrapper">
+        <div class="terminal-topbar">
+          <div class="terminal-dots">
+            <span class="t-dot dot-red"></span>
+            <span class="t-dot dot-amber"></span>
+            <span class="t-dot dot-green"></span>
+          </div>
+          <div class="terminal-title">
+            <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>
+            <span>SYSTEM TELEMETRY &amp; MULTI-AGENT EXECUTION LOGS</span>
+          </div>
+          <div class="terminal-actions">
+            <span class="terminal-live-badge">
+              <span class="live-dot-pulse"></span>
+              <span>LIVE STREAM</span>
+            </span>
+            <button type="button" class="btn-clear-terminal" id="btn-clear-terminal-logs" title="Clear terminal logs">
+              <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+              <span>Clear</span>
+            </button>
+          </div>
+        </div>
+        <div class="agent-terminal" id="agent-log-terminal">
+          <div class="term-line info">[SYSTEM] UX4G Municipal Engine initialized.</div>
+          <div class="term-line info">[LANGGRAPH] StateGraph topology compiled: 6 agents linked with conditional edges.</div>
+          <div class="term-line success">[LEAFLET] Real OpenStreetMap tile layer active at Pune coordinates.</div>
+          <div class="term-line info">[RTS_ACT] Statutory deadlines loaded: Water 6h (P1), SWM 18h (P2), Roads 48h (P4).</div>
+        </div>
       </div>
     </div>
   </div>
@@ -345,216 +365,539 @@
   <div class="page-view-container hidden" id="page-view-citizen-grievance">
     <div class="citizen-dashboard-wrapper" style="max-width: 1650px; margin: 0 auto; width: 100%;">
 
-      <!-- Citizen Top Dashboard Header Strip -->
-      <div class="dashboard-header-strip" style="margin-bottom: 22px;">
-        <div class="dashboard-title-group">
-          <h2 class="dashboard-main-heading">Citizen Grievance Redressal &amp; Statutory Tracking</h2>
-          <p class="dashboard-sub-heading">Real-time civic resolution metrics across Pune Municipal Corporation and fast-track grievance lodging under the Maharashtra Public Services Guarantee (RTS Act 2015).</p>
-        </div>
-        <div class="dashboard-control-options">
-          <span class="meta-tag blue" style="font-size:0.76rem; padding: 7px 14px; font-weight:700;">RTS Act 2015 Compliant</span>
-        </div>
+      <!-- Citizen Hero Header Banner (Keep only heading) -->
+      <div class="citizen-hero-strip" style="padding:16px 24px;">
+        <h2 class="citizen-hero-heading" style="margin:0;">Lodge a Civic Grievance</h2>
       </div>
 
-      <!-- The 4 Metric Cards Grid (Retained for Citizen View - Image 2) -->
-      <div class="metrics-grid" style="margin-bottom: 26px;">
-        <div class="metrics-page-card">
-          <div class="metric-top">
-            <span class="gov-card-label">TOTAL LODGED GRIEVANCES</span>
-            <span class="gov-badge-icon blue">
-              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg>
-            </span>
-          </div>
-          <div class="metric-val" id="citizen-metric-total">0</div>
-          <div class="metric-subtext">Registered across Ward 14, Ward 8, &amp; City Central</div>
-        </div>
-
-        <div class="metrics-page-card">
-          <div class="metric-top">
-            <span class="gov-card-label">IN-FIELD ACTIVE (TIER 1)</span>
-            <span class="gov-badge-icon amber">
-              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-            </span>
-          </div>
-          <div class="metric-val text-amber" id="citizen-metric-active">0</div>
-          <div class="metric-subtext">Assigned to Junior Engineers &amp; Sanitary Inspectors</div>
-        </div>
-
-        <div class="metrics-page-card card-breach-pulse" id="citizen-metric-escalated-card">
-          <div class="metric-top">
-            <span class="gov-card-label">STATUTORY SLA BREACHED / ESCALATED</span>
-            <span class="gov-badge-icon red">
-              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-            </span>
-          </div>
-          <div class="metric-val text-red" id="citizen-metric-escalated">0</div>
-          <div class="metric-subtext">Promoted to AMC (L2), DMC (L3), or Commissioner (L4)</div>
-        </div>
-
-        <div class="metrics-page-card">
-          <div class="metric-top">
-            <span class="gov-card-label">RESOLVED &amp; CITIZEN VERIFIED</span>
-            <span class="gov-badge-icon green">
-              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-            </span>
-          </div>
-          <div class="metric-val text-green" id="citizen-metric-resolved">0</div>
-          <div class="metric-subtext">Geotag photo proof validated within 100m threshold</div>
-        </div>
-      </div>
-
-      <!-- Main Content Split Grid: Lodge Form + Citizen Statutory Info -->
-      <div class="citizen-main-grid" style="display: grid; grid-template-columns: 1.65fr 1fr; gap: 24px; align-items: start;">
+      <!-- Main Content Split Grid: Lodge Form + Citizen Personal Tracker -->
+      <div class="citizen-main-grid">
 
         <!-- Left Column: Grievance Lodging Form -->
         <div style="background:#ffffff; border:1px solid #cbd5e1; border-radius:16px; box-shadow:0 4px 16px rgba(0,0,0,0.06); overflow:hidden;">
           <!-- Form Header -->
           <div style="background:#f8fafc; border-bottom:1px solid #e2e8f0; padding:18px 24px; display:flex; align-items:center; justify-content:space-between;">
             <div>
-              <h3 style="font-size:1.05rem; font-weight:700; color:#0b3b60; margin:0;">Lodge a Civic Grievance</h3>
-              <p style="font-size:0.78rem; color:#64748b; margin:4px 0 0;">All fields marked <span style="color:#dc2626;">*</span> are mandatory. Your complaint is tracked under RTS statutory timelines.</p>
+              <h3 style="font-size:1.05rem; font-weight:700; color:#0b3b60; margin:0;">Register Your Grievance</h3>
+              <p style="font-size:0.78rem; color:#64748b; margin:4px 0 0;">All fields marked <span style="color:#dc2626;">*</span> are mandatory. Direct dispatch to Junior Engineer with statutory SLA.</p>
             </div>
-            <span style="background:#dcfce7; color:#15803d; font-size:0.72rem; font-weight:700; padding:4px 10px; border-radius:20px; border:1px solid #bbf7d0;">RTS Act 2015 Compliant</span>
+            <span style="background:#dcfce7; color:#15803d; font-size:0.72rem; font-weight:700; padding:4px 10px; border-radius:20px; border:1px solid #bbf7d0;">RTS Act 2015 Enforced</span>
           </div>
 
-          <!-- Form Body -->
-          <form id="citizen-grievance-form" style="padding:24px; display:flex; flex-direction:column; gap:20px;">
-            <!-- Grievance Type -->
-            <div>
-              <label style="display:block; font-size:0.78rem; font-weight:700; color:#374151; margin-bottom:8px; text-transform:uppercase; letter-spacing:0.4px;">Department / Grievance Type <span style="color:#dc2626;">*</span></label>
-              <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:10px;" id="cg-category-group">
-                <button type="button" class="cg-category-btn active" data-cat="Water Supply" style="padding:12px 8px; border:2px solid #0b3b60; background:#eff6ff; border-radius:10px; font-size:0.78rem; font-weight:700; color:#0b3b60; cursor:pointer; transition:all 0.15s ease;">Water Supply</button>
-                <button type="button" class="cg-category-btn" data-cat="Solid Waste Management" style="padding:12px 8px; border:2px solid #e2e8f0; background:#f8fafc; border-radius:10px; font-size:0.78rem; font-weight:600; color:#475569; cursor:pointer; transition:all 0.15s ease;">Solid Waste</button>
-                <button type="button" class="cg-category-btn" data-cat="Roads & Civil" style="padding:12px 8px; border:2px solid #e2e8f0; background:#f8fafc; border-radius:10px; font-size:0.78rem; font-weight:600; color:#475569; cursor:pointer; transition:all 0.15s ease;">Roads & Civil</button>
-                <button type="button" class="cg-category-btn" data-cat="Drainage & Sewage" style="padding:12px 8px; border:2px solid #e2e8f0; background:#f8fafc; border-radius:10px; font-size:0.78rem; font-weight:600; color:#475569; cursor:pointer; transition:all 0.15s ease;">Drainage</button>
-                <button type="button" class="cg-category-btn" data-cat="Electrical & Streetlights" style="padding:12px 8px; border:2px solid #e2e8f0; background:#f8fafc; border-radius:10px; font-size:0.78rem; font-weight:600; color:#475569; cursor:pointer; transition:all 0.15s ease;">Electrical</button>
-                <button type="button" class="cg-category-btn" data-cat="Other" style="padding:12px 8px; border:2px solid #e2e8f0; background:#f8fafc; border-radius:10px; font-size:0.78rem; font-weight:600; color:#475569; cursor:pointer; transition:all 0.15s ease;">Other</button>
-              </div>
-              <input type="hidden" id="cg-category-val" value="Water Supply" />
-            </div>
+          <!-- Form Body with 3-Step Interactive Wizard -->
+          <form id="citizen-grievance-form" style="padding:24px; display:flex; flex-direction:column; gap:22px;">
 
-            <!-- Ward Selection & Autonomous AI Scoring Notice -->
-            <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; align-items:flex-end;">
-              <div>
-                <label for="cg-ward" style="display:block; font-size:0.78rem; font-weight:700; color:#374151; margin-bottom:8px; text-transform:uppercase; letter-spacing:0.4px;">Ward / Area <span style="color:#dc2626;">*</span></label>
-                <select id="cg-ward" style="width:100%; padding:10px 12px; font-size:0.85rem; border:1px solid #d1d5db; border-radius:8px; background:#ffffff; color:#111827; box-sizing:border-box;">
-                  <option value="Ward-14 (Kothrud)">Ward-14 — Kothrud</option>
-                  <option value="Ward-08 (Aundh)">Ward-08 — Aundh</option>
-                  <option value="Ward-05 (Shivajinagar)">Ward-05 — Shivajinagar</option>
-                  <option value="Ward-10 (Swargate)">Ward-10 — Swargate</option>
-                  <option value="Ward-18 (Hadapsar)">Ward-18 — Hadapsar</option>
-                </select>
+            <!-- Progressive Stepper Bar -->
+            <div class="wizard-stepper" id="cg-wizard-stepper">
+              <div class="stepper-step active" data-step="1" id="step-node-1">
+                <div class="stepper-circle">1</div>
+                <div class="stepper-label-box">
+                  <span class="stepper-title">Grievance &amp; Location</span>
+                  <span class="stepper-sub">Issue Details &amp; Pinpoint Map</span>
+                </div>
               </div>
-              <div style="background:#f0fdf4; border:1px solid #bbf7d0; border-radius:8px; padding:10px 14px; display:flex; align-items:center; gap:10px; min-height:42px; box-sizing:border-box;">
-                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#15803d" stroke-width="2.5" style="flex-shrink:0;"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-                <div style="font-size:0.75rem; color:#166534; line-height:1.35;">
-                  <strong>Autonomous AI Priority:</strong> Agent B calculates hazard score and SLA automatically from description and location.
+              <div class="stepper-line" id="stepper-line-1"></div>
+              <div class="stepper-step" data-step="2" id="step-node-2">
+                <div class="stepper-circle">2</div>
+                <div class="stepper-label-box">
+                  <span class="stepper-title">Photographic Proof</span>
+                  <span class="stepper-sub">Live Cam &amp; Geotag</span>
+                </div>
+              </div>
+              <div class="stepper-line" id="stepper-line-2"></div>
+              <div class="stepper-step" data-step="3" id="step-node-3">
+                <div class="stepper-circle">3</div>
+                <div class="stepper-label-box">
+                  <span class="stepper-title">Review &amp; Submit</span>
+                  <span class="stepper-sub">AI SLA &amp; Dispatch</span>
                 </div>
               </div>
             </div>
 
-            <!-- Grievance Description -->
-            <div>
-              <label for="cg-description" style="display:block; font-size:0.78rem; font-weight:700; color:#374151; margin-bottom:8px; text-transform:uppercase; letter-spacing:0.4px;">Describe Your Grievance <span style="color:#dc2626;">*</span></label>
-              <textarea id="cg-description" rows="5" placeholder="e.g. There is a large pothole near Paud Road junction that has caused 3 accidents this week. The street light at the corner is also broken and the area is dark at night..." style="width:100%; padding:12px 14px; font-size:0.88rem; border:1px solid #d1d5db; border-radius:8px; resize:vertical; font-family:inherit; line-height:1.6; color:#111827; box-sizing:border-box;" required></textarea>
-              <p style="font-size:0.72rem; color:#94a3b8; margin:6px 0 0;">Minimum 20 characters. Be specific about the location, nature of the problem, and any safety concerns.</p>
+            <!-- ============================================================
+                 STEP 1: GRIEVANCE DETAILS & INTERACTIVE LOCATION PINPOINT
+                 ============================================================ -->
+            <div class="cg-step-panel active" id="cg-step-1">
+              <!-- Department / Grievance Category Selection -->
+              <div style="margin-bottom:20px;">
+                <label style="display:block; font-size:0.8rem; font-weight:700; color:#1e293b; margin-bottom:10px; text-transform:uppercase; letter-spacing:0.4px;">
+                  Select Department / Issue Type <span style="color:#dc2626;">*</span>
+                </label>
+                <div class="cg-category-grid" id="cg-category-group">
+                  <button type="button" class="cg-category-btn active" data-cat="Water Supply">
+                    <span class="cg-cat-icon">
+                      <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/></svg>
+                    </span>
+                    <span class="cg-cat-label">Water Supply</span>
+                    <span class="cg-cat-desc">Pipeline leakage, low pressure, contamination</span>
+                  </button>
+                  <button type="button" class="cg-category-btn" data-cat="Solid Waste Management">
+                    <span class="cg-cat-icon">
+                      <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                    </span>
+                    <span class="cg-cat-label">Solid Waste</span>
+                    <span class="cg-cat-desc">Garbage dumping, uncollected bin, street litter</span>
+                  </button>
+                  <button type="button" class="cg-category-btn" data-cat="Roads &amp; Civil">
+                    <span class="cg-cat-icon">
+                      <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="3" width="22" height="18" rx="2"/><path d="M8 3v18M16 3v18"/></svg>
+                    </span>
+                    <span class="cg-cat-label">Roads &amp; Potholes</span>
+                    <span class="cg-cat-desc">Potholes, broken footpaths, speed breakers</span>
+                  </button>
+                  <button type="button" class="cg-category-btn" data-cat="Drainage &amp; Sewage">
+                    <span class="cg-cat-icon">
+                      <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 3v18M3 12h18"/></svg>
+                    </span>
+                    <span class="cg-cat-label">Drainage &amp; Sewage</span>
+                    <span class="cg-cat-desc">Overflowing manholes, gutter blockage, stench</span>
+                  </button>
+                  <button type="button" class="cg-category-btn" data-cat="Electrical &amp; Streetlights">
+                    <span class="cg-cat-icon">
+                      <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18h6M10 22h4M12 2a7 7 0 0 0-4 12.7V17h8v-2.3A7 7 0 0 0 12 2z"/></svg>
+                    </span>
+                    <span class="cg-cat-label">Streetlights</span>
+                    <span class="cg-cat-desc">Non-functional poles, flickering lights, exposed wires</span>
+                  </button>
+                  <button type="button" class="cg-category-btn" data-cat="Other">
+                    <span class="cg-cat-icon">
+                      <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                    </span>
+                    <span class="cg-cat-label">Other Civic Issue</span>
+                    <span class="cg-cat-desc">Encroachments, public trees, stray cattle, health</span>
+                  </button>
+                </div>
+                <input type="hidden" id="cg-category-val" value="Water Supply" />
+              </div>
+
+              <!-- Voice Input & Grievance Description -->
+              <div style="margin-bottom:20px;">
+                <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px;">
+                  <label for="cg-description" style="font-size:0.8rem; font-weight:700; color:#1e293b; text-transform:uppercase; letter-spacing:0.4px; margin:0;">
+                    Describe Your Grievance <span style="color:#dc2626;">*</span>
+                  </label>
+                  <span style="font-size:0.73rem; color:#0284c7; font-weight:700; background:#e0f2fe; padding:3px 8px; border-radius:12px; border:1px solid #bae6fd;">
+                    🎙️ Voice Recognition Enabled
+                  </span>
+                </div>
+
+                <!-- Voice Input Toolbar -->
+                <div class="voice-input-strip" style="margin-bottom:10px;">
+                  <div style="display:flex; align-items:center; gap:10px;">
+                    <button type="button" class="btn-voice-record" id="btn-cg-voice-record" title="Click to speak in Marathi, Hindi, or English">
+                      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+                      <span id="cg-voice-btn-text">Speak to Describe</span>
+                    </button>
+                    <div class="voice-wave-visualizer" id="cg-voice-wave" style="display:none;">
+                      <div class="voice-wave-bar"></div>
+                      <div class="voice-wave-bar"></div>
+                      <div class="voice-wave-bar"></div>
+                      <div class="voice-wave-bar"></div>
+                      <div class="voice-wave-bar"></div>
+                    </div>
+                  </div>
+                  <div class="lang-pill-group">
+                    <span style="font-size:0.72rem; color:#64748b; font-weight:700;">VOICE LANGUAGE:</span>
+                    <button type="button" class="lang-pill-btn active" data-lang="en-IN">English</button>
+                    <button type="button" class="lang-pill-btn" data-lang="mr-IN">मराठी (Marathi)</button>
+                    <button type="button" class="lang-pill-btn" data-lang="hi-IN">हिंदी (Hindi)</button>
+                  </div>
+                </div>
+
+                <!-- Voice Active Notification Strip -->
+                <div id="cg-voice-status" style="display:none; font-size:0.75rem; color:#dc2626; font-weight:700; margin-bottom:8px; padding:6px 12px; background:#fef2f2; border:1px solid #fecaca; border-radius:6px;">
+                  Listening... Speak now in Marathi, Hindi, or English. Click button again to finish speaking.
+                </div>
+
+                <div style="position:relative;">
+                  <textarea id="cg-description" rows="3" placeholder="Describe the civic grievance in detail (e.g., Heavy water leakage from underground pipeline near Paud Road junction creating hazardous road slush)..." style="width:100%; padding:14px; font-size:0.88rem; border:1.5px solid #cbd5e1; border-radius:10px; resize:vertical; font-family:inherit; line-height:1.6; color:#111827; box-sizing:border-box; transition:border 0.2s ease;" required></textarea>
+                </div>
+                
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-top:6px;">
+                  <p style="font-size:0.73rem; color:#64748b; margin:0;">Minimum 15 characters. Be specific about the landmark, severity, and urgency.</p>
+                  <span id="cg-char-counter" style="font-size:0.73rem; font-weight:700; color:#94a3b8; font-family:var(--font-mono);">0 / 500 chars</span>
+                </div>
+
+                <!-- Quick Sample Prompt Chips -->
+                <div class="sample-prompts-container" style="margin-top:10px;">
+                  <span style="font-size:0.72rem; color:#64748b; font-weight:700;">⚡ Quick Suggestion:</span>
+                  <span class="sample-prompt-chip" data-sample="Shivaji Chowk javal main water pipeline phutli ahe, rastyavar khoop pani sathlay.">Water pipe burst</span>
+                  <span class="sample-prompt-chip" data-sample="Deep monsoon pothole on main road causing accidents for two-wheelers.">Road pothole</span>
+                  <span class="sample-prompt-chip" data-sample="Overflowing community garbage bin uncollected for 3 days, foul stench everywhere.">Overflowing bin</span>
+                  <span class="sample-prompt-chip" data-sample="Streetlights completely dark near main corner junction creating dark spot.">Broken streetlights</span>
+                </div>
+              </div>
+
+              <!-- Pinpoint Location on Map & Automatic Ward Detection (Available directly while entering input) -->
+              <div style="margin-bottom:20px;">
+                <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px;">
+                  <label style="font-size:0.8rem; font-weight:700; color:#1e293b; text-transform:uppercase; letter-spacing:0.4px; margin:0;">
+                    Pinpoint Location on Map <span style="color:#dc2626;">*</span>
+                  </label>
+                  <span style="font-size:0.72rem; color:#0369a1; font-weight:700; background:#e0f2fe; padding:2px 8px; border-radius:10px; border:1px solid #bae6fd;">
+                    Interactive GIS Pin &bull; Real-time Ward Detection
+                  </span>
+                </div>
+                
+                <div class="map-picker-card">
+                  <div class="map-picker-top">
+                    <div style="display:flex; align-items:center; gap:8px;">
+                      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#0284c7" stroke-width="2.5"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>
+                      <span style="font-size:0.78rem; font-weight:700; color:#0b3b60;">Click on Map or Drag Pin to Set Exact Location</span>
+                    </div>
+                    <div style="display:flex; align-items:center; gap:8px;">
+                      <button type="button" class="btn-gps-locate" id="btn-cg-gps" title="Find current GPS coordinates">
+                        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="7"/><line x1="12" y1="1" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="1" y1="12" x2="5" y2="12"/><line x1="19" y1="12" x2="23" y2="12"/></svg>
+                        <span>Detect My GPS</span>
+                      </button>
+                      <span class="coords-indicator" id="cg-coords-display">18.6775° N, 73.8967° E</span>
+                    </div>
+                  </div>
+
+                  <!-- Area Search & Quick Locality Selector Strip -->
+                  <div class="map-search-landmarks-strip" style="padding:10px 14px; background:#f8fafc; border-bottom:1px solid #e2e8f0; display:flex; flex-direction:column; gap:8px;">
+                    <div style="display:flex; gap:8px; align-items:center;">
+                      <div style="position:relative; flex:1;">
+                        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#64748b" stroke-width="2" style="position:absolute; left:10px; top:50%; transform:translateY(-50%);"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                        <input type="text" id="cg-landmark-search" placeholder="Search area, landmark or street (e.g. Alandi, Charholi, Dhanori, FC Road)..." style="width:100%; padding:7px 10px 7px 32px; font-size:0.8rem; border:1px solid #cbd5e1; border-radius:6px; box-sizing:border-box; background:#ffffff;" />
+                      </div>
+                      <button type="button" id="btn-cg-search-go" style="padding:7px 14px; background:#0284c7; color:#fff; font-size:0.78rem; font-weight:700; border:none; border-radius:6px; cursor:pointer; white-space:nowrap;">Search Location</button>
+                    </div>
+
+                    <!-- Quick Locality Jump Chips -->
+                    <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
+                      <span style="font-size:0.72rem; color:#64748b; font-weight:700;">Popular Localities:</span>
+                      <button type="button" class="btn-landmark-chip" data-lat="18.6775" data-lng="73.8967" data-ward="Ward-03 (Alandi Road)">Alandi (Ward-03)</button>
+                      <button type="button" class="btn-landmark-chip" data-lat="18.5850" data-lng="73.8850" data-ward="Ward-03 (Alandi Road)">Dhanori / Kalas</button>
+                      <button type="button" class="btn-landmark-chip" data-lat="18.5314" data-lng="73.8446" data-ward="Ward-05 (Shivajinagar)">Shivajinagar</button>
+                      <button type="button" class="btn-landmark-chip" data-lat="18.5074" data-lng="73.8077" data-ward="Ward-14 (Kothrud)">Kothrud</button>
+                      <button type="button" class="btn-landmark-chip" data-lat="18.5580" data-lng="73.8075" data-ward="Ward-08 (Aundh)">Aundh / Baner</button>
+                      <button type="button" class="btn-landmark-chip" data-lat="18.5679" data-lng="73.9143" data-ward="Ward-02 (Nagar Road)">Viman Nagar</button>
+                      <button type="button" class="btn-landmark-chip" data-lat="18.5089" data-lng="73.9259" data-ward="Ward-18 (Hadapsar)">Hadapsar</button>
+                      <button type="button" class="btn-landmark-chip" data-lat="18.5018" data-lng="73.8636" data-ward="Ward-10 (Swargate)">Swargate</button>
+                      <button type="button" class="btn-landmark-chip" data-lat="18.4720" data-lng="73.8560" data-ward="Ward-11 (Dhankawadi)">Katraj</button>
+                    </div>
+                  </div>
+
+                  <!-- Leaflet Interactive Pin Map -->
+                  <div id="cg-map-picker" class="map-picker-leaflet" style="width: 100%; height: 280px; border-radius: 8px; border: 1.5px solid #0284c7; overflow: hidden; background: #e2e8f0; margin: 10px 0; position: relative; z-index: 1;"></div>
+
+                  <div class="map-picker-footer">
+                    <div class="auto-ward-badge" id="cg-auto-ward-badge">
+                      <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="#16a34a" stroke-width="2.5"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                      <span id="cg-auto-ward-text">Auto-detected Ward: <strong>Ward-03 (Alandi Road)</strong> from map pin</span>
+                    </div>
+                    <div style="font-size:0.72rem; color:#64748b;">
+                      Click or drag marker anywhere on map to update location &amp; ward.
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Hidden Lat/Lng values -->
+                <input type="hidden" id="cg-latitude" value="18.6775" />
+                <input type="hidden" id="cg-longitude" value="73.8967" />
+              </div>
+
+              <!-- Step 1 Navigation Buttons -->
+              <div class="wizard-nav-btns" style="display:flex; justify-content:flex-end; gap:12px; padding-top:12px; border-top:1px solid #f1f5f9;">
+                <button type="button" class="btn-gov-primary" id="btn-cg-goto-step-2" style="padding:12px 28px; font-size:0.88rem; font-weight:700; border-radius:8px; display:inline-flex; align-items:center; gap:8px;">
+                  <span>Next: Photographic Proof</span>
+                  <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                </button>
+              </div>
             </div>
 
-            <!-- Contact Info -->
-            <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
-              <div>
-                <label for="cg-name" style="display:block; font-size:0.78rem; font-weight:700; color:#374151; margin-bottom:8px; text-transform:uppercase; letter-spacing:0.4px;">Your Name <span style="color:#dc2626;">*</span></label>
-                <input type="text" id="cg-name" placeholder="Full Name" style="width:100%; padding:10px 12px; font-size:0.85rem; border:1px solid #d1d5db; border-radius:8px; box-sizing:border-box;" required />
+            <!-- ============================================================
+                 STEP 2: PHOTOGRAPHIC PROOF & WARD CONFIRMATION
+                 ============================================================ -->
+            <div class="cg-step-panel" id="cg-step-2" style="display:none;">
+              <!-- Incident Photographic Proof (Strictly Live Camera Only - No Gallery Upload) -->
+              <div style="margin-bottom:22px;">
+                <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px;">
+                  <label style="font-size:0.8rem; font-weight:700; color:#1e293b; text-transform:uppercase; letter-spacing:0.4px; margin:0;">
+                    Photographic Proof <span style="font-size:0.73rem; color:#64748b; font-weight:500; text-transform:none;">(Live Camera Verification)</span>
+                  </label>
+                  <span style="font-size:0.72rem; color:#15803d; font-weight:700; background:#dcfce7; padding:2px 8px; border-radius:10px; border:1px solid #bbf7d0;">Anti-Fraud: Camera Only (No Gallery)</span>
+                </div>
+
+                <div class="camera-capture-box" id="cg-camera-container">
+                  <!-- State 1: Default Trigger Bar -->
+                  <div id="cg-camera-trigger-bar" style="display:flex; align-items:center; justify-content:space-between; padding:16px 20px; background:#f8fafc; border:1.5px dashed #0284c7; border-radius:10px; flex-wrap:wrap; gap:12px;">
+                    <div style="display:flex; align-items:center; gap:12px;">
+                      <div style="width:42px; height:42px; border-radius:8px; background:#e0f2fe; color:#0369a1; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+                        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+                      </div>
+                      <div>
+                        <div style="font-size:0.88rem; font-weight:700; color:#0b3b60;">Open Camera for Live Site Photo Proof</div>
+                        <div style="font-size:0.74rem; color:#64748b;">Direct camera capture stamped with GPS coordinates, ward &amp; timestamp.</div>
+                      </div>
+                    </div>
+                    <div style="display:flex; gap:8px;">
+                      <button type="button" class="btn-live-camera-snap" id="btn-cg-open-camera">
+                        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+                        <span>Take Live Photo</span>
+                      </button>
+                      <input type="file" id="cg-camera-hardware-input" accept="image/*" capture="environment" style="display:none;" />
+                    </div>
+                  </div>
+
+                  <!-- State 2: Live Viewfinder Screen -->
+                  <div id="cg-camera-viewfinder" style="display:none; padding:18px; background:#0f172a; border-radius:12px; margin-top:8px;">
+                    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; color:#ffffff;">
+                      <span style="font-size:0.8rem; font-weight:700; display:flex; align-items:center; gap:6px;">
+                        <span style="width:8px; height:8px; border-radius:50%; background:#ef4444; animation:pulseRecord 1s infinite;"></span>
+                        LIVE CAMERA STREAM
+                      </span>
+                      <button type="button" id="btn-cg-close-camera" style="background:transparent; border:none; color:#cbd5e1; font-size:0.8rem; cursor:pointer; padding:4px 8px;">Cancel</button>
+                    </div>
+
+                    <!-- Live GPS Satellite Fix Bar -->
+                    <div id="cg-viewfinder-gps-bar" style="margin-bottom:12px; display:flex; align-items:center; justify-content:space-between; background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.15); padding:8px 14px; border-radius:6px; font-size:0.75rem;">
+                      <span style="display:flex; align-items:center; gap:6px; color:#93c5fd;">
+                        <span id="cg-gps-indicator-dot" style="width:8px; height:8px; border-radius:50%; background:#eab308;"></span>
+                        <span id="cg-camera-gps-text">Acquiring GPS Geotag...</span>
+                      </span>
+                      <span id="cg-camera-ward-text" style="color:#fde047; font-weight:700;">Detecting Ward...</span>
+                    </div>
+
+                    <div style="position:relative; width:100%; max-height:300px; overflow:hidden; border-radius:8px; background:#000000; display:flex; align-items:center; justify-content:center;">
+                      <video id="cg-camera-video" autoplay playsinline muted style="width:100%; max-height:300px; object-fit:cover;"></video>
+                      <div style="position:absolute; inset:16px; border:2px dashed rgba(255,255,255,0.45); border-radius:8px; pointer-events:none; display:flex; align-items:center; justify-content:center;">
+                        <div style="color:rgba(255,255,255,0.75); font-size:0.78rem; font-weight:600; text-shadow:0 1px 3px rgba(0,0,0,0.8);">Aim camera at civic issue</div>
+                      </div>
+                    </div>
+
+                    <!-- Dedicated High-Visibility Capture Button -->
+                    <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px; margin-top:16px;">
+                      <button type="button" class="btn-live-shutter" id="btn-cg-shutter-snap" title="Click to take photo &amp; lock GPS">
+                        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.5">
+                          <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+                          <circle cx="12" cy="13" r="4"/>
+                        </svg>
+                        <span>Capture Photo Proof &amp; Lock Geotag</span>
+                      </button>
+                      <div style="text-align:center; font-size:0.73rem; color:#cbd5e1;">Click shutter to lock GPS coordinates and save verified photographic proof</div>
+                    </div>
+                    <canvas id="cg-camera-canvas" style="display:none;"></canvas>
+                  </div>
+
+                  <!-- State 3: Captured Photo Preview & Verified Geotag Stamp -->
+                  <div id="cg-camera-preview-box" style="display:none; margin-top:8px; background:#ffffff; border:1.5px solid #22c55e; border-radius:12px; padding:14px; box-shadow:0 4px 14px rgba(34, 197, 94, 0.1);">
+                    <div style="display:flex; gap:16px; align-items:center; flex-wrap:wrap;">
+                      <div style="position:relative; width:120px; height:90px; border-radius:8px; overflow:hidden; border:1px solid #cbd5e1; flex-shrink:0;">
+                        <img id="cg-captured-photo-img" src="" alt="Captured Proof" style="width:100%; height:100%; object-fit:cover;" />
+                        <span style="position:absolute; bottom:2px; right:2px; background:rgba(0,0,0,0.75); color:#22c55e; font-size:9px; font-weight:800; padding:1px 4px; border-radius:3px;">LIVE CAM</span>
+                      </div>
+                      <div style="flex:1; min-width:180px;">
+                        <div style="display:flex; align-items:center; gap:6px; margin-bottom:4px;">
+                          <span style="background:#dcfce7; color:#15803d; font-size:0.72rem; font-weight:800; padding:2px 8px; border-radius:12px; border:1px solid #bbf7d0;">Live Camera Verified</span>
+                          <span style="font-size:0.72rem; color:#64748b;" id="cg-photo-timestamp">12:00:00 IST</span>
+                        </div>
+                        <div style="font-size:0.75rem; color:#0b3b60; font-weight:700; font-family:var(--font-mono);" id="cg-photo-gps-stamp">GPS: 18.5074° N, 73.8077° E (±4m)</div>
+                        <div style="font-size:0.75rem; color:#15803d; font-weight:700; margin-top:2px;" id="cg-photo-ward-stamp">Auto-Detected Ward: Ward 14 (Kothrud)</div>
+                        <div style="font-size:0.7rem; color:#64748b; margin-top:2px;">Stamped with precise real-time GPS coordinates &amp; SHA-256 integrity hash.</div>
+                      </div>
+                      <div style="display:flex; gap:8px;">
+                        <button type="button" id="btn-cg-sync-map-pin" style="padding:6px 12px; font-size:0.75rem; font-weight:700; border:1px solid #16a34a; background:#f0fdf4; color:#15803d; border-radius:6px; cursor:pointer;" title="Sync photo geotag with map pin location">Sync to Map Pin</button>
+                        <button type="button" id="btn-cg-retake" style="padding:6px 12px; font-size:0.75rem; font-weight:700; border:1px solid #0284c7; background:#eff6ff; color:#0369a1; border-radius:6px; cursor:pointer;">Retake</button>
+                        <button type="button" id="btn-cg-remove-photo" style="padding:6px 12px; font-size:0.75rem; font-weight:700; border:1px solid #cbd5e1; background:#f8fafc; color:#dc2626; border-radius:6px; cursor:pointer;">Remove</button>
+                      </div>
+                    </div>
+                  </div>
+
+                </div>
               </div>
-              <div>
-                <label for="cg-phone" style="display:block; font-size:0.78rem; font-weight:700; color:#374151; margin-bottom:8px; text-transform:uppercase; letter-spacing:0.4px;">Mobile Number <span style="color:#dc2626;">*</span></label>
-                <input type="tel" id="cg-phone" placeholder="+91 98220 XXXXX" style="width:100%; padding:10px 12px; font-size:0.85rem; border:1px solid #d1d5db; border-radius:8px; box-sizing:border-box;" required />
+
+              <!-- Ward Selection & Autonomous AI Routing Notice -->
+              <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; align-items:flex-end; margin-bottom:22px;">
+                <div>
+                  <label for="cg-ward" style="display:block; font-size:0.78rem; font-weight:700; color:#374151; margin-bottom:8px; text-transform:uppercase; letter-spacing:0.4px;">Municipal Ward Assignment <span style="color:#dc2626;">*</span></label>
+                  <select id="cg-ward" style="width:100%; padding:10px 12px; font-size:0.85rem; border:1.5px solid #0284c7; border-radius:8px; background:#ffffff; color:#0b3b60; font-weight:700; box-sizing:border-box;">
+                    <option value="Ward-03 (Alandi Road)">Ward-03 — Alandi Road / Dhanori / Kalas / Charholi</option>
+                    <option value="Ward-14 (Kothrud)">Ward-14 — Kothrud / Paud Road</option>
+                    <option value="Ward-08 (Aundh)">Ward-08 — Aundh / Baner / Balewadi</option>
+                    <option value="Ward-05 (Shivajinagar)">Ward-05 — Shivajinagar / FC Road</option>
+                    <option value="Ward-10 (Swargate)">Ward-10 — Swargate / Parvati</option>
+                    <option value="Ward-18 (Hadapsar)">Ward-18 — Hadapsar / Magarpatta</option>
+                    <option value="Ward-02 (Nagar Road)">Ward-02 — Nagar Road / Viman Nagar</option>
+                    <option value="Ward-11 (Dhankawadi)">Ward-11 — Dhankawadi / Katraj</option>
+                    <option value="Ward-07 (Kasba Peth)">Ward-07 — Kasba Peth / City Core</option>
+                    <option value="Ward-09 (Bhavani Peth)">Ward-09 — Bhavani Peth / Camp</option>
+                    <option value="Ward-13 (Sinhagad Road)">Ward-13 — Sinhagad Road / Dhayari</option>
+                  </select>
+                </div>
+                <div style="background:#f0fdf4; border:1px solid #bbf7d0; border-radius:8px; padding:10px 14px; display:flex; align-items:center; gap:10px; min-height:42px; box-sizing:border-box;">
+                  <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#15803d" stroke-width="2.5" style="flex-shrink:0;"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                  <div style="font-size:0.74rem; color:#166534; line-height:1.35;">
+                    <strong>Autonomous AI Routing:</strong> Agent B auto-associates field crew and Junior Engineer according to verified ward boundary.
+                  </div>
+                </div>
+              </div>
+
+              <!-- Step 2 Navigation Buttons -->
+              <div class="wizard-nav-btns" style="display:flex; justify-content:space-between; align-items:center; padding-top:12px; border-top:1px solid #f1f5f9;">
+                <button type="button" class="btn-wizard-back" id="btn-cg-back-to-1" style="padding:10px 20px; font-size:0.82rem; font-weight:700; color:#475569; background:#f1f5f9; border:1px solid #cbd5e1; border-radius:8px; cursor:pointer; display:inline-flex; align-items:center; gap:6px;">
+                  <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+                  <span>Back: Grievance &amp; Location</span>
+                </button>
+                <button type="button" class="btn-gov-primary" id="btn-cg-goto-step-3" style="padding:12px 28px; font-size:0.88rem; font-weight:700; border-radius:8px; display:inline-flex; align-items:center; gap:8px;">
+                  <span>Next: Review &amp; Confirm SLA</span>
+                  <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                </button>
               </div>
             </div>
 
-            <!-- Submit Bar -->
-            <div style="display:flex; align-items:center; gap:12px; padding-top:4px;">
-              <button type="submit" class="btn-gov-primary" id="btn-citizen-submit-grievance" style="flex:1; justify-content:center; padding:13px; font-size:0.92rem; font-weight:800; border-radius:10px;">
-                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
-                Submit Grievance
-              </button>
-              <button type="reset" style="padding:13px 20px; font-size:0.85rem; font-weight:600; border:1px solid #e2e8f0; background:#f8fafc; color:#64748b; border-radius:10px; cursor:pointer;">Clear</button>
+            <!-- ============================================================
+                 STEP 3: REVIEW & SUBMIT
+                 ============================================================ -->
+            <div class="cg-step-panel" id="cg-step-3" style="display:none;">
+              <!-- Real-time AI Redressal Preview Card -->
+              <div class="cg-review-card" style="background:#ffffff; border:1.5px solid #0284c7; border-radius:12px; padding:18px; box-shadow:0 4px 12px rgba(2, 132, 199, 0.08); margin-bottom:20px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; padding-bottom:10px; border-bottom:1px solid #e0f2fe;">
+                  <span style="font-size:0.82rem; font-weight:800; color:#0b3b60; text-transform:uppercase; letter-spacing:0.5px; display:flex; align-items:center; gap:6px;">
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#0284c7" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+                    Grievance Pre-Dispatch Summary
+                  </span>
+                  <span style="background:#dcfce7; color:#15803d; font-size:0.72rem; font-weight:800; padding:3px 10px; border-radius:12px; border:1px solid #bbf7d0;">
+                    RTS Act 2015 SLA Guaranteed
+                  </span>
+                </div>
+
+                <div class="cg-review-grid" style="display:grid; grid-template-columns:repeat(3, 1fr); gap:12px; margin-bottom:14px;">
+                  <div class="cg-review-item" style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:10px;">
+                    <span style="font-size:0.68rem; color:#64748b; font-weight:700; text-transform:uppercase; display:block;">Department</span>
+                    <span id="cg-review-category" style="font-size:0.85rem; font-weight:700; color:#0b3b60;">Water Supply</span>
+                  </div>
+                  <div class="cg-review-item" style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:10px;">
+                    <span style="font-size:0.68rem; color:#64748b; font-weight:700; text-transform:uppercase; display:block;">Target Ward</span>
+                    <span id="cg-review-ward" style="font-size:0.85rem; font-weight:700; color:#0284c7;">Ward-03 (Alandi Road)</span>
+                  </div>
+                  <div class="cg-review-item" style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:10px;">
+                    <span style="font-size:0.68rem; color:#64748b; font-weight:700; text-transform:uppercase; display:block;">Photographic Proof</span>
+                    <span id="cg-review-proof-status" style="font-size:0.85rem; font-weight:700; color:#dc2626;">Not Attached</span>
+                  </div>
+                </div>
+
+                <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:12px; margin-bottom:14px;">
+                  <span style="font-size:0.68rem; color:#64748b; font-weight:700; text-transform:uppercase; display:block; margin-bottom:4px;">Grievance Description</span>
+                  <p id="cg-review-desc" style="font-size:0.82rem; color:#334155; margin:0; line-height:1.5; font-style:italic;">No description entered yet.</p>
+                </div>
+
+                <div style="background:#eff6ff; border:1px solid #bfdbfe; border-radius:8px; padding:10px 14px; display:flex; align-items:center; justify-content:space-between; font-size:0.75rem;">
+                  <span style="color:#1e40af;">
+                    <strong>AI Triaged SLA:</strong> Expected resolution within <span id="cg-review-sla" style="font-weight:800; color:#0284c7;">24 - 48 Hours</span>
+                  </span>
+                  <span style="color:#0369a1; font-weight:700;">Direct JE Notification</span>
+                </div>
+              </div>
+
+              <!-- Citizen Contact Details -->
+              <div style="margin-bottom:22px;">
+                <label style="display:block; font-size:0.8rem; font-weight:700; color:#1e293b; margin-bottom:10px; text-transform:uppercase; letter-spacing:0.4px;">
+                  Complainant Contact Information <span style="color:#dc2626;">*</span>
+                </label>
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
+                  <div>
+                    <label for="cg-name" style="display:block; font-size:0.75rem; font-weight:700; color:#475569; margin-bottom:6px;">Your Full Name <span style="color:#dc2626;">*</span></label>
+                    <input type="text" id="cg-name" placeholder="Full Name" value="Citizen Complainant" style="width:100%; padding:10px 12px; font-size:0.85rem; border:1.5px solid #cbd5e1; border-radius:8px; box-sizing:border-box;" required />
+                  </div>
+                  <div>
+                    <label for="cg-phone" style="display:block; font-size:0.75rem; font-weight:700; color:#475569; margin-bottom:6px;">Mobile Number (For Live SMS &amp; WhatsApp Tracking) <span style="color:#dc2626;">*</span></label>
+                    <input type="tel" id="cg-phone" placeholder="+91 98220 XXXXX" value="+91 98220 54321" style="width:100%; padding:10px 12px; font-size:0.85rem; border:1.5px solid #cbd5e1; border-radius:8px; box-sizing:border-box;" required />
+                  </div>
+                </div>
+              </div>
+
+              <!-- Step 3 Submit Bar -->
+              <div class="wizard-nav-btns" style="display:flex; justify-content:space-between; align-items:center; padding-top:14px; border-top:1px solid #f1f5f9;">
+                <button type="button" class="btn-wizard-back" id="btn-cg-back-to-2" style="padding:10px 20px; font-size:0.82rem; font-weight:700; color:#475569; background:#f1f5f9; border:1px solid #cbd5e1; border-radius:8px; cursor:pointer; display:inline-flex; align-items:center; gap:6px;">
+                  <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+                  <span>Back: Location &amp; Proof</span>
+                </button>
+                <div style="display:flex; align-items:center; gap:10px;">
+                  <button type="reset" id="btn-cg-reset" style="padding:12px 18px; font-size:0.82rem; font-weight:600; border:1px solid #cbd5e1; background:#f8fafc; color:#64748b; border-radius:8px; cursor:pointer;">Clear Form</button>
+                  <button type="submit" class="btn-gov-primary" id="btn-citizen-submit-grievance" style="padding:12px 28px; font-size:0.92rem; font-weight:800; border-radius:8px; display:inline-flex; align-items:center; gap:8px;">
+                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+                    <span>Submit Grievance &amp; Dispatch Field Crew</span>
+                  </button>
+                </div>
+              </div>
             </div>
+
           </form>
 
           <!-- Success Banner (hidden by default) -->
           <div id="cg-success-banner" style="display:none; padding:28px 24px; background:#f0fdf4; border-top:1px solid #bbf7d0; text-align:center;">
             <div style="display:flex; justify-content:center; margin-bottom:10px;">
-              <svg viewBox="0 0 24 24" width="40" height="40" fill="none" stroke="#16a34a" stroke-width="2.5"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+              <svg viewBox="0 0 24 24" width="44" height="44" fill="none" stroke="#16a34a" stroke-width="2.5"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
             </div>
-            <h4 style="font-size:1.1rem; font-weight:800; color:#15803d; margin:0 0 6px;">Grievance Lodged Successfully!</h4>
-            <p id="cg-ticket-display" style="font-size:0.88rem; color:#166534; margin:0 0 14px; font-weight:600;">Ticket ID: NS-2026-XXXX — Registered for Redressal</p>
-            <button type="button" id="btn-cg-new" style="padding:10px 20px; background:#15803d; color:#fff; border:none; border-radius:8px; font-size:0.84rem; font-weight:700; cursor:pointer;">Lodge Another Grievance</button>
+            <h4 style="font-size:1.15rem; font-weight:800; color:#15803d; margin:0 0 6px;">Grievance Registered Successfully!</h4>
+            <p id="cg-ticket-display" style="font-size:0.88rem; color:#166534; margin:0 0 14px; font-weight:600;">Ticket ID: NS-2026-XXXX — Dispatched to Ward Junior Engineer</p>
+            <div style="display:flex; justify-content:center; gap:10px;">
+              <button type="button" id="btn-cg-new" style="padding:10px 20px; background:#15803d; color:#fff; border:none; border-radius:8px; font-size:0.84rem; font-weight:700; cursor:pointer;">Lodge Another Grievance</button>
+              <button type="button" id="btn-cg-view-map" style="padding:10px 20px; background:#0b3b60; color:#fff; border:none; border-radius:8px; font-size:0.84rem; font-weight:700; cursor:pointer;">View on City Map</button>
+            </div>
           </div>
         </div>
 
-        <!-- Right Column: Statutory SLA Guarantees & Transparency -->
-        <div style="display: flex; flex-direction: column; gap: 18px;">
+        <!-- Right Column: My Active Grievances & Citizen Guide -->
+        <div style="display: flex; flex-direction: column; gap: 20px;">
           
-          <!-- Statutory SLA Timelines -->
-          <div style="background:#ffffff; border:1px solid #cbd5e1; border-radius:16px; padding:22px; box-shadow:0 4px 16px rgba(0,0,0,0.06);">
-            <div style="display:flex; align-items:center; gap:10px; margin-bottom:12px;">
-              <span class="gov-badge-icon blue" style="width:32px; height:32px;">
-                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-              </span>
-              <div>
-                <h4 style="font-size:0.95rem; font-weight:800; color:#0b3b60; margin:0;">Statutory SLA Entitlements</h4>
-                <span style="font-size:0.72rem; color:#64748b;">Maharashtra RTS Act 2015 Enforced</span>
+          <!-- My Lodged Grievances Live Tracker -->
+          <div class="my-grievance-card" id="cg-my-grievances-card">
+            <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; border-bottom:1px solid #e2e8f0; padding-bottom:10px;">
+              <div style="display:flex; align-items:center; gap:8px;">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#0b3b60" stroke-width="2.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+                <h4 style="font-size:0.95rem; font-weight:800; color:#0b3b60; margin:0;">My Grievance Status</h4>
               </div>
+              <span id="cg-my-count-badge" style="font-size:0.72rem; background:#eff6ff; color:#0284c7; font-weight:800; padding:2px 8px; border-radius:12px;">Active Track</span>
             </div>
-            <p style="font-size:0.8rem; color:#475569; line-height:1.5; margin:0 0 14px;">Every registered citizen grievance has a statutory time limit. If municipal officers fail to resolve within the stipulated window, the ticket automatically escalates.</p>
-            <div style="display:flex; flex-direction:column; gap:8px;">
-              <div style="display:flex; justify-content:space-between; align-items:center; background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:9px 12px; font-size:0.78rem;">
-                <span style="font-weight:600; color:#1e293b;">Water Supply &amp; Pipeline Bursts</span>
-                <span style="font-weight:800; color:#0284c7; background:#e0f2fe; padding:2px 8px; border-radius:4px;">24 Hours</span>
-              </div>
-              <div style="display:flex; justify-content:space-between; align-items:center; background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:9px 12px; font-size:0.78rem;">
-                <span style="font-weight:600; color:#1e293b;">Drainage &amp; Manhole Overflow</span>
-                <span style="font-weight:800; color:#0284c7; background:#e0f2fe; padding:2px 8px; border-radius:4px;">24 Hours</span>
-              </div>
-              <div style="display:flex; justify-content:space-between; align-items:center; background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:9px 12px; font-size:0.78rem;">
-                <span style="font-weight:600; color:#1e293b;">Road Potholes &amp; Structural Repairs</span>
-                <span style="font-weight:800; color:#0284c7; background:#e0f2fe; padding:2px 8px; border-radius:4px;">48 Hours</span>
-              </div>
-              <div style="display:flex; justify-content:space-between; align-items:center; background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:9px 12px; font-size:0.78rem;">
-                <span style="font-weight:600; color:#1e293b;">Streetlights &amp; Dark Spots</span>
-                <span style="font-weight:800; color:#0284c7; background:#e0f2fe; padding:2px 8px; border-radius:4px;">24 Hours</span>
-              </div>
-              <div style="display:flex; justify-content:space-between; align-items:center; background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:9px 12px; font-size:0.78rem;">
-                <span style="font-weight:600; color:#1e293b;">Solid Waste &amp; Bin Clearance</span>
-                <span style="font-weight:800; color:#0284c7; background:#e0f2fe; padding:2px 8px; border-radius:4px;">12 Hours</span>
+
+            <!-- List Container -->
+            <div id="cg-my-grievances-list">
+              <div style="padding:20px; text-align:center; color:#94a3b8; font-size:0.82rem; background:#f8fafc; border-radius:8px; border:1px dashed #cbd5e1;">
+                No grievances lodged yet in this session.<br/>Register above to track your ticket live.
               </div>
             </div>
           </div>
 
-          <!-- Multi-Tier Escalation Ladder -->
-          <div style="background:#ffffff; border:1px solid #cbd5e1; border-radius:16px; padding:22px; box-shadow:0 4px 16px rgba(0,0,0,0.06);">
-            <h4 style="font-size:0.88rem; font-weight:800; color:#0b3b60; margin:0 0 10px;">Automatic Escalation Hierarchy</h4>
-            <div style="display:flex; flex-direction:column; gap:8px;">
-              <div style="display:flex; align-items:center; gap:10px; font-size:0.76rem; color:#334155;">
-                <span style="width:20px; height:20px; border-radius:50%; background:#dbeafe; color:#1e40af; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:0.68rem; flex-shrink:0;">L1</span>
-                <div><strong>Tier 1:</strong> Junior Engineer &amp; Sanitary Inspector (0&ndash;24h)</div>
+          <!-- Citizen Guide: How Redressal Works -->
+          <div style="background:#ffffff; border:1px solid #cbd5e1; border-radius:16px; padding:20px; box-shadow:0 4px 16px rgba(0,0,0,0.06);">
+            <h4 style="font-size:0.88rem; font-weight:800; color:#0b3b60; margin:0 0 12px; display:flex; align-items:center; gap:8px;">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#16a34a" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+              <span>How Redressal Works (3 Steps)</span>
+            </h4>
+            
+            <div style="display:flex; flex-direction:column; gap:12px;">
+              <div style="display:flex; gap:10px; font-size:0.78rem;">
+                <div style="width:24px; height:24px; border-radius:50%; background:#dbeafe; color:#1e40af; font-weight:800; display:flex; align-items:center; justify-content:center; flex-shrink:0;">1</div>
+                <div>
+                  <strong style="color:#1e293b;">Voice &amp; Text Ingestion:</strong>
+                  <p style="color:#64748b; margin:2px 0 0; line-height:1.4;">Speak in Marathi or type in English/Hinglish. Gemini categorizes the grievance and evaluates urgency.</p>
+                </div>
               </div>
-              <div style="display:flex; align-items:center; gap:10px; font-size:0.76rem; color:#334155;">
-                <span style="width:20px; height:20px; border-radius:50%; background:#fef3c7; color:#92400e; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:0.68rem; flex-shrink:0;">L2</span>
-                <div><strong>Tier 2:</strong> Assistant Municipal Commissioner (24&ndash;48h)</div>
+
+              <div style="display:flex; gap:10px; font-size:0.78rem;">
+                <div style="width:24px; height:24px; border-radius:50%; background:#fef3c7; color:#92400e; font-weight:800; display:flex; align-items:center; justify-content:center; flex-shrink:0;">2</div>
+                <div>
+                  <strong style="color:#1e293b;">Auto-Ward Routing:</strong>
+                  <p style="color:#64748b; margin:2px 0 0; line-height:1.4;">Your map pin automatically assigns the nearest Ward Junior Engineer without bureaucratic delays.</p>
+                </div>
               </div>
-              <div style="display:flex; align-items:center; gap:10px; font-size:0.76rem; color:#334155;">
-                <span style="width:20px; height:20px; border-radius:50%; background:#fed7aa; color:#9a3412; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:0.68rem; flex-shrink:0;">L3</span>
-                <div><strong>Tier 3:</strong> Deputy Municipal Commissioner (48&ndash;72h)</div>
-              </div>
-              <div style="display:flex; align-items:center; gap:10px; font-size:0.76rem; color:#334155;">
-                <span style="width:20px; height:20px; border-radius:50%; background:#fecaca; color:#991b1b; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:0.68rem; flex-shrink:0;">L4</span>
-                <div><strong>Tier 4:</strong> Municipal Commissioner Hearing (&gt;72h)</div>
+
+              <div style="display:flex; gap:10px; font-size:0.78rem;">
+                <div style="width:24px; height:24px; border-radius:50%; background:#dcfce7; color:#15803d; font-weight:800; display:flex; align-items:center; justify-content:center; flex-shrink:0;">3</div>
+                <div>
+                  <strong style="color:#1e293b;">Verified Photo Proof:</strong>
+                  <p style="color:#64748b; margin:2px 0 0; line-height:1.4;">Field engineers must upload photographic evidence within 100 meters before a ticket can be closed.</p>
+                </div>
               </div>
             </div>
-            <div style="margin-top:14px; padding:10px 12px; background:#f0fdf4; border-left:3px solid #16a34a; border-radius:0 6px 6px 0; font-size:0.74rem; color:#166534; line-height:1.4;">
-              <strong>Geotag Verification:</strong> Ground engineers must submit validated photographic evidence within a 100-meter radius before closure is accepted.
+
+            <!-- Civic Emergency & Disaster Cell -->
+            <div style="margin-top:16px; padding:12px; background:#eff6ff; border-radius:8px; border:1px solid #bfdbfe; font-size:0.75rem; color:#1e40af; line-height:1.5;">
+              <strong>Disaster Management Cell:</strong> 020-25501269<br/>
+              <strong>Municipal Control Room:</strong> Active 24x7 Digital Operations
             </div>
           </div>
 
@@ -643,7 +986,7 @@
               <span class="kpi-strip-val text-green" id="kpi-count-resolved">0</span>
               <span class="kpi-strip-label">Resolved &amp; Verified</span>
             </div>
-            <div class="kpi-strip-sub">Geotag Photo Verified &bull; Citizen WhatsApp Feedback</div>
+            <div class="kpi-strip-sub">Geotag Photo Verified &bull; Citizen Telegram Feedback</div>
           </div>
         </div>
 
@@ -681,59 +1024,113 @@
       <!-- Main Workspace: Kanban Board + Dedicated Live Redressal Output Dossier -->
       <div class="kanban-workspace-split split-active" id="kanban-workspace">
 
-        <!-- Zone 1: The 4-Column Workflow Board -->
+        <!-- Zone 1: The Workflow Board - 4 Interactive Modular Stage Boxes -->
         <div class="kanban-columns-area" id="kanban-columns-area">
-          <div class="gov-kanban-board" id="kanban-board">
-            
-            <!-- Col 1: Registered -->
-            <div class="kanban-column" data-status="REGISTERED">
-              <div class="column-header col-blue">
-                <div class="col-title-left">
-                  <span class="col-status-indicator blue"></span>
-                  <span class="col-status-name">1. LODGED &amp; TRIAGED</span>
-                </div>
+
+          <!-- Stage 1: LODGED & TRIAGED -->
+          <div class="stage-compact-box blue" id="stage-box-registered">
+            <div class="stage-box-bar" id="stage-bar-registered" title="Click to view Lodged &amp; Triaged grievances">
+              <div class="stage-box-left">
+                <span class="col-status-indicator blue"></span>
+                <span class="col-status-name stage-box-title">1. LODGED &amp; TRIAGED</span>
                 <span class="col-count-badge" id="count-registered">0</span>
+                <span class="stage-box-hint" id="stage-hint-registered">0 Grievances Pending &bull; Click to inspect</span>
               </div>
-              <div class="kanban-cards-container" id="col-cards-registered"></div>
+              <div class="stage-box-right">
+                <span class="stage-box-action blue" id="stage-action-registered">View Grievances</span>
+                <span class="stage-box-chevron" id="stage-chevron-registered">&#9662;</span>
+              </div>
             </div>
-
-            <!-- Col 2: In-Progress / Field Assigned (Tier 1) -->
-            <div class="kanban-column" data-status="IN_PROGRESS">
-              <div class="column-header col-amber">
-                <div class="col-title-left">
-                  <span class="col-status-indicator amber"></span>
-                  <span class="col-status-name">2. FIELD ASSIGNED (L1)</span>
+            <div class="stage-box-dropdown" id="stage-drawer-registered" style="display: none;">
+              <div class="stage-dropdown-header">
+                <div class="stage-dd-title-group">
+                  <span class="stage-dd-title">Grievances Under 1. Lodged &amp; Triaged</span>
+                  <span class="stage-dd-sub">Newly registered citizen submissions undergoing autonomous intake &amp; AI triage</span>
                 </div>
-                <span class="col-count-badge" id="count-inprogress">0</span>
+                <span class="stage-dd-badge blue" id="stage-badge-registered">0 Active</span>
               </div>
-              <div class="kanban-cards-container" id="col-cards-inprogress"></div>
+              <div class="stage-cards-container" id="col-cards-registered"></div>
             </div>
-
-            <!-- Col 3: SLA Escalated (Tier 2/3/4) -->
-            <div class="kanban-column col-escalated" data-status="ESCALATED">
-              <div class="column-header col-red">
-                <div class="col-title-left">
-                  <span class="col-status-indicator red"></span>
-                  <span class="col-status-name">3. SLA ESCALATED (L2/L3/L4)</span>
-                </div>
-                <span class="col-count-badge text-red" id="count-escalated">0</span>
-              </div>
-              <div class="kanban-cards-container" id="col-cards-escalated"></div>
-            </div>
-
-            <!-- Col 4: Resolved -->
-            <div class="kanban-column" data-status="RESOLVED">
-              <div class="column-header col-green">
-                <div class="col-title-left">
-                  <span class="col-status-indicator green"></span>
-                  <span class="col-status-name">4. RESOLVED &amp; CLOSED</span>
-                </div>
-                <span class="col-count-badge text-green" id="count-resolved">0</span>
-              </div>
-              <div class="kanban-cards-container" id="col-cards-resolved"></div>
-            </div>
-
           </div>
+
+          <!-- Stage 2: FIELD ASSIGNED (L1) -->
+          <div class="stage-compact-box amber is-open" id="stage-box-inprogress">
+            <div class="stage-box-bar" id="stage-bar-inprogress" title="Click to view Field Assigned grievances">
+              <div class="stage-box-left">
+                <span class="col-status-indicator amber"></span>
+                <span class="col-status-name stage-box-title">2. FIELD ASSIGNED (L1)</span>
+                <span class="col-count-badge" id="count-inprogress">0</span>
+                <span class="stage-box-hint" id="stage-hint-inprogress">Active Field Redressal &bull; Dispatched to Junior Engineers</span>
+              </div>
+              <div class="stage-box-right">
+                <span class="stage-box-action amber" id="stage-action-inprogress">View Grievances</span>
+                <span class="stage-box-chevron" id="stage-chevron-inprogress" style="transform: rotate(180deg);">&#9662;</span>
+              </div>
+            </div>
+            <div class="stage-box-dropdown" id="stage-drawer-inprogress" style="display: block;">
+              <div class="stage-dropdown-header">
+                <div class="stage-dd-title-group">
+                  <span class="stage-dd-title">Grievances Under 2. Field Assigned (L1)</span>
+                  <span class="stage-dd-sub">Grievances actively assigned to ward Junior Engineers &amp; field repair crews</span>
+                </div>
+                <span class="stage-dd-badge amber" id="stage-badge-inprogress">0 Active</span>
+              </div>
+              <div class="stage-cards-container" id="col-cards-inprogress"></div>
+            </div>
+          </div>
+
+          <!-- Stage 3: SLA ESCALATED (L2/L3/L4) -->
+          <div class="stage-compact-box red" id="stage-box-escalated">
+            <div class="stage-box-bar" id="stage-bar-escalated" title="Click to view SLA Escalated grievances">
+              <div class="stage-box-left">
+                <span class="col-status-indicator red"></span>
+                <span class="col-status-name stage-box-title">3. SLA ESCALATED (L2/L3/L4)</span>
+                <span class="col-count-badge text-red" id="count-escalated">0</span>
+                <span class="stage-box-hint" id="stage-hint-escalated">Statutory RTS Breaches &bull; Promoted to AMC / Commissioner</span>
+              </div>
+              <div class="stage-box-right">
+                <span class="stage-box-action red" id="stage-action-escalated">View Grievances</span>
+                <span class="stage-box-chevron" id="stage-chevron-escalated">&#9662;</span>
+              </div>
+            </div>
+            <div class="stage-box-dropdown" id="stage-drawer-escalated" style="display: none;">
+              <div class="stage-dropdown-header">
+                <div class="stage-dd-title-group">
+                  <span class="stage-dd-title">Grievances Under 3. SLA Escalated (L2/L3/L4)</span>
+                  <span class="stage-dd-sub">Complaints exceeding statutory resolution deadlines under Maharashtra RTS Act 2015</span>
+                </div>
+                <span class="stage-dd-badge red" id="stage-badge-escalated">0 Breached</span>
+              </div>
+              <div class="stage-cards-container" id="col-cards-escalated"></div>
+            </div>
+          </div>
+
+          <!-- Stage 4: RESOLVED & CLOSED -->
+          <div class="stage-compact-box green" id="stage-box-resolved">
+            <div class="stage-box-bar" id="stage-bar-resolved" title="Click to view Resolved grievances">
+              <div class="stage-box-left">
+                <span class="col-status-indicator green"></span>
+                <span class="col-status-name stage-box-title">4. RESOLVED &amp; CLOSED</span>
+                <span class="col-count-badge text-green" id="count-resolved">0</span>
+                <span class="stage-box-hint" id="stage-hint-resolved">Geotag Photo Verified &bull; Citizen Feedback Loop Completed</span>
+              </div>
+              <div class="stage-box-right">
+                <span class="stage-box-action green" id="stage-action-resolved">View Grievances</span>
+                <span class="stage-box-chevron" id="stage-chevron-resolved">&#9662;</span>
+              </div>
+            </div>
+            <div class="stage-box-dropdown" id="stage-drawer-resolved" style="display: none;">
+              <div class="stage-dropdown-header">
+                <div class="stage-dd-title-group">
+                  <span class="stage-dd-title">Grievances Under 4. Resolved &amp; Closed</span>
+                  <span class="stage-dd-sub">Work completed, verified by 100m geofence audit and citizen satisfaction poll</span>
+                </div>
+                <span class="stage-dd-badge green" id="stage-badge-resolved">0 Resolved</span>
+              </div>
+              <div class="stage-cards-container" id="col-cards-resolved"></div>
+            </div>
+          </div>
+
         </div>
 
         <!-- Zone 2: Dedicated Live Redressal Output & Audit Dossier Panel -->
@@ -770,13 +1167,13 @@
         <button class="map-tool-btn active" id="btn-toggle-circles" title="Toggle 150m PostGIS Radius Circles">150M POSTGIS</button>
         <button class="map-tool-btn active" id="btn-toggle-facilities" title="Toggle Civic Depots & Ward Offices">WARD OFFICES</button>
         <button class="map-tool-btn" id="btn-fit-incidents" title="Fit all active grievance pins">FIT INCIDENTS</button>
-        <button class="map-tool-btn" id="btn-center-hq" title="Recenter to PMC Main Bhavan">CENTER PMC HQ</button>
+        <button class="map-tool-btn" id="btn-center-hq" title="Recenter to Central City HQ">CENTER CITY HQ</button>
       </div>
 
       <div id="real-leaflet-map" class="full-leaflet-map"></div>
 
       <div class="map-footer-coords" style="margin-top: 12px;">
-        <span id="map-status-coords">Center: 18.5204° N, 73.8567° E (PMC Headquarters, Shivajinagar)</span>
+        <span id="map-status-coords">Center: 18.5204° N, 73.8567° E (Central Civic HQ, Shivajinagar)</span>
         <span class="map-tile-credit">© OpenStreetMap Contributors • CartoDB Positron</span>
       </div>
     </div>
@@ -792,7 +1189,7 @@
           <div class="wb-header-left">
             <div class="wb-badge">LIVE AGENT LAB</div>
             <h2 class="wb-title">6-Agent Autonomous Execution Laboratory &amp; Telemetry Workbench</h2>
-            <p class="wb-subtitle">Execute, test, and mathematically verify each of the 6 municipal AI agents in complete isolation. Real-time parameters, PostGIS geodesic calculations, formula arithmetic, and LLM telemetry.</p>
+            <p class="wb-subtitle">Execute, test, and verify each of the 6 municipal AI agents in complete isolation. Real-time parameters, PostGIS spatial indexing, priority scoring, and LLM telemetry.</p>
           </div>
           <div class="wb-header-right">
             <span class="wb-stat-pill">Direct API Execution</span>
@@ -804,39 +1201,352 @@
         <div class="workbench-tabs-nav" id="wb-tabs-nav">
           <button class="wb-tab-btn active" data-wb-agent="a">
             <span class="wb-tab-badge">A</span>
-            <span class="wb-tab-name">Agent A: Multilingual NER</span>
+            <span class="wb-tab-name">Agent A: Multilingual Intake &amp; NER Triage</span>
           </button>
           <button class="wb-tab-btn" data-wb-agent="c">
             <span class="wb-tab-badge">C</span>
-            <span class="wb-tab-name">Agent C: PostGIS Dedup</span>
+            <span class="wb-tab-name">Agent C: Spatial Deduplication &amp; Clustering</span>
           </button>
           <button class="wb-tab-btn" data-wb-agent="b">
             <span class="wb-tab-badge">B</span>
-            <span class="wb-tab-name">Agent B: Priority Math &amp; SLA</span>
+            <span class="wb-tab-name">Agent B: Priority Scoring &amp; Department Dispatch</span>
           </button>
           <button class="wb-tab-btn" data-wb-agent="d">
             <span class="wb-tab-badge">D</span>
-            <span class="wb-tab-name">Agent D: 4-Tier Escalator</span>
+            <span class="wb-tab-name">Agent D: Statutory SLA Tracking &amp; Escalation</span>
           </button>
           <button class="wb-tab-btn" data-wb-agent="f">
             <span class="wb-tab-badge">F</span>
-            <span class="wb-tab-name">Agent F: SOP &amp; Geotag Audit</span>
+            <span class="wb-tab-name">Agent F: Field Operations Copilot &amp; Geotag Verification</span>
           </button>
           <button class="wb-tab-btn" data-wb-agent="e">
             <span class="wb-tab-badge">E</span>
-            <span class="wb-tab-name">Agent E: Citizen WhatsApp</span>
+            <span class="wb-tab-name">Agent E: Citizen Communication &amp; Feedback</span>
           </button>
         </div>
 
-        <!-- Workbench Content Panels -->
-        <div class="workbench-panels-deck">
-          <div class="wb-panel active" id="wb-panel-a"></div>
-          <div class="wb-panel" id="wb-panel-c"></div>
-          <div class="wb-panel" id="wb-panel-b"></div>
-          <div class="wb-panel" id="wb-panel-d"></div>
-          <div class="wb-panel" id="wb-panel-f"></div>
-          <div class="wb-panel" id="wb-panel-e"></div>
+      <!-- Workbench Content Panels -->
+      <div class="workbench-panels-deck">
+
+        <!-- ==================== PANEL A: AGENT A ==================== -->
+        <div class="wb-panel active" id="wb-panel-a">
+          <div class="wb-split-grid">
+            <div class="wb-col-controls">
+              <h4 class="wb-panel-heading">Interactive Input for Agent A (Multilingual Intake & NER Triage)</h4>
+              <p class="wb-panel-desc">Normalizes code-mixed vernaculars (Marathi, Hindi, Hinglish), extracts spatial entities, and runs the Completeness Gatekeeper check.</p>
+              
+              <div class="wb-form-group">
+                <label>Citizen Grievance Text (Marathi, Hindi, or Hinglish):</label>
+                <textarea id="wb-input-text-a" rows="4" class="wb-textarea" placeholder="Enter custom grievance in Marathi/Hinglish...">Shivaji Chowk javal main water pipeline phutli ahe, rastyavar khoop pani sathlay and water flooding entire street.</textarea>
+              </div>
+
+              <div class="wb-presets-row">
+                <span class="wb-preset-lbl">Quick Presets:</span>
+                <button type="button" class="wb-preset-chip" id="wb-sample-marathi-a"> Water Burst (Marathi)</button>
+                <button type="button" class="wb-preset-chip" id="wb-sample-garbage-a">️ Garbage Overflow (Hinglish)</button>
+                <button type="button" class="wb-preset-chip" id="wb-sample-spark-a">Live Wire (Hindi)</button>
+                <button type="button" class="wb-preset-chip" id="wb-sample-incomplete-a">Incomplete (Gatekeeper Test)</button>
+              </div>
+
+              <div class="wb-form-row mt-3">
+                <div class="wb-form-group flex-1">
+                  <label>Ward Jurisdiction:</label>
+                  <select id="wb-ward-a" class="wb-select">
+                    <option value="Ward-14 (Kothrud)">Ward-14 (Kothrud)</option>
+                    <option value="Ward-08 (Aundh)">Ward-08 (Aundh)</option>
+                    <option value="Ward-05 (Shivajinagar)">Ward-05 (Shivajinagar)</option>
+                    <option value="Ward-10 (Swargate)">Ward-10 (Swargate)</option>
+                    <option value="Ward-18 (Hadapsar)">Ward-18 (Hadapsar)</option>
+                  </select>
+                </div>
+                <button type="button" class="btn-gov-primary wb-exec-btn" id="btn-run-agent-a">
+                  <span>Run Agent A Standalone</span>
+                </button>
+              </div>
+            </div>
+
+            <div class="wb-col-telemetry">
+              <div class="wb-telemetry-box" id="wb-output-a">
+                <div class="wb-telemetry-header">
+                  <span class="wb-tel-title">Agent A Execution Telemetry</span>
+                  <span class="wb-status-tag" id="wb-tag-a">Ready to Execute</span>
+                </div>
+                <div class="wb-tel-content" id="wb-content-a">
+                  <div class="wb-empty-state">Click "Run Agent A Standalone" to benchmark multilingual NER and completeness extraction.</div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
+
+        <!-- ==================== PANEL C: AGENT C ==================== -->
+        <div class="wb-panel" id="wb-panel-c">
+          <div class="wb-split-grid">
+            <div class="wb-col-controls">
+              <h4 class="wb-panel-heading">Spatial Coordinates for Agent C (Spatial Deduplication & Clustering)</h4>
+              <p class="wb-panel-desc">PostGIS compound query: Evaluates Geodesic Haversine distance (&le; 150m) and text semantic similarity (&ge; 0.85) against existing complaints to eliminate duplicate contractor dispatches.</p>
+              
+              <div class="wb-form-row">
+                <div class="wb-form-group flex-1">
+                  <label>Latitude:</label>
+                  <input type="number" step="0.0001" id="wb-lat-c" class="wb-input" value="18.5080" />
+                </div>
+                <div class="wb-form-group flex-1">
+                  <label>Longitude:</label>
+                  <input type="number" step="0.0001" id="wb-lng-c" class="wb-input" value="73.8085" />
+                </div>
+              </div>
+
+              <div class="wb-form-group">
+                <label>Incident Category:</label>
+                <select id="wb-cat-c" class="wb-select">
+                  <option value="Solid Waste Management (SWM)">Solid Waste Management (SWM)</option>
+                  <option value="Water Supply & Pumping">Water Supply & Pumping</option>
+                  <option value="Drainage & Sewerage">Drainage & Sewerage</option>
+                  <option value="Roads & Traffic Infrastructure">Roads & Traffic Infrastructure</option>
+                  <option value="Streetlighting & Electrical">Streetlighting & Electrical</option>
+                </select>
+              </div>
+
+              <div class="wb-presets-row">
+                <span class="wb-preset-lbl">Test Scenarios:</span>
+                <button type="button" class="wb-preset-chip" id="wb-sample-near-c"> Colocated (118m - Duplicate)</button>
+                <button type="button" class="wb-preset-chip" id="wb-sample-far-c"> Distant (3.8km - Unique)</button>
+              </div>
+
+              <button type="button" class="btn-gov-primary wb-exec-btn mt-4" id="btn-run-agent-c">
+                <span>Run Agent C PostGIS Dedup</span>
+              </button>
+            </div>
+
+            <div class="wb-col-telemetry">
+              <div class="wb-telemetry-box" id="wb-output-c">
+                <div class="wb-telemetry-header">
+                  <span class="wb-tel-title">Agent C Spatial Deduplication Telemetry</span>
+                  <span class="wb-status-tag" id="wb-tag-c">Ready to Execute</span>
+                </div>
+                <div class="wb-tel-content" id="wb-content-c">
+                  <div class="wb-empty-state">Click "Run Agent C PostGIS Dedup" to evaluate Haversine distance and clustering logic.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ==================== PANEL B: AGENT B ==================== -->
+        <div class="wb-panel" id="wb-panel-b">
+          <div class="wb-split-grid">
+            <div class="wb-col-controls">
+              <h4 class="wb-panel-heading">Multi-Factor Priority Variables for Agent B (Priority Scoring & Dispatch)</h4>
+              <p class="wb-panel-desc">Multi-factor weighted evaluation across urban hazard severity, traffic disruption, and population density to compute statutory priority and dispatch RTS SLA.</p>
+
+              <div class="wb-slider-group">
+                <div class="wb-slider-header">
+                  <span>Urban Hazard Severity (S_hazard, W=0.45):</span>
+                  <strong id="val-hazard-score">95</strong>
+                </div>
+                <input type="range" id="slider-hazard" min="0" max="100" value="95" class="wb-slider" />
+              </div>
+
+              <div class="wb-slider-group">
+                <div class="wb-slider-header">
+                  <span>Traffic Disruption Impact (S_traffic, W=0.25):</span>
+                  <strong id="val-traffic-score">90</strong>
+                </div>
+                <input type="range" id="slider-traffic" min="0" max="100" value="90" class="wb-slider" />
+              </div>
+
+              <div class="wb-slider-group">
+                <div class="wb-slider-header">
+                  <span>Population Density Risk (S_pop, W=0.20):</span>
+                  <strong id="val-density-score">85</strong>
+                </div>
+                <input type="range" id="slider-density" min="0" max="100" value="85" class="wb-slider" />
+              </div>
+
+              <div class="wb-slider-group">
+                <div class="wb-slider-header">
+                  <span>Clustered Duplicate Reports (&Delta;_cluster = [N-1]&times;5):</span>
+                  <strong id="val-cluster-size">3 Reports (+10 pts)</strong>
+                </div>
+                <input type="range" id="slider-cluster" min="1" max="10" value="3" class="wb-slider" />
+              </div>
+
+              <button type="button" class="btn-gov-primary wb-exec-btn mt-3" id="btn-run-agent-b">
+                <span>Compute Priority & Department SLA</span>
+              </button>
+            </div>
+
+            <div class="wb-col-telemetry">
+              <div class="wb-telemetry-box" id="wb-output-b">
+                <div class="wb-telemetry-header">
+                  <span class="wb-tel-title">Agent B Priority Scoring Telemetry</span>
+                  <span class="wb-status-tag" id="wb-tag-b">Ready to Calculate</span>
+                </div>
+                <div class="wb-tel-content" id="wb-content-b">
+                  <div class="wb-empty-state">Adjust sliders or click "Compute Priority & Department SLA" to observe real-time weighted scoring.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ==================== PANEL D: AGENT D ==================== -->
+        <div class="wb-panel" id="wb-panel-d">
+          <div class="wb-split-grid">
+            <div class="wb-col-controls">
+              <h4 class="wb-panel-heading">Statutory SLA Escalation Engine (Agent D)</h4>
+              <p class="wb-panel-desc">Monitors elapsed virtual time against statutory deadlines under the Maharashtra Right to Public Services Act (RTS 2015), automatically promoting overdue tickets through 4 administrative tiers.</p>
+
+              <div class="wb-form-row">
+                <div class="wb-form-group flex-1">
+                  <label>Statutory SLA Window:</label>
+                  <select id="wb-sla-hours-d" class="wb-select">
+                    <option value="6">P1 Critical (6 Hours) — Water Supply</option>
+                    <option value="18">P2 High (18 Hours) — Solid Waste / Drainage</option>
+                    <option value="36">P3 Medium (36 Hours) — Streetlighting</option>
+                    <option value="48">P4 Low (48 Hours) — Roads & Paving</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="wb-slider-group mt-3">
+                <div class="wb-slider-header">
+                  <span>Virtual Elapsed Time:</span>
+                  <strong id="val-elapsed-hours">8.0 Hours (133.3% Elapsed)</strong>
+                </div>
+                <input type="range" id="slider-elapsed-d" min="0" max="24" step="0.5" value="8" class="wb-slider" />
+              </div>
+
+              <div class="wb-presets-row">
+                <span class="wb-preset-lbl">Fast Test:</span>
+                <button type="button" class="wb-preset-chip" id="wb-preset-normal-d">2h (Level 1: Junior Engineer)</button>
+                <button type="button" class="wb-preset-chip" id="wb-preset-urgent-d">5h (Level 2: Assistant Municipal Commissioner)</button>
+                <button type="button" class="wb-preset-chip" id="wb-preset-breach-d">8h (Level 3: Deputy Municipal Commissioner)</button>
+                <button type="button" class="wb-preset-chip" id="wb-preset-comm-d">14h (Level 4: Municipal Commissioner)</button>
+              </div>
+
+              <button type="button" class="btn-gov-primary wb-exec-btn mt-3" id="btn-run-agent-d">
+                <span>Evaluate 4-Tier Statutory Escalation</span>
+              </button>
+            </div>
+
+            <div class="wb-col-telemetry">
+              <div class="wb-telemetry-box" id="wb-output-d">
+                <div class="wb-telemetry-header">
+                  <span class="wb-tel-title">Agent D 4-Tier Hierarchy Telemetry</span>
+                  <span class="wb-status-tag" id="wb-tag-d">Ready to Evaluate</span>
+                </div>
+                <div class="wb-tel-content" id="wb-content-d">
+                  <div class="wb-empty-state">Drag the elapsed time slider to observe automatic promotion through L1, L2, L3, and L4.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ==================== PANEL F: AGENT F ==================== -->
+        <div class="wb-panel" id="wb-panel-f">
+          <div class="wb-split-grid">
+            <div class="wb-col-controls">
+              <h4 class="wb-panel-heading">Field Action Copilot & Geotag Verification (Agent F)</h4>
+              <p class="wb-panel-desc">Generates engineering Standard Operating Procedure (SOP) checklists, itemized Bill of Materials (BOM), and computes EXIF geotag spatial distance against the 100m statutory threshold.</p>
+
+              <div class="wb-form-group">
+                <label>Municipal Category:</label>
+                <select id="wb-cat-f" class="wb-select">
+                  <option value="Water Supply & Pumping">Water Supply & Pumping (Pipe Burst)</option>
+                  <option value="Solid Waste Management (SWM)">Solid Waste Management (Bin Overflow)</option>
+                  <option value="Drainage & Sewerage">Drainage & Sewerage (Manhole Backup)</option>
+                  <option value="Roads & Traffic Infrastructure">Roads & Traffic Infrastructure (Monsoon Pothole)</option>
+                  <option value="Streetlighting & Electrical">Streetlighting & Electrical (Live Wire Spark)</option>
+                </select>
+              </div>
+
+              <div class="wb-form-row">
+                <div class="wb-form-group flex-1">
+                  <label>Original Incident GPS:</label>
+                  <input type="text" id="wb-incident-gps-f" class="wb-input" value="18.5074, 73.8077" />
+                </div>
+                <div class="wb-form-group flex-1">
+                  <label>Closure Photo GPS (EXIF):</label>
+                  <input type="text" id="wb-closure-gps-f" class="wb-input" value="18.5075, 73.8076" />
+                </div>
+              </div>
+
+              <div class="wb-presets-row">
+                <span class="wb-preset-lbl">Geotag Checks:</span>
+                <button type="button" class="wb-preset-chip" id="wb-sample-valid-f">Valid Geotag (14m &le; 100m)</button>
+                <button type="button" class="wb-preset-chip" id="wb-sample-invalid-f">Fraudulent Geotag (650m &gt; 100m)</button>
+              </div>
+
+              <button type="button" class="btn-gov-primary wb-exec-btn mt-3" id="btn-run-agent-f">
+                <span>Generate SOP & Audit Geotag</span>
+              </button>
+            </div>
+
+            <div class="wb-col-telemetry">
+              <div class="wb-telemetry-box" id="wb-output-f">
+                <div class="wb-telemetry-header">
+                  <span class="wb-tel-title">Agent F SOP & Geotag Audit Telemetry</span>
+                  <span class="wb-status-tag" id="wb-tag-f">Ready to Audit</span>
+                </div>
+                <div class="wb-tel-content" id="wb-content-f">
+                  <div class="wb-empty-state">Click "Generate SOP & Audit Geotag" to inspect repair checklist and geofence proof.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ==================== PANEL E: AGENT E ==================== -->
+        <div class="wb-panel" id="wb-panel-e">
+          <div class="wb-split-grid">
+            <div class="wb-col-controls">
+              <h4 class="wb-panel-heading">Omnichannel Citizen Engagement Simulator (Agent E)</h4>
+              <p class="wb-panel-desc">Dispatches proactive milestone updates via Telegram Bot API (@PMCCivicRedressalBot) and SMS, and provides an interactive 24-hour post-closure satisfaction verification loop.</p>
+
+              <div class="wb-form-row">
+                <div class="wb-form-group flex-1">
+                  <label>Ticket Reference:</label>
+                  <input type="text" id="wb-ticket-e" class="wb-input" value="PMC-2026-WAT-01" />
+                </div>
+                <div class="wb-form-group flex-1">
+                  <label>Citizen Telegram User / Phone:</label>
+                  <input type="text" id="wb-phone-e" class="wb-input" value="+91 98220 54321" />
+                </div>
+              </div>
+
+              <div class="wb-form-group">
+                <label>Milestone Notification Event:</label>
+                <select id="wb-milestone-e" class="wb-select">
+                  <option value="TICKET_REGISTERED">TICKET_REGISTERED — Acknowledgement with tracking link</option>
+                  <option value="ASSIGNED_TO_OFFICER">ASSIGNED_TO_OFFICER — Junior Engineer dispatched</option>
+                  <option value="ESCALATED">ESCALATED — Statutory SLA breach alert to AMC</option>
+                  <option value="RESOLVED">RESOLVED — Closure photo + 24h feedback poll</option>
+                </select>
+              </div>
+
+              <button type="button" class="btn-gov-primary wb-exec-btn mt-3" id="btn-run-agent-e">
+                <span>Dispatch Telegram Milestone Alert</span>
+              </button>
+            </div>
+
+            <div class="wb-col-telemetry">
+              <div class="wb-telemetry-box" id="wb-output-e">
+                <div class="wb-telemetry-header">
+                  <span class="wb-tel-title">Agent E Telegram Bot Message & Poll Stream</span>
+                  <span class="wb-status-tag" id="wb-tag-e">Ready to Dispatch</span>
+                </div>
+                <div class="wb-tel-content" id="wb-content-e">
+                  <div class="wb-empty-state">Click "Dispatch Telegram Milestone Alert" to simulate real citizen messaging.</div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
       </div>
     </section>
   </div>
@@ -949,26 +1659,27 @@
 
   <!-- MODAL 3: AGENT INSPECTOR -->
   <div class="gov-modal-backdrop" id="agent-inspector-modal">
-    <div class="gov-modal-card">
+    <div class="gov-modal-card inspector-card">
       <div class="modal-top">
         <div>
-          <h3>LangGraph Agent Inspection Modal</h3>
-          <p>Deep telemetry payload audit for currently active ticket</p>
+          <h3 style="display:flex; align-items:center; gap:8px;">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#ff9933" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <span>LangGraph 6-Agent Execution Audit &amp; Telemetry</span>
+          </h3>
+          <p id="inspector-ticket-subheading">Deep telemetry payload audit for currently active ticket</p>
         </div>
         <button class="btn-close-modal" id="btn-close-inspector-modal">&times;</button>
       </div>
 
-      <div class="inspector-body">
-        <div class="insp-tabs-row">
-          <button class="insp-tab active" data-agent="agent_a">Agent A</button>
-          <button class="insp-tab" data-agent="agent_c">Agent C</button>
-          <button class="insp-tab" data-agent="agent_b">Agent B</button>
-          <button class="insp-tab" data-agent="agent_d">Agent D</button>
-          <button class="insp-tab" data-agent="agent_f">Agent F</button>
-          <button class="insp-tab" data-agent="agent_e">Agent E</button>
-        </div>
-        <div id="insp-content" class="insp-content-area"></div>
+      <div class="inspector-tabs">
+        <button class="insp-tab active" data-agent="agent_a">Agent A: Multilingual Intake &amp; NER Triage</button>
+        <button class="insp-tab" data-agent="agent_c">Agent C: Spatial Deduplication &amp; Clustering</button>
+        <button class="insp-tab" data-agent="agent_b">Agent B: Priority Scoring &amp; Department Dispatch</button>
+        <button class="insp-tab" data-agent="agent_d">Agent D: Statutory SLA Tracking &amp; Escalation</button>
+        <button class="insp-tab" data-agent="agent_f">Agent F: Field Operations Copilot &amp; Geotag Verification</button>
+        <button class="insp-tab" data-agent="agent_e">Agent E: Citizen Communication &amp; Feedback</button>
       </div>
+      <div id="inspector-body" class="inspector-body"></div>
     </div>
   </div>
 
@@ -1195,10 +1906,7 @@
         <div class="footer-col">
           <h4 class="footer-col-title">Citizen Helpdesk &amp; Contacts</h4>
           <ul class="footer-contact-list">
-            <li><strong>24x7 Toll-Free:</strong> 1800-1030-222</li>
-            <li><strong>WhatsApp Care Bot:</strong> +91 98220 54321</li>
             <li><strong>Grievance Email:</strong> complaints@nagriksewa.gov.in</li>
-            <li><strong>Main Bhavan:</strong> Municipal Head Office, Central Bhavan</li>
             <li><strong>Control Room:</strong> Operating 24/7 with Virtual Clock Sync</li>
           </ul>
         </div>

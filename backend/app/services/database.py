@@ -68,7 +68,7 @@ class CivicDatabase:
             Officer(
                 officer_id="off-l1-wat",
                 department_id="dept-wat-01",
-                name="Er. Sachin Shinde",
+                name="Junior Engineer (Water Works)",
                 designation="Junior Engineer (Water Works)",
                 hierarchy_tier=1,
                 ward_id="Ward-14 (Kothrud)",
@@ -78,7 +78,7 @@ class CivicDatabase:
             Officer(
                 officer_id="off-l1-swm",
                 department_id="dept-swm-02",
-                name="Inspector Ramesh Jadhav",
+                name="Sanitary Inspector (SI)",
                 designation="Sanitary Inspector (SI)",
                 hierarchy_tier=1,
                 ward_id="Ward-14 (Kothrud)",
@@ -88,7 +88,7 @@ class CivicDatabase:
             Officer(
                 officer_id="off-l1-drn",
                 department_id="dept-drn-03",
-                name="Er. Santosh More",
+                name="Drainage Inspector",
                 designation="Drainage Inspector",
                 hierarchy_tier=1,
                 ward_id="Ward-14 (Kothrud)",
@@ -98,7 +98,7 @@ class CivicDatabase:
             Officer(
                 officer_id="off-l1-ele",
                 department_id="dept-ele-04",
-                name="Er. Nilesh Kulkarni",
+                name="Junior Engineer (Electrical)",
                 designation="Junior Engineer (Electrical)",
                 hierarchy_tier=1,
                 ward_id="Ward-14 (Kothrud)",
@@ -108,7 +108,7 @@ class CivicDatabase:
             Officer(
                 officer_id="off-l1-rdm",
                 department_id="dept-rdm-05",
-                name="Er. Amit Patil",
+                name="Junior Engineer (Civil - Roads)",
                 designation="Junior Engineer (Civil - Roads)",
                 hierarchy_tier=1,
                 ward_id="Ward-14 (Kothrud)",
@@ -120,7 +120,7 @@ class CivicDatabase:
             Officer(
                 officer_id="off-l2-amc",
                 department_id="dept-wat-01",
-                name="Dr. Jayant Bhosekar",
+                name="Assistant Municipal Commissioner (AMC)",
                 designation="Assistant Municipal Commissioner (AMC - Ward 14)",
                 hierarchy_tier=2,
                 ward_id="Ward-14 (Kothrud)",
@@ -130,7 +130,7 @@ class CivicDatabase:
             Officer(
                 officer_id="off-l2-ee",
                 department_id="dept-rdm-05",
-                name="Er. Vijay Deshmukh",
+                name="Executive Engineer (EE)",
                 designation="Executive Engineer (EE - Zone 3)",
                 hierarchy_tier=2,
                 ward_id="Ward-14 (Kothrud)",
@@ -142,7 +142,7 @@ class CivicDatabase:
             Officer(
                 officer_id="off-l3-dmc-eng",
                 department_id="dept-wat-01",
-                name="Shri Madhav Deshpande",
+                name="Deputy Municipal Commissioner (DMC - Engineering)",
                 designation="Deputy Municipal Commissioner (DMC - Engineering)",
                 hierarchy_tier=3,
                 ward_id="City Central HQ",
@@ -152,7 +152,7 @@ class CivicDatabase:
             Officer(
                 officer_id="off-l3-dmc-swm",
                 department_id="dept-swm-02",
-                name="Smt. Asha Raut",
+                name="Deputy Municipal Commissioner (DMC - Solid Waste)",
                 designation="Deputy Municipal Commissioner (DMC - Solid Waste)",
                 hierarchy_tier=3,
                 ward_id="City Central HQ",
@@ -164,7 +164,7 @@ class CivicDatabase:
             Officer(
                 officer_id="off-l4-commissioner",
                 department_id="dept-wat-01",
-                name="Dr. Vikram Kumar, IAS",
+                name="Municipal Commissioner & Appellate Authority",
                 designation="Municipal Commissioner & Appellate Authority",
                 hierarchy_tier=4,
                 ward_id="PMC Main Bhavan, Shivajinagar",

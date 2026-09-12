@@ -68,6 +68,47 @@ class LLMService:
 
         return cls._local_sop_fallback(category)
 
+    @classmethod
+    def generate_embedding(cls, text: str) -> List[float]:
+        """Generates real vector embedding using Gemini embedding API with local fallback."""
+        api_key = os.getenv("GEMINI_API_KEY")
+        if api_key:
+            url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-embedding-001:embedContent?key={api_key}"
+            try:
+                req_data = json.dumps({
+                    "content": {"parts": [{"text": text[:2000]}]}
+                }).encode('utf-8')
+                req = urllib.request.Request(url, data=req_data, headers={'Content-Type': 'application/json'})
+                with urllib.request.urlopen(req, timeout=5.0) as resp:
+                    if resp.status == 200:
+                        data = json.loads(resp.read().decode('utf-8'))
+                        return data.get('embedding', {}).get('values', [])
+            except Exception:
+                pass
+
+        # Deterministic 128-dimensional TF-IDF projection vector fallback
+        import hashlib, math
+        words = re.findall(r'\w+', text.lower())
+        vec = [0.0] * 128
+        for w in words:
+            idx = int(hashlib.md5(w.encode()).hexdigest(), 16) % 128
+            vec[idx] += 1.0
+        norm = math.sqrt(sum(x*x for x in vec)) or 1.0
+        return [round(x / norm, 5) for x in vec]
+
+    @staticmethod
+    def cosine_similarity(v1: List[float], v2: List[float]) -> float:
+        """Calculates cosine similarity between two float vectors."""
+        if not v1 or not v2 or len(v1) != len(v2):
+            return 0.0
+        import math
+        dot = sum(x * y for x, y in zip(v1, v2))
+        norm1 = math.sqrt(sum(x * x for x in v1))
+        norm2 = math.sqrt(sum(x * x for x in v2))
+        if norm1 == 0 or norm2 == 0:
+            return 0.0
+        return round(dot / (norm1 * norm2), 4)
+
     # =========================================================================
     # Ollama Integration (http://localhost:11434)
     # =========================================================================
@@ -238,53 +279,90 @@ Return ONLY valid JSON:
         return None
 
     # =========================================================================
-    # High-Performance Deterministic Fallback
+    # High-Performance Deterministic NLP Engine & Parser
     # =========================================================================
     @classmethod
     def _local_parse_fallback(cls, raw_text: str) -> Dict[str, Any]:
         raw = raw_text.lower()
-        lang = "Marathi / Hinglish (Code-Mixed)" if any(w in raw for w in ["phutli", "ahe", "pani", "sathlay", "kachra", "rastyavar", "javal"]) else "English"
 
-        if any(w in raw for w in ["water", "pipeline", "burst", "leak", "phutli", "drinking", "jal"]):
-            return {
-                "detected_language": lang,
-                "extracted_category": "Water Supply & Pumping",
-                "canonical_english_summary": "Catastrophic municipal water pipeline burst with active high-pressure flooding.",
-                "landmark": "Near Shivaji Chowk",
-                "missing_critical_info": False
-            }
-        elif any(w in raw for w in ["garbage", "bin", "kachra", "waste", "stench", "dump"]):
-            return {
-                "detected_language": lang,
-                "extracted_category": "Solid Waste Management (SWM)",
-                "canonical_english_summary": "Community waste bin overflow uncollected for multiple days with severe sanitation risk.",
-                "landmark": "Market Road",
-                "missing_critical_info": False
-            }
-        elif any(w in raw for w in ["pothole", "road", "bridge", "skid", "rasta", "khadda"]):
-            return {
-                "detected_language": lang,
-                "extracted_category": "Roads & Traffic Infrastructure",
-                "canonical_english_summary": "Monsoon road pothole cavitation causing vehicular hazard on bridge approach ramp.",
-                "landmark": "Paud Road Bridge Ramp",
-                "missing_critical_info": False
-            }
-        elif any(w in raw for w in ["streetlight", "light", "dark", "pole", "wire", "cable"]):
-            return {
-                "detected_language": lang,
-                "extracted_category": "Streetlighting & Electrical",
-                "canonical_english_summary": "Non-functional streetlighting cluster causing public safety hazard in lane.",
-                "landmark": "Behind Bus Terminal",
-                "missing_critical_info": False
-            }
+        # 1. Language Detection (Agent A)
+        has_devanagari = bool(re.search(r'[\u0900-\u097F]', raw_text))
+        marathi_markers = ["phutli", "ahe", "pani", "sathlay", "kachra", "rastyavar", "javal", "nahi", "khup", "ghanta", "madhe", "tadav", "takraar"]
+        has_marathi_words = any(w in raw for w in marathi_markers)
+
+        if has_devanagari:
+            lang = "Marathi (Devanagari)"
+        elif has_marathi_words:
+            lang = "Marathi / Hinglish (Code-Mixed)"
         else:
-            return {
-                "detected_language": lang,
-                "extracted_category": "General Municipal Redressal",
-                "canonical_english_summary": raw_text,
-                "landmark": "Ward Center",
-                "missing_critical_info": len(raw_text.strip()) < 10
-            }
+            lang = "English"
+
+        # 2. Dynamic Landmark Extraction (Agent A)
+        landmark = None
+        lm_match = re.search(
+            r'(?:near|at|on|opposite|beside|in front of|close to|around)\s+([A-Za-z0-9\s\-]+?)(?:[.,;]|\bcausing\b|\bdamaging\b|\bis\b|\bwith\b|\band\b|$)',
+            raw_text, re.IGNORECASE
+        )
+        if lm_match:
+            candidate = lm_match.group(1).strip()
+            if len(candidate) > 2 and len(candidate) < 40:
+                landmark = candidate
+
+        # Fallback landmark from known Pune locations if not found
+        if not landmark:
+            for spot in ["MG Road", "Paud Road", "Karve Road", "FC Road", "JM Road", "Kothrud", "Shivaji Nagar", "Deccan", "Swargate", "Hadapsar", "Baner", "Aundh", "Viman Nagar", "Katraj",
+                         "डेक्कन", "कोथरूड", "स्वारगेट", "शिवाजीनगर", "कात्रज", "हडपसर", "बाणेर", "औंध", "विमाननगर", "कर्वे"]:
+                if spot.lower() in raw or spot in raw_text:
+                    landmark = spot
+                    break
+
+        landmark = landmark or "Ward Jurisdiction Area"
+
+        # 3. Domain Hierarchy (Specific Infrastructure before generic words)
+        # Category A: Streetlighting & Electrical
+        elec_words = ["street light", "streetlight", "street-light", "light", "lights", "dark", "pole", "lamp", "wire", "wires", "cable", "spark", "transformer", "bulb", "current", "shock", "blackout", "illumination", "fuse",
+                      "दिवा", "दिवे", "लाईट", "विजेचा", "खांब", "अंधार", "वायर"]
+        # Category B: Drainage & Sewerage
+        drn_words = ["drain", "drainage", "sewer", "sewage", "manhole", "gutter", "nalah", "nala", "chamber", "gutters", "guttering", "gutterage",
+                     "गटार", "गटारे", "ड्रेनेज", "सांडपाणी", "मॅनहोल"]
+        # Category C: Water Supply & Pumping
+        wat_words = ["water", "pipeline", "burst", "leak", "leakage", "phutli", "drinking water", "tap", "jal", "pani", "waterline", "submersible", "pumping",
+                     "पाणी", "पाईप", "पाईपलाईन", "गळती", "पिण्याचे", "पाण्याची", "फुटली"]
+        # Category D: Solid Waste Management
+        swm_words = ["garbage", "waste", "kachra", "bin", "dump", "stench", "trash", "smell", "rotting", "dead animal", "cleaning", "safai", "ghantagadi", "litter", "filth",
+                     "कचरा", "कचऱ्याचा", "कचराकुंडी", "घाण", "सफाई", "दुर्गंधी", "कचऱ्याची"]
+        # Category E: Roads & Traffic Infrastructure
+        rdm_words = ["pothole", "potholes", "khadda", "broken road", "damaged road", "crater", "caved", "divider", "speed breaker", "speedbreaker", "zebra crossing", "traffic signal", "asphalt", "tar", "footpath", "sidewalk", "flyover", "skid",
+                     "खड्डा", "खड्डे", "रस्ता", "रस्ते", "डांबर", "स्पीड ब्रेकर"]
+
+        if any(w in raw or w in raw_text for w in elec_words):
+            category = "Streetlighting & Electrical"
+        elif any(w in raw or w in raw_text for w in drn_words):
+            category = "Drainage & Sewerage"
+        elif any(w in raw or w in raw_text for w in swm_words):
+            category = "Solid Waste Management (SWM)"
+        elif any(w in raw or w in raw_text for w in wat_words):
+            category = "Water Supply & Pumping"
+        elif any(w in raw or w in raw_text for w in rdm_words) or ("road" in raw and ("bad" in raw or "repair" in raw or "damage" in raw or "traffic" in raw)):
+            category = "Roads & Traffic Infrastructure"
+        else:
+            category = "General Municipal Redressal"
+
+        # 4. Dynamic Canonical English Summary (Agent A)
+        # Cleans and contextualizes the citizen's actual words rather than using static strings
+        cleaned_text = raw_text.strip().strip('"').strip("'")
+        if cleaned_text:
+            canonical_summary = cleaned_text[0].upper() + cleaned_text[1:]
+        else:
+            canonical_summary = f"Civic incident reported under {category} at {landmark}."
+
+        return {
+            "detected_language": lang,
+            "extracted_category": category,
+            "canonical_english_summary": canonical_summary,
+            "landmark": landmark,
+            "missing_critical_info": len(cleaned_text) < 8
+        }
 
     @classmethod
     def _local_sop_fallback(cls, category: str) -> Dict[str, List[str]]:
@@ -317,6 +395,22 @@ Return ONLY valid JSON:
                     "Heavy-Duty Sanitation Gloves & Tarps"
                 ]
             }
+        elif "Drainage" in category or "Sewerage" in category:
+            return {
+                "sop_checklist": [
+                    "1. Establish safety perimeter and ventilate manhole chamber.",
+                    "2. Deploy truck-mounted high-pressure jetting & vacuum super-sucker unit.",
+                    "3. Extract silt, plastic solid blockage, and flush downstream arterial pipe.",
+                    "4. Install heavy-duty 40-ton SFRC replacement manhole frame and cover.",
+                    "5. Conduct dye tracer flow verification test to confirm unhindered gravity discharge."
+                ],
+                "bill_of_materials": [
+                    "1x 40-Ton Heavy-Duty SFRC Manhole Frame & Cover (IS:12592)",
+                    "1x High-Pressure Jetting Vacuum Super-Sucker Unit (2 hrs)",
+                    "15kg Waterproof Quick-Set Sealant Mortar",
+                    "Fluorescent Uranine Tracer Dye Packet"
+                ]
+            }
         elif "Roads" in category:
             return {
                 "sop_checklist": [
@@ -335,14 +429,17 @@ Return ONLY valid JSON:
         else:
             return {
                 "sop_checklist": [
-                    "1. Inspect feeder pillar box & circuit breaker status.",
-                    "2. Measure voltage drop across pole terminal blocks.",
-                    "3. Replace failed LED luminaire driver unit.",
-                    "4. Verify photocell timer alignment."
+                    "1. Implement Lockout-Tagout (LOTO) isolation on feeder pillar circuit.",
+                    "2. Deploy aerial bucket lift truck to inspect streetlight pole top.",
+                    "3. Replace blown high-rupturing capacity fuse and faulty LED driver.",
+                    "4. Mount 72W IP66 weatherproof luminaire and align photocell dusk sensor.",
+                    "5. Measure grounding resistance (< 2 ohms) and re-energize feeder."
                 ],
                 "bill_of_materials": [
-                    "2x 72W IP66 LED Luminaire Modules",
-                    "1x 16A Miniature Circuit Breaker",
-                    "50m 3-Core Armored Cable"
+                    "1x 72W IP66 High-Lumen Streetlight LED Luminaire",
+                    "1x 16A Class-C Miniature Circuit Breaker (MCB)",
+                    "1x Electronic Dusk-to-Dawn Photocell Sensor Switch",
+                    "25m 4-Core Armored Copper Cable (1100V Grade)"
                 ]
             }
+

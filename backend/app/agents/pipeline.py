@@ -42,26 +42,27 @@ class MunicipalMultiAgentPipeline:
     @classmethod
     def run_agent_pipeline(cls, sub: ComplaintSubmission) -> MunicipalIncidentAgentState:
         now = ClockService.get_current_virtual_time()
-        ticket_id = f"PMC-2026-{str(uuid.uuid4())[:8].upper()}"
-
+        ticket_id = f"PMC-{now.strftime('%Y%m%d')}-{uuid.uuid4().hex[:6].upper()}"
+        photo = getattr(sub, "incident_photo_data", None) or getattr(sub, "photo_data", None)
         # Initialize base state
         state = MunicipalIncidentAgentState(
             ticket_id=ticket_id,
             created_at=now,
             raw_input_text=sub.raw_text,
             channel=sub.channel,
-            ward_id=sub.ward_id or "Ward-14 (Kothrud)",
-            latitude=sub.latitude or 18.5074,
-            longitude=sub.longitude or 73.8077,
+            ward_id=sub.ward_id or "Ward-03 (Alandi Road)",
+            latitude=sub.latitude or 18.6775,
+            longitude=sub.longitude or 73.8967,
             complainant_name=sub.complainant_name or "Citizen User",
             complainant_phone=sub.complainant_phone or "+919876543210",
+            incident_photo_url=photo,
             sla_deadline=now + timedelta(hours=24)
         )
 
         # -------------------------------------------------------------
         # 1. AGENT A: Ingestion & Multilingual Triage Agent
         # -------------------------------------------------------------
-        cls._agent_a_triage(state, sub.latitude, sub.longitude)
+        cls._agent_a_triage(state, sub.latitude, sub.longitude, getattr(sub, "category", None))
 
         # -------------------------------------------------------------
         # 2. AGENT C: Spatial Deduplication & Clustering Agent
@@ -88,18 +89,23 @@ class MunicipalMultiAgentPipeline:
         # -------------------------------------------------------------
         cls._agent_e_citizen_engagement(state, now)
 
-        # Save to database
+        # Save to database (in-memory and persistent SQLite)
         db.complaints[state.ticket_id] = state
+        try:
+            from app.services.sqlite_db import persistent_db
+            persistent_db.save_complaint(state)
+        except Exception:
+            pass
         return state
 
     @classmethod
-    def _agent_a_triage(cls, state: MunicipalIncidentAgentState, custom_lat: Optional[float] = None, custom_lng: Optional[float] = None):
+    def _agent_a_triage(cls, state: MunicipalIncidentAgentState, custom_lat: Optional[float] = None, custom_lng: Optional[float] = None, explicit_category: Optional[str] = None):
         """Agent A: Normalizes Hinglish/Marathi to Canonical English, performs NER, and checks completeness."""
         # Query LLM Service (Ollama / Gemini / Local Fallback)
         parsed = LLMService.parse_complaint_multilingual(state.raw_input_text)
         
         state.detected_language = parsed.get("detected_language", "English")
-        state.extracted_category = parsed.get("extracted_category", "General Municipal Redressal")
+        state.extracted_category = explicit_category or parsed.get("extracted_category", "General Municipal Redressal")
         state.canonical_english_summary = parsed.get("canonical_english_summary", state.raw_input_text)
         state.landmark = parsed.get("landmark", state.landmark)
         state.missing_critical_info = parsed.get("missing_critical_info", False)
@@ -277,12 +283,41 @@ class MunicipalMultiAgentPipeline:
             delta_cluster = float(state.cluster_size * 5)
             p_score = min(100.0, p_score + delta_cluster)
 
-        state.assigned_department_id = dept_id
-        state.assigned_department_name = dept_name
-        state.priority_level = p_level
+        # Dynamic Hazard & Public Safety Factor (PRD Agent B Formula)
+        raw_lower = state.raw_input_text.lower()
+        hazard_delta = 0.0
+        if any(w in raw_lower for w in ["accident", "accidents", "injury", "danger", "deadly", "hospital", "death", "casualty", "fatal"]):
+            hazard_delta += 25.0
+        if any(w in raw_lower for w in ["dark", "night", "pitch dark", "blind spot", "bike accident", "fall"]):
+            hazard_delta += 15.0
+        if any(w in raw_lower for w in ["burst", "flood", "flooding", "high pressure", "submerged", "severe"]):
+            hazard_delta += 20.0
+        if any(w in raw_lower for w in ["stench", "rotting", "disease", "epidemic", "foul", "maggots"]):
+            hazard_delta += 15.0
+
+        p_score = min(100.0, max(10.0, p_score + hazard_delta))
+
+        # Dynamic SLA recalculation based on composite score
+        if p_score >= 85:
+            p_level = PriorityEnum.P1_CRITICAL
+            sla_hours = 6
+        elif p_score >= 65:
+            p_level = PriorityEnum.P2_HIGH
+            sla_hours = 12
+        elif p_score >= 45:
+            p_level = PriorityEnum.P3_MEDIUM
+            sla_hours = 24
+        else:
+            p_level = PriorityEnum.P4_LOW
+            sla_hours = 48
+
         state.priority_score = p_score
+        state.priority_level = p_level
         state.sla_duration_hours = sla_hours
         state.sla_deadline = now + timedelta(hours=sla_hours)
+
+        state.assigned_department_id = dept_id
+        state.assigned_department_name = dept_name
 
         state.agent_metrics["agent_b"] = {
             "agent_name": "Agent B: Department Routing & Priority Scoring",

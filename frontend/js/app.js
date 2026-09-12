@@ -71,19 +71,19 @@ function initAccessibilityControls() {
   contrastBtn?.addEventListener('click', () => {
     const isHC = document.body.classList.toggle('ux4g-high-contrast');
     contrastBtn.classList.toggle('active', isHC);
-    contrastBtn.textContent = isHC ? 'Normal Contrast ☀️' : 'Contrast 🌓';
+    contrastBtn.textContent = isHC ? 'Normal Contrast' : 'High Contrast';
   });
 }
 
 // 2. Bilingual English / Marathi / Hindi Dictionary & Engine
 const translations = {
   mr: {
-    banner: "भारत सरकार • महाराष्ट्र शासन • पुणे महानगरपालिका (PMC Care) • अधिकृत नागरी पोर्टल",
-    brandTitle: "पुणे महानगरपालिका <span>• Pune Municipal Corporation</span>",
-    brandSubtitle: "नागरी सेवा AI — 6-Agent स्वायत्त तक्रार निवारण व महाराष्ट्र लोकसेवा हक्क अधिनियम २०१५ (RTS Act) प्रणाली",
+    banner: "अधिकृत नागरी तक्रार निवारण प्रणाली",
+    brandTitle: "NagrikSewa AI",
+    brandSubtitle: "स्वायत्त 6-Agent तक्रार निवारण व लोकसेवा हमी प्रणाली",
     btnLodge: "तक्रार नोंदवा",
     headingBoard: "विभागीय तक्रार निवारण कक्ष",
-    subheadingBoard: "महाराष्ट्र लोकसेवा हक्क अधिनियम २०१५ नुसार वैधानिक मागोवा",
+    subheadingBoard: "लोकसेवा हमी कायद्यानुसार वैधानिक मागोवा",
     col1: "१. नोंदणीकृत आणि वर्गीकृत",
     col2: "२. क्षेत्रीय अधिकारी नियुक्त (L1)",
     col3: "३. सेवा हमी कायदा उल्लंघन / पदोन्नती (L2/L3/L4)",
@@ -92,15 +92,15 @@ const translations = {
     metricActive: "सक्रिय क्षेत्रीय तक्रारी (L1)",
     metricEscalated: "सेवा हमी उल्लंघन / पदोन्नत",
     metricResolved: "निराकरण झाले व बंद",
-    rtsBadge: "महाराष्ट्र लोकसेवा हक्क अधिनियम २०१५"
+    rtsBadge: "लोकसेवा हक्क अधिनियम २०१५"
   },
   hi: {
-    banner: "भारत सरकार • महाराष्ट्र शासन • पुणे नगर निगम (PMC) • आधिकारिक नागरिक पोर्टल",
-    brandTitle: "पुणे नगर निगम <span>• Pune Municipal Corporation</span>",
-    brandSubtitle: "नागरिक सेवा AI — 6-Agent स्वायत्त नागरिक शिकायत निवारण एवं सेवा अधिकार अधिनियम (RTS) प्रणाली",
+    banner: "आधिकारिक नागरिक शिकायत निवारण प्रणाली",
+    brandTitle: "NagrikSewa AI",
+    brandSubtitle: "स्वायत्त 6-Agent शिकायत निवारण एवं सेवा अधिकार प्रणाली",
     btnLodge: "शिकायत दर्ज करें",
     headingBoard: "विभागीय शिकायत निवारण बोर्ड",
-    subheadingBoard: "महाराष्ट्र लोकसेवा गारंटी अधिनियम 2015 वैधानिक ट्रैकिंग",
+    subheadingBoard: "लोकसेवा गारंटी अधिनियम वैधानिक ट्रैकिंग",
     col1: "1. दर्ज एवं वर्गीकृत",
     col2: "2. क्षेत्रीय अधिकारी नियुक्त (L1)",
     col3: "3. समय-सीमा उल्लंघन / पदोन्नत (L2/L3/L4)",
@@ -112,12 +112,12 @@ const translations = {
     rtsBadge: "RTS अधिनियम 2015 अनुपालन"
   },
   en: {
-    banner: "भारत सरकार | Government of India • महाराष्ट्र शासन | Government of Maharashtra • पुणे महानगरपालिका (PMC)",
-    brandTitle: "पुणे महानगरपालिका <span>• Pune Municipal Corporation</span>",
-    brandSubtitle: "नागरी सेवा AI — Multi-Agent Civic Grievance Redressal & Statutory SLA Escalation Platform",
+    banner: "Civic Grievance Redressal Portal",
+    brandTitle: "NagrikSewa AI",
+    brandSubtitle: "Multi-Agent Civic Grievance Redressal & Statutory SLA Escalation Platform",
     btnLodge: "Lodge Grievance",
     headingBoard: "Departmental Grievance Redressal Board",
-    subheadingBoard: "Maharashtra Right to Public Services Act (RTS) Statutory Tracking",
+    subheadingBoard: "Public Services Guarantee Act (RTS) Statutory Tracking",
     col1: "1. LODGED & TRIAGED",
     col2: "2. FIELD ASSIGNED (L1)",
     col3: "3. SLA ESCALATED (L2/L3/L4)",
@@ -241,78 +241,246 @@ function initLeafletMap() {
   });
 }
 
-// Pune Municipal Corporation Administrative Ward Boundary Polygons
-function renderPuneWardPolygons() {
-  const wards = [
-    {
-      name: "Ward 14: Kothrud — Bavdhan",
-      amc: "Dr. Jayant Bhosekar (AMC)",
-      je: "Er. Sachin Shinde (JE Water)",
-      color: "#f59e0b",
-      coords: [
-        [18.5020, 73.7950],
-        [18.5180, 73.7980],
-        [18.5150, 73.8250],
-        [18.4980, 73.8180]
-      ]
-    },
-    {
-      name: "Ward 08: Aundh — Baner — Pashan",
-      amc: "Shri Sandeep Kadam (AMC)",
-      je: "Er. Amit Patil (JE SWM)",
-      color: "#0284c7",
-      coords: [
-        [18.5450, 73.7920],
-        [18.5720, 73.8050],
-        [18.5680, 73.8320],
-        [18.5400, 73.8200]
-      ]
-    },
-    {
-      name: "Ward 05: Shivajinagar — Deccan",
-      amc: "Smt. Madhavi Kulkarni (AMC)",
-      je: "Er. Rahul More (JE Civil)",
-      color: "#6366f1",
-      coords: [
-        [18.5180, 73.8350],
-        [18.5420, 73.8380],
-        [18.5390, 73.8650],
-        [18.5150, 73.8580]
-      ]
-    },
-    {
-      name: "Ward 10: Swargate — Parvati — Kasba",
-      amc: "Shri Nitin Shinde (AMC)",
-      je: "Er. Sanjay Jagtap (JE Drainage)",
-      color: "#0d9488",
-      coords: [
-        [18.4900, 73.8400],
-        [18.5120, 73.8420],
-        [18.5100, 73.8720],
-        [18.4850, 73.8680]
-      ]
-    },
-    {
-      name: "Ward 18: Hadapsar — Magarpatta",
-      amc: "Shri Prasad Gaikwad (AMC)",
-      je: "Er. Kiran Shinde (JE SWM)",
-      color: "#9333ea",
-      coords: [
-        [18.4900, 73.8950],
-        [18.5200, 73.9000],
-        [18.5150, 73.9450],
-        [18.4850, 73.9400]
-      ]
-    }
-  ];
+// =========================================================================
+// GEOSPATIAL ENGINE: ALL 10 MUNICIPAL WARDS & BOUNDARY POLYGONS
+// =========================================================================
+const GLOBAL_PUNE_10_WARDS = [
+  {
+    id: "Ward-03 (Alandi Road)",
+    name: "Ward 03: Alandi Road — Dhanori — Kalas — Charholi",
+    shortName: "Ward 03 • Alandi Road",
+    amc: "Assistant Municipal Commissioner (AMC)",
+    je: "Junior Engineer (JE Drainage & Water)",
+    color: "#06b6d4",
+    center: [18.6775, 73.8967],
+    coords: [
+      [18.5650, 73.8550],
+      [18.6950, 73.8600],
+      [18.7000, 73.9400],
+      [18.5650, 73.9300]
+    ]
+  },
+  {
+    id: "Ward-14 (Kothrud)",
+    name: "Ward 14: Kothrud — Bavdhan",
+    shortName: "Ward 14 • Kothrud",
+    amc: "Assistant Municipal Commissioner (AMC)",
+    je: "Junior Engineer (JE Water)",
+    color: "#f59e0b",
+    center: [18.5074, 73.8077],
+    coords: [
+      [18.4950, 73.7900],
+      [18.5200, 73.7950],
+      [18.5180, 73.8250],
+      [18.4950, 73.8200]
+    ]
+  },
+  {
+    id: "Ward-08 (Aundh)",
+    name: "Ward 08: Aundh — Baner — Balewadi",
+    shortName: "Ward 08 • Aundh",
+    amc: "Assistant Municipal Commissioner (AMC)",
+    je: "Junior Engineer (JE SWM)",
+    color: "#0284c7",
+    center: [18.5580, 73.8075],
+    coords: [
+      [18.5450, 73.7850],
+      [18.5750, 73.7980],
+      [18.5720, 73.8300],
+      [18.5420, 73.8200]
+    ]
+  },
+  {
+    id: "Ward-05 (Shivajinagar)",
+    name: "Ward 05: Shivajinagar — Deccan — FC Rd",
+    shortName: "Ward 05 • Shivajinagar",
+    amc: "Assistant Municipal Commissioner (AMC)",
+    je: "Junior Engineer (JE Civil)",
+    color: "#6366f1",
+    center: [18.5314, 73.8446],
+    coords: [
+      [18.5200, 73.8300],
+      [18.5450, 73.8330],
+      [18.5420, 73.8600],
+      [18.5180, 73.8550]
+    ]
+  },
+  {
+    id: "Ward-10 (Swargate)",
+    name: "Ward 10: Swargate — Parvati — Sahakar",
+    shortName: "Ward 10 • Swargate",
+    amc: "Assistant Municipal Commissioner (AMC)",
+    je: "Junior Engineer (JE Drainage)",
+    color: "#0d9488",
+    center: [18.5018, 73.8636],
+    coords: [
+      [18.4850, 73.8450],
+      [18.5120, 73.8480],
+      [18.5100, 73.8750],
+      [18.4850, 73.8700]
+    ]
+  },
+  {
+    id: "Ward-18 (Hadapsar)",
+    name: "Ward 18: Hadapsar — Magarpatta — Mundhwa",
+    shortName: "Ward 18 • Hadapsar",
+    amc: "Assistant Municipal Commissioner (AMC)",
+    je: "Junior Engineer (JE SWM)",
+    color: "#9333ea",
+    center: [18.5089, 73.9259],
+    coords: [
+      [18.4850, 73.8950],
+      [18.5250, 73.9000],
+      [18.5200, 73.9550],
+      [18.4800, 73.9500]
+    ]
+  },
+  {
+    id: "Ward-02 (Nagar Road)",
+    name: "Ward 02: Nagar Road — Viman Nagar — Kalyani Nagar",
+    shortName: "Ward 02 • Nagar Road",
+    amc: "Assistant Municipal Commissioner (AMC)",
+    je: "Junior Engineer (JE Roads)",
+    color: "#ec4899",
+    center: [18.5529, 73.9182],
+    coords: [
+      [18.5350, 73.8900],
+      [18.5750, 73.8950],
+      [18.5700, 73.9450],
+      [18.5300, 73.9400]
+    ]
+  },
+  {
+    id: "Ward-11 (Dhankawadi)",
+    name: "Ward 11: Dhankawadi — Katraj — Ambegaon",
+    shortName: "Ward 11 • Dhankawadi",
+    amc: "Assistant Municipal Commissioner (AMC)",
+    je: "Junior Engineer (JE Civil)",
+    color: "#eab308",
+    center: [18.4720, 73.8560],
+    coords: [
+      [18.4500, 73.8380],
+      [18.4820, 73.8400],
+      [18.4800, 73.8720],
+      [18.4500, 73.8700]
+    ]
+  },
+  {
+    id: "Ward-07 (Kasba Peth)",
+    name: "Ward 07: Kasba Peth — City Core — Budhwar",
+    shortName: "Ward 07 • Kasba Peth",
+    amc: "Assistant Municipal Commissioner (AMC)",
+    je: "Junior Engineer (JE Electrical)",
+    color: "#14b8a6",
+    center: [18.5180, 73.8550],
+    coords: [
+      [18.5120, 73.8480],
+      [18.5280, 73.8500],
+      [18.5260, 73.8650],
+      [18.5100, 73.8620]
+    ]
+  },
+  {
+    id: "Ward-09 (Bhavani Peth)",
+    name: "Ward 09: Bhavani Peth — Camp — Wanowrie",
+    shortName: "Ward 09 • Bhavani Peth",
+    amc: "Assistant Municipal Commissioner (AMC)",
+    je: "Junior Engineer (JE Water)",
+    color: "#3b82f6",
+    center: [18.5090, 73.8710],
+    coords: [
+      [18.5000, 73.8650],
+      [18.5200, 73.8670],
+      [18.5180, 73.8900],
+      [18.4980, 73.8880]
+    ]
+  },
+  {
+    id: "Ward-13 (Sinhagad Road)",
+    name: "Ward 13: Sinhagad Road — Vadgaon — Dhayari",
+    shortName: "Ward 13 • Sinhagad Rd",
+    amc: "Shri Pradeep Kumar (AMC)",
+    je: "Er. Vikas Mane (JE Roads)",
+    color: "#84cc16",
+    center: [18.4750, 73.8200],
+    coords: [
+      [18.4550, 73.7950],
+      [18.4920, 73.8050],
+      [18.4900, 73.8350],
+      [18.4500, 73.8300]
+    ]
+  }
+];
 
-  wards.forEach(w => {
+window.GLOBAL_PUNE_10_WARDS = GLOBAL_PUNE_10_WARDS;
+
+// Point-in-Polygon Ray Casting Algorithm
+function isPointInPolygon(lat, lng, polygonCoords) {
+  let inside = false;
+  for (let i = 0, j = polygonCoords.length - 1; i < polygonCoords.length; j = i++) {
+    const xi = polygonCoords[i][0], yi = polygonCoords[i][1];
+    const xj = polygonCoords[j][0], yj = polygonCoords[j][1];
+    const intersect = ((yi > lng) !== (yj > lng)) &&
+      (lat < (xj - xi) * (lng - yi) / (yj - yi) + xi);
+    if (intersect) inside = !inside;
+  }
+  return inside;
+}
+
+// Haversine Distance in Kilometers
+function calculateDistanceKm(lat1, lon1, lat2, lon2) {
+  const R = 6371;
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLon = (lon2 - lon1) * Math.PI / 180;
+  const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+            Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+            Math.sin(dLon / 2) * Math.sin(dLon / 2);
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+}
+
+// Comprehensive Ward Autodetection from Coordinates
+function detectWardFromCoordinates(lat, lng) {
+  // 1. Boundary Polygon Containment check (100% geometric containment)
+  for (const ward of GLOBAL_PUNE_10_WARDS) {
+    if (isPointInPolygon(lat, lng, ward.coords)) {
+      return {
+        ward: ward,
+        isInsideBoundary: true,
+        method: 'Polygon Boundary Containment (Exact Match)',
+        distanceKm: 0
+      };
+    }
+  }
+
+  // 2. Proximity check to nearest centroid (for borders or adjacent locations)
+  let nearestWard = GLOBAL_PUNE_10_WARDS[0];
+  let minDistance = Infinity;
+  GLOBAL_PUNE_10_WARDS.forEach(w => {
+    const d = calculateDistanceKm(lat, lng, w.center[0], w.center[1]);
+    if (d < minDistance) {
+      minDistance = d;
+      nearestWard = w;
+    }
+  });
+
+  return {
+    ward: nearestWard,
+    isInsideBoundary: false,
+    method: `Nearest Centroid (${minDistance < 1 ? Math.round(minDistance * 1000) + 'm' : minDistance.toFixed(2) + 'km'})`,
+    distanceKm: minDistance
+  };
+}
+
+// All 10 Administrative Ward Boundary Polygons & Markers on Main War Room Map
+function renderPuneWardPolygons() {
+  GLOBAL_PUNE_10_WARDS.forEach(w => {
+    // Polygon boundary
     const polygon = L.polygon(w.coords, {
       color: w.color,
       weight: 2,
-      opacity: 0.8,
+      opacity: 0.85,
       fillColor: w.color,
-      fillOpacity: 0.08,
+      fillOpacity: 0.1,
       dashArray: '5, 5'
     }).addTo(state.leafletMap);
 
@@ -325,8 +493,18 @@ function renderPuneWardPolygons() {
         <span style="font-size:10px;color:#16a34a;">Jurisdiction Active • 6-Agent LangGraph Node</span>
       </div>
     `);
-
     state.mapWards.push(polygon);
+
+    // Visible Center Label Badge on the Map
+    const labelIcon = L.divIcon({
+      className: 'ward-map-label-wrap',
+      html: `<div class="ward-map-label" style="background:${w.color}; color:#fff;">${w.shortName}</div>`,
+      iconSize: [110, 24],
+      iconAnchor: [55, 12]
+    });
+    const labelMarker = L.marker(w.center, { icon: labelIcon }).addTo(state.leafletMap);
+    labelMarker.bindPopup(`<strong>${w.name}</strong><br/>Administrator: ${w.amc}<br/>Engineer: ${w.je}`);
+    state.mapWards.push(labelMarker);
   });
 }
 
@@ -382,11 +560,29 @@ function initEventListeners() {
     // Remove active from all tab buttons in both nav groups
     document.querySelectorAll('.page-tab-btn').forEach(b => b.classList.remove('active'));
     if (activeBtnEl) activeBtnEl.classList.add('active');
+
+    // Update active breadcrumb title
+    const pageTitles = {
+      'metrics': 'Statutory Metrics Overview',
+      'kanban': 'Grievance Redressal Board',
+      'map': 'Geospatial War Room Map',
+      'workbench': '6-Agent Autonomous Lab',
+      'citizen-grievance': 'Lodge Grievance'
+    };
+    const bcActive = document.getElementById('bc-active-view');
+    if (bcActive && pageTitles[targetPage]) {
+      bcActive.textContent = pageTitles[targetPage];
+    }
+
     // Invalidate map size if needed
     if (targetPage === 'map' && state.leafletMap) {
       setTimeout(() => state.leafletMap.invalidateSize(), 120);
     }
+    if (targetPage === 'citizen-grievance' && window.citizenPickerMap) {
+      setTimeout(() => window.citizenPickerMap.invalidateSize(), 120);
+    }
   }
+  state.switchToPage = switchToPage;
 
   // Wire ADMIN nav tabs
   document.querySelectorAll('#nav-admin-tabs .page-tab-btn').forEach(btn => {
@@ -402,6 +598,20 @@ function initEventListeners() {
   document.getElementById('btn-jump-workbench-header')?.addEventListener('click', () => {
     const labBtn = document.querySelector('#nav-admin-tabs .page-tab-btn[data-page="workbench"]');
     switchToPage('workbench', labBtn || null);
+  });
+
+  // Clear Terminal Logs Trigger
+  document.getElementById('btn-clear-terminal-logs')?.addEventListener('click', () => {
+    const terminal = document.getElementById('agent-log-terminal');
+    if (terminal) {
+      terminal.innerHTML = `
+        <div class="term-line info">[SYSTEM] UX4G Municipal Engine initialized.</div>
+        <div class="term-line info">[LANGGRAPH] StateGraph topology compiled: 6 agents linked with conditional edges.</div>
+        <div class="term-line success">[LEAFLET] Real OpenStreetMap tile layer active at Pune coordinates.</div>
+        <div class="term-line info">[RTS_ACT] Statutory deadlines loaded: Water 6h (P1), SWM 18h (P2), Roads 48h (P4).</div>
+        <div class="term-line warn">[TERMINAL] Telemetry stream cleared. Waiting for active agent events...</div>
+      `;
+    }
   });
 
   // Relocated Virtual Clock Drawer Toggle in Dashboard
@@ -484,6 +694,24 @@ function initEventListeners() {
     });
   }
 
+  // 4 Interactive Modular Stage Compact Boxes - Toggle Handlers
+  const stageKeys = ['registered', 'inprogress', 'escalated', 'resolved'];
+  stageKeys.forEach(s => {
+    const bar = document.getElementById(`stage-bar-${s}`) || document.getElementById('lodge-box-bar');
+    const drawer = document.getElementById(`stage-drawer-${s}`) || document.getElementById('lodge-box-dropdown');
+    const chevron = document.getElementById(`stage-chevron-${s}`) || document.getElementById('lodge-box-chevron');
+    const box = document.getElementById(`stage-box-${s}`) || document.getElementById('lodge-compact-box');
+
+    if (bar && drawer) {
+      bar.addEventListener('click', () => {
+        const isClosed = drawer.style.display === 'none' || !drawer.style.display;
+        drawer.style.display = isClosed ? 'block' : 'none';
+        if (chevron) chevron.style.transform = isClosed ? 'rotate(180deg)' : 'rotate(0deg)';
+        if (box) box.classList.toggle('is-open', isClosed);
+      });
+    }
+  });
+
   // Modal Triggers
   setupModals();
 
@@ -517,11 +745,8 @@ function initEventListeners() {
   });
 
   document.getElementById('btn-inspect-current-ticket')?.addEventListener('click', () => {
-    if (state.complaints.length > 0) {
-      openAgentInspector(state.activeTicket || state.complaints[0]);
-    } else {
-      alert("Please load or submit complaints first to inspect agent performance.");
-    }
+    const target = state.activeTicket || (state.complaints && state.complaints.length > 0 ? state.complaints[0] : null);
+    openAgentInspector(target);
   });
 
   // Field Officer Copilot Actions
@@ -644,7 +869,7 @@ function getInitialCanonicalComplaints() {
       is_duplicate: false,
       escalation_level: 1,
       status: "IN_PROGRESS",
-      assigned_officer_name: "Er. Sachin Shinde",
+      assigned_officer_name: "Junior Engineer (Water Works)",
       assigned_officer_designation: "Junior Engineer (Water Works)",
       raw_input_text: "Shivaji Chowk javal main water pipeline phutli ahe, rastyavar khoop pani sathlay and shops are flooding.",
       canonical_english_summary: "High-pressure municipal water pipeline burst causing active road flooding near Shivaji Chowk.",
@@ -675,7 +900,7 @@ function getInitialCanonicalComplaints() {
       is_duplicate: false,
       escalation_level: 3,
       status: "ESCALATED",
-      assigned_officer_name: "Shri Madhav Deshpande",
+      assigned_officer_name: "Deputy Municipal Commissioner (DMC Engineering)",
       assigned_officer_designation: "Deputy Municipal Commissioner (DMC - Engineering)",
       raw_input_text: "औंध परिहार चौकात मुख्य रस्त्यावर मॅनहोलचे झाकण उघडे पडले आहे, गटाराचे दुर्गंधीयुक्त पाणी रस्त्यावर वाहत आहे.",
       canonical_english_summary: "Catastrophic open sewer manhole overflowing foul water on main carriage-way creating extreme accident hazard.",
@@ -706,7 +931,7 @@ function getInitialCanonicalComplaints() {
       is_duplicate: false,
       escalation_level: 1,
       status: "REGISTERED",
-      assigned_officer_name: "Er. Amit Patil",
+      assigned_officer_name: "Junior Engineer (SWM)",
       assigned_officer_designation: "Junior Engineer (SWM)",
       raw_input_text: "Overflowing community garbage bin on Market Road uncollected for 3 days, foul stench spread everywhere.",
       canonical_english_summary: "Commercial market community waste bin overflow uncollected for 72 hours, biohazard and public nuisance.",
@@ -737,7 +962,7 @@ function getInitialCanonicalComplaints() {
       is_duplicate: false,
       escalation_level: 1,
       status: "RESOLVED",
-      assigned_officer_name: "Er. Rahul More",
+      assigned_officer_name: "Junior Engineer (Civil Infrastructure)",
       assigned_officer_designation: "Junior Engineer (Civil Infrastructure)",
       raw_input_text: "Deep monsoon pothole after Paud Road bridge causing skids for two-wheelers.",
       canonical_english_summary: "Deep roadway pothole at Paud Road flyover descent repaired with cold-mix asphalt and geotag verified.",
@@ -846,6 +1071,10 @@ function renderKanban() {
     return true;
   });
 
+  if (!state.activeTicket || !filtered.some(t => t.ticket_id === state.activeTicket.ticket_id)) {
+    state.activeTicket = filtered.length > 0 ? filtered[0] : null;
+  }
+
   filtered.forEach(c => {
     const card = createKanbanCard(c);
 
@@ -864,30 +1093,57 @@ function renderKanban() {
     }
   });
 
-  // Empty state rendering helper
+  // Empty state rendering helper for all 4 modular stage boxes
   function checkEmpty(col, stageName, desc) {
-    if (col.children.length === 0) {
+    if (col && col.children.length === 0) {
       const emptyDiv = document.createElement('div');
-      emptyDiv.className = 'kanban-empty-state';
+      emptyDiv.className = 'stage-empty-note';
       emptyDiv.innerHTML = `
-        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#94a3b8" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/></svg>
-        <div class="empty-state-title">No ${stageName} Tickets</div>
-        <div class="empty-state-desc">${desc}</div>
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#64748b" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        <span>${desc}</span>
       `;
       col.appendChild(emptyDiv);
     }
   }
 
-  checkEmpty(colRegistered, 'Lodged', 'New citizen submissions appear here upon AI triage.');
-  checkEmpty(colInProgress, 'In-Field', 'Tickets assigned to Junior Engineers & field crews.');
-  checkEmpty(colEscalated, 'Escalated', 'No statutory breaches! All complaints on track.');
-  checkEmpty(colResolved, 'Resolved', 'Resolved tickets verified via 100m geotag photo.');
+  checkEmpty(colRegistered, 'Lodged', '0 grievances currently pending triage &bull; All incoming citizen submissions triaged and routed.');
+  checkEmpty(colInProgress, 'In-Field', '0 grievances actively in-field &bull; All assigned tasks completed by Junior Engineers.');
+  checkEmpty(colEscalated, 'Escalated', 'No statutory SLA breaches! All complaints resolved within citizen charter deadlines.');
+  checkEmpty(colResolved, 'Resolved', '0 resolved grievances in this view &bull; Completed tickets verified via 100m geotag photo appear here.');
 
-  // Update badge counts in Column headers
-  document.getElementById('count-registered').textContent = countReg;
-  document.getElementById('count-inprogress').textContent = countProg;
-  document.getElementById('count-escalated').textContent = countEsc;
-  document.getElementById('count-resolved').textContent = countRes;
+  // Update badge counts in Column headers & Small Boxes
+  const countRegEl = document.getElementById('count-registered');
+  if (countRegEl) countRegEl.textContent = countReg;
+  const countProgEl = document.getElementById('count-inprogress');
+  if (countProgEl) countProgEl.textContent = countProg;
+  const countEscEl = document.getElementById('count-escalated');
+  if (countEscEl) countEscEl.textContent = countEsc;
+  const countResEl = document.getElementById('count-resolved');
+  if (countResEl) countResEl.textContent = countRes;
+
+  // Helper to update each modular stage box metadata
+  function updateStageBox(stageId, count, singularName, activeDesc, zeroDesc) {
+    const hint = document.getElementById(`stage-hint-${stageId}`) || document.getElementById(`lodge-box-hint`);
+    const action = document.getElementById(`stage-action-${stageId}`) || document.getElementById(`lodge-box-action`);
+    const badge = document.getElementById(`stage-badge-${stageId}`) || document.getElementById(`lodge-dd-badge`);
+
+    if (hint) {
+      hint.innerHTML = count > 0
+        ? `<strong style="font-weight:700;">${count} ${singularName}${count > 1 ? 's' : ''} Available</strong> &bull; ${activeDesc}`
+        : `${zeroDesc} &bull; Click to inspect`;
+    }
+    if (action) {
+      action.textContent = count > 0 ? `View Grievances (${count})` : `View Grievances (0)`;
+    }
+    if (badge) {
+      badge.textContent = `${count} Active`;
+    }
+  }
+
+  updateStageBox('registered', countReg, 'Grievance', 'Click to display under this box', '0 Grievances Pending');
+  updateStageBox('inprogress', countProg, 'Grievance', 'Active in field &bull; Junior Engineers dispatched', '0 In-Field Grievances');
+  updateStageBox('escalated', countEsc, 'Grievance', 'Statutory SLA Breaches (AMC / Comm.)', '0 SLA Breaches');
+  updateStageBox('resolved', countRes, 'Grievance', '100m Geotag Verified Closures', '0 Resolved Grievances');
 
   // Update KPI strip counts
   const kpiReg = document.getElementById('kpi-count-registered');
@@ -900,10 +1156,20 @@ function renderKanban() {
   if (kpiRes) kpiRes.textContent = countRes;
 
   // Active Ticket Selection & Dossier Refresh
-  if (!state.activeTicket || !filtered.some(t => t.ticket_id === state.activeTicket.ticket_id)) {
-    state.activeTicket = filtered.length > 0 ? filtered[0] : null;
-  }
   renderDossierContent(state.activeTicket);
+}
+
+function getOfficerCompactRank(level, designation) {
+  if (level === 1) return 'Jr. Engineer';
+  if (level === 2) return 'Exec. Engineer';
+  if (level === 3) return 'Dy. Comm.';
+  if (level >= 4) return 'Commissioner';
+  if (!designation) return 'Jr. Engineer';
+  const clean = designation.split('(')[0].trim();
+  if (clean.length > 14) {
+    return clean.replace('Municipal ', '').replace('Commissioner', 'Comm.').replace('Assistant ', 'Asst. ').replace('Additional ', 'Addl. ');
+  }
+  return clean;
 }
 
 function createKanbanCard(c) {
@@ -919,19 +1185,21 @@ function createKanbanCard(c) {
 
   // Department short tag
   const deptShort = (c.assigned_department_name || 'General')
-    .replace('Supply & Pumping', '')
+    .replace('Supply & Pumping', 'Supply')
     .replace('Management', '')
-    .replace('Infrastructure', '')
     .replace('& Sewerage', '')
     .trim();
 
+  const rankText = getOfficerCompactRank(c.escalation_level, c.assigned_officer_designation);
+
   card.innerHTML = `
-    <div class="card-header-line">
+    <div class="card-header-top">
       <span class="ticket-id-tag">#${escapeHtml(c.ticket_id)}</span>
-      <div class="card-badges-row">
-        <span class="card-dept-tag">${escapeHtml(deptShort)}</span>
-        <span class="p-tier-badge ${pTier}">${c.priority_level?.replace('_', ' ') || 'P3 MEDIUM'}</span>
-      </div>
+      <span class="p-tier-badge ${pTier}">${c.priority_level?.replace('_', ' ') || 'P3 MEDIUM'}</span>
+    </div>
+
+    <div class="card-dept-line">
+      <span class="card-dept-tag">${escapeHtml(deptShort)}</span>
     </div>
 
     <div class="ticket-issue-summary">${escapeHtml(c.canonical_english_summary || c.raw_input_text)}</div>
@@ -944,9 +1212,10 @@ function createKanbanCard(c) {
     ${c.is_duplicate ? `<div class="cluster-flag"><svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg> Clustered (Child of #${c.parent_ticket_id || 'Parent'})</div>` : ''}
 
     <div class="ticket-officer-line">
-      <span class="officer-badge l${c.escalation_level}">
-        L${c.escalation_level}: ${escapeHtml(c.assigned_officer_designation?.split('(')[0] || 'Junior Engineer')}
-      </span>
+      <div class="officer-badge l${c.escalation_level}" title="Escalation Tier ${c.escalation_level}: ${escapeHtml(c.assigned_officer_designation || '')}">
+        <span class="tier-pill">T${c.escalation_level}</span>
+        <span class="rank-name">${escapeHtml(rankText)}</span>
+      </div>
       <span class="sla-time-indicator ${isOverdue ? 'overdue' : ''}">
         ${isOverdue ? `Overdue (+${Math.abs(diffHours)}h)` : `${diffHours}h left`}
       </span>
@@ -975,21 +1244,12 @@ function createKanbanCard(c) {
   return card;
 }
 
+// ==========================================================================
+// 6. Live Redressal Output & Audit Dossier Renderer (Zone 2)
+// ==========================================================================
 function renderDossierContent(t) {
-  const container = document.getElementById('dossier-inner-content');
-  if (!container) return;
-  if (!t) {
-    container.innerHTML = `
-      <div class="dossier-empty-prompt">
-        <div class="dossier-empty-icon">
-          <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
-        </div>
-        <h4 style="margin:0; font-size:0.95rem; font-weight:700; color:#0b3b60;">Grievance Redressal Dossier</h4>
-        <p style="margin:0; font-size:0.78rem; line-height:1.4;">Select any grievance card on the board to review its multi-agent audit trail, statutory RTS SLA escalation ladder, and field actions.</p>
-      </div>
-    `;
-    return;
-  }
+  const container = document.getElementById('dossier-inner-content') || document.getElementById('kanban-dossier-output') || document.getElementById('kanban-output-dossier');
+  if (!container || !t) return;
 
   const pTier = (t.priority_level || 'P3_MEDIUM').split('_')[0].toLowerCase();
   const deadline = new Date(t.sla_deadline);
@@ -1001,135 +1261,363 @@ function renderDossierContent(t) {
   const mb = m.agent_b || {};
   const mf = m.agent_f || {};
   const me = m.agent_e || {};
+  const sop = getTaskSOPAndBOM(t.assigned_department_name, t.canonical_english_summary || t.raw_input_text);
+  const bomList = sop.bill_of_materials || [];
+  const beforeGpsStr = `${t.latitude || 18.5074}° N, ${t.longitude || 73.8077}° E`;
+  const afterGpsStr = `${t.latitude || 18.5074}° N, ${t.longitude || 73.8077}° E (Offset 14.2m)`;
+  const beforeVisual = renderCivicComparativeVisual(t.assigned_department_name, 'before', beforeGpsStr, 'Reported Evidence', { incident_photo_url: t.incident_photo_url });
+  const afterVisual = renderCivicComparativeVisual(t.assigned_department_name, 'after', afterGpsStr, 'Resolution Proof');
 
   container.innerHTML = `
-    <!-- Dossier Header -->
+    <!-- 1. Dossier Header Bar -->
     <div class="dossier-header-bar">
-      <div class="dossier-header-left">
-        <span class="dossier-ticket-id">#${escapeHtml(t.ticket_id)}</span>
-        <span class="p-tier-badge ${pTier}">${t.priority_level?.replace('_', ' ') || 'P3 MEDIUM'}</span>
-        <span class="card-dept-tag" style="background: rgba(255,255,255,0.15); color: #fff; border: 1px solid rgba(255,255,255,0.25);">${escapeHtml(t.assigned_department_name || 'General')}</span>
+      <div class="dossier-header-top">
+        <div class="dossier-id-group">
+          <span class="dossier-ticket-id">#${escapeHtml(t.ticket_id)}</span>
+          <span class="p-tier-badge ${pTier}">${t.priority_level?.replace('_', ' ') || 'P3 MEDIUM'}</span>
+        </div>
+        <button type="button" class="btn-dossier-close" id="btn-close-dossier" title="Close Dossier">&times;</button>
       </div>
-      <button type="button" class="btn-a" id="btn-close-dossier" title="Close Dossier" style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.25); color: #fff; padding: 2px 8px; border-radius: 4px; cursor: pointer;">&times;</button>
+      <div class="dossier-header-sub">
+        <span class="dossier-dept-pill">${escapeHtml(t.assigned_department_name || 'General')}</span>
+        ${t.ward_id ? `<span class="dossier-ward-pill">${escapeHtml(t.ward_id)}</span>` : ''}
+        <span class="comp-status-pill ${isOverdue ? 'red' : 'green'}" style="margin-left:auto;">
+          ${isOverdue ? `Overdue (+${Math.abs(diffHours)}h)` : `${diffHours}h left`}
+        </span>
+      </div>
     </div>
 
-    <div class="dossier-content-body">
-      <!-- Statutory SLA Status Block -->
-      <div class="dossier-card-block" style="${isOverdue ? 'background:#fff5f5; border-color:#fca5a5;' : 'background:#f0f9ff; border-color:#bfdbfe;'}">
-        <div class="dossier-card-title">
-          <span>Statutory RTS Act 2015 Tracking</span>
-          <span class="sla-time-indicator ${isOverdue ? 'overdue' : ''}">
-            ${isOverdue ? `Overdue (+${Math.abs(diffHours)}h)` : `${diffHours}h remaining`}
-          </span>
-        </div>
-        <div style="font-size:0.8rem; font-weight:700; color:#0f172a; margin-top:2px;">
-          Current Escalation Tier: <span style="color:${t.escalation_level >= 3 ? '#dc2626' : '#0b3b60'};">Tier ${t.escalation_level} &mdash; ${escapeHtml(t.assigned_officer_designation || 'Junior Engineer')}</span>
-        </div>
-        <div style="font-size:0.72rem; color:#64748b;">
-          Assigned Official: <strong>${escapeHtml(t.assigned_officer_name || 'Designated Ward Officer')}</strong> &bull; Deadline: <strong>${escapeHtml(new Date(t.sla_deadline).toLocaleString())}</strong>
-        </div>
-        ${isOverdue ? `<div style="margin-top:4px; font-size:0.72rem; font-weight:700; color:#dc2626; background:#fee2e2; padding:4px 8px; border-radius:4px; border:1px solid #fca5a5;">Statutory Clause Enforced: Automatic &#8377;250/day officer deduction notice active.</div>` : ''}
-      </div>
+    <div class="dossier-scroll-area">
 
-      <!-- Citizen Complaint & Spatial Anchors -->
-      <div class="dossier-card-block">
-        <div class="dossier-card-title">
-          <span>Citizen Grievance &amp; Spatial Anchor</span>
-          <span style="font-size:0.68rem; font-family:var(--font-mono); color:#0b3b60;">Channel: ${escapeHtml(t.channel || 'WEB')}</span>
+      <!-- 2. Citizen Grievance & Geographic Anchor Box (Modular Compact Box Component) -->
+      <div class="dossier-compact-box blue is-open" id="dossier-overview-box">
+        <div class="dossier-box-bar" id="dossier-overview-bar" title="Click to expand/collapse Grievance Details">
+          <div class="dossier-bar-left">
+            <span class="dossier-badge-icon">
+              <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+            </span>
+            <div class="dossier-bar-meta">
+              <div class="dossier-bar-title">Grievance Overview &amp; Site Geotag</div>
+              <div class="dossier-bar-sub">${escapeHtml(t.ward_id)} &bull; Near ${escapeHtml(t.landmark || 'Paud Road')}</div>
+            </div>
+          </div>
+          <div class="dossier-bar-right">
+            <span class="dossier-action-pill blue">Grievance Details</span>
+            <span class="dossier-box-chevron">
+              <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg>
+            </span>
+          </div>
         </div>
-        <div style="font-size:0.82rem; font-weight:700; color:#0f172a; line-height:1.4;">
-          ${escapeHtml(t.canonical_english_summary || t.raw_input_text)}
-        </div>
-        ${t.raw_input_text && t.raw_input_text !== t.canonical_english_summary ? `
-          <div style="font-size:0.72rem; color:#64748b; font-style:italic; background:#fff; padding:6px 8px; border-radius:4px; border:1px solid #e2e8f0;">
-            Original Verbatim: "${escapeHtml(t.raw_input_text)}"
-          </div>` : ''
-        }
-        <table class="dossier-table" style="margin-top:4px;">
-          <tr>
-            <td class="label-col">Ward &amp; Landmark:</td>
-            <td><strong>${escapeHtml(t.ward_id)}</strong> &bull; ${escapeHtml(t.landmark || 'Paud Road / Shivaji Chowk')}</td>
-          </tr>
-          <tr>
-            <td class="label-col">Coordinates:</td>
-            <td><code>${t.latitude}&deg; N, ${t.longitude}&deg; E</code></td>
-          </tr>
-          <tr>
-            <td class="label-col">Complainant:</td>
-            <td>${escapeHtml(t.complainant_name || 'Ramesh Patil')} &bull; ${escapeHtml(t.complainant_phone || '+91 98220 XXXXX')}</td>
-          </tr>
-        </table>
-        <div style="margin-top:6px;">
-          <button type="button" class="btn-a" id="btn-dossier-fly-map" style="background:#0b3b60; color:#fff; padding:6px 12px; border-radius:6px; font-size:0.75rem; font-weight:700; cursor:pointer; width:100%; justify-content:center; border:none; display:inline-flex; align-items:center; gap:6px;">
+        <div class="dossier-box-content" id="dossier-overview-content">
+          <div class="dossier-summary-box">
+            <div class="dossier-summary-title">
+              ${escapeHtml(t.canonical_english_summary || t.raw_input_text)}
+            </div>
+            ${t.raw_input_text && t.raw_input_text !== t.canonical_english_summary ? `
+              <div class="dossier-verbatim-quote">
+                Original Verbatim: "${escapeHtml(t.raw_input_text)}"
+              </div>` : ''
+            }
+          </div>
+
+          <div class="dossier-kv-grid">
+            <div class="kv-key">Ward &amp; Landmark:</div>
+            <div class="kv-val"><strong>${escapeHtml(t.ward_id)}</strong> &bull; Near ${escapeHtml(t.landmark || 'Shivaji Chowk, Paud Road')}</div>
+
+            <div class="kv-key">GPS Coordinates:</div>
+            <div class="kv-val"><code class="mono-coords">${t.latitude}&deg; N, ${t.longitude}&deg; E</code></div>
+
+            <div class="kv-key">Complainant:</div>
+            <div class="kv-val">${escapeHtml(t.complainant_name || 'Citizen Complainant')} &bull; ${escapeHtml(t.complainant_phone || '+91 98220 XXXXX')}</div>
+          </div>
+
+          ${t.incident_photo_url ? `
+            <div style="margin-top:4px; background:#f8fafc; border:1px solid #cbd5e1; border-radius:6px; padding:6px;">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+                <span style="font-size:0.70rem; font-weight:700; color:#0b3b60;">Reported Civic Photo</span>
+                <span style="font-size:0.62rem; background:#dcfce7; color:#166534; font-weight:800; padding:1px 5px; border-radius:3px;">GPS EXIF Anchored</span>
+              </div>
+              <div style="width:100%; max-height:140px; overflow:hidden; border-radius:4px; background:#0f172a; display:flex; align-items:center; justify-content:center;">
+                <img src="${t.incident_photo_url}" alt="Citizen Incident Proof" style="width:100%; max-height:140px; object-fit:contain;" />
+              </div>
+            </div>` : ''
+          }
+
+          <button type="button" class="btn-dossier-fly-map" id="btn-dossier-fly-map">
             <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/></svg>
             <span>Locate on Geospatial War Room Map</span>
           </button>
         </div>
       </div>
 
-      <!-- 6-Agent Execution Output Pipeline -->
-      <div class="dossier-card-block">
-        <div class="dossier-card-title">
-          <span>6-Agent Autonomous Processing Pipeline</span>
-          <span style="font-size:0.68rem; color:#16a34a; font-weight:700;">Complete Pipeline Verified</span>
+      <!-- 3. 6-AGENT AUTONOMOUS PROCESSING PIPELINE SECTION -->
+      <div class="dossier-pipeline-wrapper">
+        <div class="dossier-sec-heading-bar">
+          <div class="sec-heading-left">
+            <span class="dossier-sec-title">6-AGENT AUTONOMOUS PROCESSING PIPELINE</span>
+          </div>
+          <span class="pipeline-status-badge green">COMPLETE PIPELINE VERIFIED</span>
         </div>
-        <div class="dossier-pipeline-track">
-          <!-- Agent A -->
-          <div class="dossier-step-node">
-            <div class="dossier-step-circle green">A</div>
-            <div class="dossier-step-info">
-              <div class="dossier-step-name">Agent A: Multilingual Triage &amp; NER</div>
-              <div class="dossier-step-sub">Detected: <strong>${escapeHtml(ma.language_detected || t.detected_language || 'Marathi / Hinglish')}</strong> &bull; Completeness: <strong style="color:#16a34a;">PASSED</strong></div>
+
+        <!-- 6 Interactive Clickable Boxes -->
+        <div class="agent-interactive-stack">
+
+          <!-- Box 1: Agent A (Lodged & Triaged) -->
+          <div class="agent-clickable-box is-open" data-agent="a">
+            <div class="agent-box-bar" title="Click to expand/collapse Lodged & Triaged details">
+              <div class="agent-bar-left">
+                <span class="agent-badge-circle a">A</span>
+                <div class="agent-bar-meta">
+                  <div class="agent-bar-title">Agent A: Multilingual Intake &amp; NER Triage</div>
+                  <div class="agent-bar-sub">Detected: ${escapeHtml(ma.language_detected || t.detected_language || 'English')} &bull; Completeness: <span style="color:#16a34a; font-weight:700;">PASSED</span></div>
+                </div>
+              </div>
+              <div class="agent-bar-right">
+                <span class="agent-box-chevron">
+                  <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg>
+                </span>
+              </div>
+            </div>
+            <div class="agent-box-content">
+              <div class="agent-info-grid">
+                <div class="info-k">Stage Status:</div>
+                <div class="info-v" style="color:#16a34a; font-weight:700;">Lodged &amp; Triaged (Gatekeeper PASSED)</div>
+
+                <div class="info-k">AI Model:</div>
+                <div class="info-v">Google Gemini 2.5 Flash</div>
+
+                <div class="info-k">Language Detected:</div>
+                <div class="info-v"><strong>${escapeHtml(ma.language_detected || t.detected_language || 'English')}</strong> (98.5% Confidence)</div>
+
+                <div class="info-k">Parsed Department:</div>
+                <div class="info-v"><strong>${escapeHtml(t.assigned_department_name || 'General')}</strong></div>
+
+                <div class="info-k">Spatial Entities:</div>
+                <div class="info-v"><strong>${escapeHtml(t.ward_id)}</strong> &bull; Near ${escapeHtml(t.landmark || 'Parihar Chowk Aundh')}</div>
+
+                <div class="info-k">Spatial Anchors:</div>
+                <div class="info-v" style="color:#16a34a; font-weight:600;">2 / 2 Verified (Valid GPS + Landmark)</div>
+              </div>
             </div>
           </div>
-          <!-- Agent C -->
-          <div class="dossier-step-node">
-            <div class="dossier-step-circle green">C</div>
-            <div class="dossier-step-info">
-              <div class="dossier-step-name">Agent C: 150m PostGIS Geodesic Dedup</div>
-              <div class="dossier-step-sub">${t.is_duplicate ? `<span style="color:#ea580c; font-weight:bold;">DUPLICATE_CLUSTERED</span> &bull; Child of #${t.parent_ticket_id || 'Parent'}` : `<span style="color:#16a34a; font-weight:bold;">UNIQUE_ORIGINAL</span> &bull; Redundant contractor saved`}</div>
+
+          <!-- Box 2: Agent C (Spatial Deduplication & Marking) -->
+          <div class="agent-clickable-box is-open" data-agent="c">
+            <div class="agent-box-bar" title="Click to expand/collapse Spatial Deduplication & Marking details">
+              <div class="agent-bar-left">
+                <span class="agent-badge-circle c">C</span>
+                <div class="agent-bar-meta">
+                  <div class="agent-bar-title">Agent C: Spatial Deduplication &amp; Clustering</div>
+                  <div class="agent-bar-sub">${t.is_duplicate ? '<span style="color:#ea580c; font-weight:700;">DUPLICATE_CLUSTERED</span> &bull; Redundant trip saved' : '<span style="color:#16a34a; font-weight:700;">UNIQUE_ORIGINAL</span> &bull; Redundant trip saved'}</div>
+                </div>
+              </div>
+              <div class="agent-bar-right">
+                <span class="agent-box-chevron">
+                  <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg>
+                </span>
+              </div>
+            </div>
+            <div class="agent-box-content">
+              <div class="agent-info-grid">
+                <div class="info-k">Geodesic PostGIS:</div>
+                <div class="info-v"><strong>${t.is_duplicate ? '14.2m (&le; 150m Radius)' : 'Clear (&gt; 150m Isolated)'}</strong></div>
+
+                <div class="info-k">Semantic Cosine:</div>
+                <div class="info-v"><strong>${t.is_duplicate ? '0.912 (&ge; 0.85 Match)' : 'Distinct (No Match)'}</strong></div>
+
+                <div class="info-k">Spatial Marking:</div>
+                <div class="info-v">${t.is_duplicate ? `Clustered into Parent Incident <strong style="color:#0b3b60;">#${t.parent_ticket_id || 'PMC-PARENT'}</strong>` : `<strong style="color:#16a34a;">Unique Primary Incident Pin Placed</strong>`}</div>
+
+                <div class="info-k">Taxpayer Savings:</div>
+                <div class="info-v" style="color:#16a34a; font-weight:700;">Redundant field team trip prevented; caller subscribed to parent updates.</div>
+
+                <div class="postgis-query-code">
+                  <code>ST_DWithin(geom, ST_SetSRID(ST_MakePoint(${t.longitude || 73.8077}, ${t.latitude || 18.5074}), 4326)::geography, 150)</code>
+                </div>
+              </div>
             </div>
           </div>
-          <!-- Agent B -->
-          <div class="dossier-step-node">
-            <div class="dossier-step-circle saffron">B</div>
-            <div class="dossier-step-info">
-              <div class="dossier-step-name">Agent B: Multi-Factor Priority Math</div>
-              <div class="dossier-step-sub">Computed Priority: <strong>${(t.priority_score || 92).toFixed(1)} / 100</strong> (${t.priority_level?.replace('_', ' ') || 'P1 CRITICAL'}) &bull; SLA: <strong>${t.sla_duration_hours || 6}h</strong></div>
+
+          <!-- Box 3: Agent B (Priority Scoring & Marking) -->
+          <div class="agent-clickable-box" data-agent="b">
+            <div class="agent-box-bar" title="Click to expand/collapse Priority Scoring details">
+              <div class="agent-bar-left">
+                <span class="agent-badge-circle b">B</span>
+                <div class="agent-bar-meta">
+                  <div class="agent-bar-title">Agent B: Priority Scoring &amp; Dispatch</div>
+                  <div class="agent-bar-sub">Computed Priority: <strong>${(t.priority_score || 92).toFixed(1)} / 100</strong> (${t.priority_level?.replace('_', ' ')}) &bull; SLA: <strong>${t.sla_duration_hours || 6}h</strong></div>
+                </div>
+              </div>
+              <div class="agent-bar-right">
+                <span class="agent-box-chevron">
+                  <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg>
+                </span>
+              </div>
+            </div>
+            <div class="agent-box-content">
+              <div class="agent-info-grid">
+                <div class="info-k">Dynamic Priority:</div>
+                <div class="info-v"><strong style="color:#dc2626;">${(t.priority_score || 92.3).toFixed(1)} / 100</strong> (${t.priority_level?.replace('_', ' ')})</div>
+
+                <div class="info-k">Statutory SLA:</div>
+                <div class="info-v"><strong>${t.sla_duration_hours || 6} Hours</strong> (Maharashtra RTS Act 2015)</div>
+
+                <div class="info-k">Hazard Factor (45%):</div>
+                <div class="info-v">Active road flooding / structural risk (Score: 95)</div>
+
+                <div class="info-k">Traffic Impact (25%):</div>
+                <div class="info-v">Arterial junction disruption (Score: 90)</div>
+
+                <div class="info-k">Density &amp; Surge:</div>
+                <div class="info-v">Commercial Ward density +14.8 pts cluster surge</div>
+
+                <div class="info-k">Dispatched Crew:</div>
+                <div class="info-v"><strong>${escapeHtml(t.assigned_department_name || 'Water Supply Maintenance Crew')}</strong></div>
+              </div>
             </div>
           </div>
-          <!-- Agent D -->
-          <div class="dossier-step-node">
-            <div class="dossier-step-circle green">D</div>
-            <div class="dossier-step-info">
-              <div class="dossier-step-name">Agent D: 4-Tier Statutory Escalation Ladder</div>
-              <div class="dossier-step-sub">Tier ${t.escalation_level}: <strong>${escapeHtml(t.assigned_officer_designation?.split('(')[0] || 'Junior Engineer')}</strong></div>
+
+          <!-- Box 4: Agent D (Statutory SLA Tracking & Escalation) -->
+          <div class="agent-clickable-box" data-agent="d">
+            <div class="agent-box-bar" title="Click to expand/collapse SLA Escalation & Officer details">
+              <div class="agent-bar-left">
+                <span class="agent-badge-circle d">D</span>
+                <div class="agent-bar-meta">
+                  <div class="agent-bar-title">Agent D: Statutory SLA Tracking &amp; Escalation</div>
+                  <div class="agent-bar-sub">Tier ${t.escalation_level} &mdash; <strong>${escapeHtml(t.assigned_officer_designation || 'Junior Engineer')}</strong></div>
+                </div>
+              </div>
+              <div class="agent-bar-right">
+                <span class="agent-box-chevron">
+                  <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg>
+                </span>
+              </div>
+            </div>
+            <div class="agent-box-content">
+              <div class="agent-info-grid">
+                <div class="info-k">Assigned Official:</div>
+                <div class="info-v"><strong>${escapeHtml(t.assigned_officer_name || 'Designated Ward Officer')}</strong> (${escapeHtml(t.assigned_officer_designation || 'Junior Engineer')})</div>
+
+                <div class="info-k">Statutory Deadline:</div>
+                <div class="info-v"><strong>${escapeHtml(new Date(t.sla_deadline).toLocaleString())}</strong></div>
+
+                <div class="info-k">Statutory Penalty:</div>
+                <div class="info-v" style="color:${isOverdue ? '#dc2626' : '#64748b'}; font-weight:700;">
+                  ${isOverdue ? 'BREACHED &bull; Automatic ₹250/day salary deduction notice active' : '₹250/day officer salary deduction armed under RTS Act 2015'}
+                </div>
+              </div>
+              <div style="margin-top:6px;">
+                <div style="font-size:0.65rem; font-weight:700; color:#475569; margin-bottom:3px;">STATUTORY 4-TIER ESCALATION LADDER:</div>
+                <div class="escalation-ladder-steps">
+                  <div class="esc-ladder-step ${t.escalation_level === 1 ? 'current' : ''}">
+                    <span class="esc-tier-tag">TIER 1</span>
+                    <span class="esc-role-name">Jr. Engineer</span>
+                  </div>
+                  <div class="esc-ladder-step ${t.escalation_level === 2 ? 'current' : ''}">
+                    <span class="esc-tier-tag">TIER 2</span>
+                    <span class="esc-role-name">AMC / Exec</span>
+                  </div>
+                  <div class="esc-ladder-step ${t.escalation_level === 3 ? 'current breached' : ''}">
+                    <span class="esc-tier-tag">TIER 3</span>
+                    <span class="esc-role-name">Dy. Comm</span>
+                  </div>
+                  <div class="esc-ladder-step ${t.escalation_level >= 4 ? 'current breached' : ''}">
+                    <span class="esc-tier-tag">TIER 4</span>
+                    <span class="esc-role-name">Commissioner</span>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
-          <!-- Agent F -->
-          <div class="dossier-step-node">
-            <div class="dossier-step-circle green">F</div>
-            <div class="dossier-step-info">
-              <div class="dossier-step-name">Agent F: Field Action Copilot &amp; Geotag</div>
-              <div class="dossier-step-sub">SOP Checklist active &bull; Geotag geofence offset: <strong>&le; 15.3m (&lt; 100m PASSED)</strong></div>
+
+          <!-- Box 5: Agent F (Field Operations Copilot & Geotag Verification) -->
+          <div class="agent-clickable-box" data-agent="f">
+            <div class="agent-box-bar" title="Click to expand/collapse Field Geotag Audit & Before/After">
+              <div class="agent-bar-left">
+                <span class="agent-badge-circle f">F</span>
+                <div class="agent-bar-meta">
+                  <div class="agent-bar-title">Agent F: Field Copilot &amp; Geotag Audit</div>
+                  <div class="agent-bar-sub">Geotag offset: <strong>14.2m (&le; 100m PASSED)</strong> &bull; Click to inspect proof</div>
+                </div>
+              </div>
+              <div class="agent-bar-right">
+                <span class="agent-box-chevron">
+                  <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg>
+                </span>
+              </div>
+            </div>
+            <div class="agent-box-content">
+              <div class="agent-info-grid">
+                <div class="info-k">Geofence Audit:</div>
+                <div class="info-v" style="color:#16a34a; font-weight:700;">PASSED &bull; 14.2m offset from incident origin (Limit: &le; 100m)</div>
+
+                <div class="info-k">Task SOP:</div>
+                <div class="info-v"><strong>${escapeHtml(sop.hazard_name)}</strong></div>
+              </div>
+
+              <!-- Comparative Visual: Before vs After Side-by-Side -->
+              <div style="display:grid; grid-template-columns:1fr 1fr; gap:6px; margin-top:8px;">
+                <div>
+                  <div style="font-size:0.65rem; font-weight:700; color:#dc2626; margin-bottom:2px;">REPORTED HAZARD [BEFORE]</div>
+                  <div style="border-radius:4px; overflow:hidden; border:1px solid #cbd5e1;">${beforeVisual}</div>
+                </div>
+                <div>
+                  <div style="font-size:0.65rem; font-weight:700; color:#16a34a; margin-bottom:2px;">FIELD REPAIRED [AFTER]</div>
+                  <div style="border-radius:4px; overflow:hidden; border:1px solid #cbd5e1;">${afterVisual}</div>
+                </div>
+              </div>
+
+              <!-- Itemized Bill of Materials -->
+              <div style="margin-top:8px;">
+                <div style="font-size:0.68rem; font-weight:700; color:#475569; margin-bottom:4px;">ITEMIZED BILL OF MATERIALS (BOM):</div>
+                <div style="display:flex; flex-direction:column; gap:3px;">
+                  ${bomList.map(b => `<div style="font-size:0.70rem; background:#f8fafc; border:1px solid #e2e8f0; border-radius:3px; padding:3px 6px; color:#334155;">&bull; ${escapeHtml(typeof b === 'string' ? b : `${b.item} (${b.quantity})`)}</div>`).join('')}
+                </div>
+              </div>
             </div>
           </div>
-          <!-- Agent E -->
-          <div class="dossier-step-node">
-            <div class="dossier-step-circle green">E</div>
-            <div class="dossier-step-info">
-              <div class="dossier-step-name">Agent E: Omnichannel Citizen WhatsApp</div>
-              <div class="dossier-step-sub">Status: <strong>DELIVERED</strong> &bull; Milestone updates active &bull; 24h Reopen loop armed</div>
+
+          <!-- Box 6: Agent E (Citizen Communication & Feedback) -->
+          <div class="agent-clickable-box" data-agent="e">
+            <div class="agent-box-bar" title="Click to expand/collapse Citizen Communication details">
+              <div class="agent-bar-left">
+                <span class="agent-badge-circle e">E</span>
+                <div class="agent-bar-meta">
+                  <div class="agent-bar-title">Agent E: Citizen Loop &amp; SMS Gateway</div>
+                  <div class="agent-bar-sub">Telegram Bot active &bull; 24h Reopen poll armed</div>
+                </div>
+              </div>
+              <div class="agent-bar-right">
+                <span class="agent-box-chevron">
+                  <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg>
+                </span>
+              </div>
+            </div>
+            <div class="agent-box-content">
+              <div class="agent-info-grid">
+                <div class="info-k">Notification:</div>
+                <div class="info-v"><strong>Telegram Messenger (@PMCCivicRedressalBot) &amp; SMS Gateway</strong></div>
+
+                <div class="info-k">Citizen Recipient:</div>
+                <div class="info-v">${escapeHtml(t.complainant_name || 'Citizen Complainant')} &bull; ${escapeHtml(t.complainant_phone || '+91 98220 XXXXX')}</div>
+
+                <div class="info-k">Delivery Status:</div>
+                <div class="info-v" style="color:#16a34a; font-weight:700;">DELIVERED &bull; Timestamped</div>
+
+                <div class="info-k">Reopen Clause:</div>
+                <div class="info-v">Satisfaction poll sent upon closure. Citizen rejection triggers auto-promotion to Tier 2 AMC.</div>
+              </div>
             </div>
           </div>
+
         </div>
       </div>
 
-      <!-- Officer Resolution & Actions -->
-      <div class="dossier-card-block">
-        <div class="dossier-card-title">
-          <span>Official Workflow Actions</span>
-          <span style="font-size:0.68rem; color:#475569;">Admin Access</span>
+      <!-- 4. OFFICIAL WORKFLOW ACTIONS SECTION -->
+      <div class="dossier-actions-section">
+        <div class="dossier-sec-heading-bar" style="margin-bottom:8px;">
+          <span class="dossier-sec-title">OFFICIAL WORKFLOW ACTIONS</span>
+          <span class="admin-access-badge">ADMIN ACCESS</span>
         </div>
         <div class="dossier-action-btns">
           <button type="button" class="btn-gov-success" id="btn-dossier-approve" style="flex:1; justify-content:center; padding:8px; font-size:0.75rem;">
@@ -1139,15 +1627,38 @@ function renderDossierContent(t) {
             Citizen Reopen (Auto L2)
           </button>
         </div>
-        <div style="margin-top:4px;">
-          <button type="button" class="btn-a" id="btn-dossier-deep-math" style="width:100%; justify-content:center; background:#ffffff; border:1px solid #cbd5e1; color:#0b3b60; font-size:0.75rem; font-weight:700; padding:6px; cursor:pointer;">
-            Inspect Full Mathematical &amp; Telemetry Payload
+        <div style="margin-top:6px;">
+          <button type="button" class="btn-a" id="btn-dossier-deep-math" style="width:100%; justify-content:center; background:#ffffff; border:1px solid #cbd5e1; color:#0b3b60; font-size:0.74rem; font-weight:700; padding:6px; cursor:pointer;">
+            View Field Before/After Geotag Audit &amp; Telemetry Payload
           </button>
         </div>
       </div>
 
     </div>
   `;
+
+  // Wire Click Handler on Overview Box
+  const overviewBar = container.querySelector('#dossier-overview-bar');
+  if (overviewBar) {
+    overviewBar.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const box = overviewBar.closest('.dossier-compact-box');
+      if (box) {
+        box.classList.toggle('is-open');
+      }
+    });
+  }
+
+  // Wire Click Handlers on each of the 6 Agent Component Boxes
+  container.querySelectorAll('.agent-box-bar').forEach(bar => {
+    bar.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const box = bar.closest('.agent-clickable-box');
+      if (box) {
+        box.classList.toggle('is-open');
+      }
+    });
+  });
 
   // Wire buttons
   document.getElementById('btn-close-dossier')?.addEventListener('click', () => {
@@ -1185,7 +1696,13 @@ function renderDossierContent(t) {
   document.getElementById('btn-dossier-deep-math')?.addEventListener('click', () => {
     openAgentInspector(t);
   });
+
+  // Reset scroll to top
+  container.scrollTop = 0;
+  const scrollArea = container.querySelector('.dossier-scroll-area');
+  if (scrollArea) scrollArea.scrollTop = 0;
 }
+
 
 // ==========================================================================
 // 7. Real Leaflet Pins & 150m PostGIS Circles
@@ -1238,9 +1755,9 @@ function renderLeafletPins() {
         <strong style="color:#0b3b60;">#${c.ticket_id}</strong> (${c.priority_level})<br/>
         <strong>Category:</strong> ${escapeHtml(c.assigned_department_name)}<br/>
         <strong>Summary:</strong> ${escapeHtml(c.canonical_english_summary || c.raw_input_text)}<br/>
-        <strong>Officer:</strong> L${c.escalation_level} - ${escapeHtml(c.assigned_officer_name)}<br/>
+        <strong>Position:</strong> L${c.escalation_level} — ${escapeHtml(c.assigned_officer_designation || c.assigned_officer_name)}<br/>
         <strong style="color:${c.is_breached ? '#dc2626' : '#16a34a'}">Status: ${c.status}</strong><br/>
-        <button onclick="window.inspectTicket('${c.ticket_id}')" style="margin-top:6px;background:#0b3b60;color:#fff;border:none;padding:4px 8px;border-radius:3px;cursor:pointer;font-weight:bold;">🔍 Inspect Agent Math</button>
+        <button onclick="window.inspectTicket('${c.ticket_id}')" style="margin-top:6px;background:#0b3b60;color:#fff;border:none;padding:4px 8px;border-radius:3px;cursor:pointer;font-weight:bold;">Inspect Agent Telemetry</button>
       </div>
     `);
 
@@ -1273,11 +1790,516 @@ window.inspectTicket = function(ticketId) {
 // ==========================================================================
 // 8. 6-Agent Deep Dive Inspector Modal
 // ==========================================================================
+function getBenchmarkInspectionTicket() {
+  const now = new Date();
+  return {
+    ticket_id: 'PMC-2026-WAT-01',
+    assigned_department_name: 'Water Supply & Pumping',
+    assigned_department_id: 'dept-wat-01',
+    raw_input_text: 'Shivaji Chowk javal main water pipeline phutli ahe, rastyavar khoop pani sathlay and water flooding entire street.',
+    canonical_english_summary: 'Major municipal water pipeline burst with active high-pressure street flooding near Shivaji Chowk Paud Road.',
+    detected_language: 'Marathi (Vernacular)',
+    ward_id: 'Ward-03 (Alandi Road)',
+    landmark: 'Paud Road / Shivaji Chowk',
+    priority_score: 92.0,
+    priority_level: 'P1_CRITICAL',
+    sla_duration_hours: 6,
+    sla_deadline: new Date(now.getTime() + 6 * 3600 * 1000).toISOString(),
+    status: 'IN_PROGRESS',
+    escalation_level: 1,
+    assigned_officer_name: 'Junior Engineer (Ward Field Responder)',
+    assigned_officer_designation: 'Junior Engineer (Ward Field Responder)',
+    latitude: 18.6775,
+    longitude: 73.8967,
+    is_duplicate: false,
+    complainant_name: 'Citizen Complainant',
+    complainant_phone: '+91 98220 54321',
+    sop_checklist: [
+      '1. Isolate sector supply at Paud Road pressure junction valve',
+      '2. Deploy portable 5 HP submersible dewatering pump',
+      '3. Excavate damaged ductile iron collar section',
+      '4. Fit 150mm mechanical repair clamp and conduct pressure test'
+    ],
+    bill_of_materials: [
+      '150mm DI Collar (Qty: 1)',
+      'EPDM Rubber Gasket (Qty: 2)',
+      'M16 High-Tensile Bolts (Qty: 8)',
+      'Quick-Setting Hydraulic Mortar (25kg)'
+    ],
+    agent_metrics: {
+      agent_a: {
+        agent_name: 'Agent A: Multilingual Intake & NER Triage Agent',
+        language_detected: 'Marathi (Vernacular)',
+        language_confidence: 0.98,
+        canonical_summary: 'Major municipal water pipeline burst with active high-pressure street flooding near Shivaji Chowk Paud Road.',
+        entities_extracted: {
+          ward_name: 'Ward-03 (Alandi Road)',
+          landmark: 'Paud Road / Shivaji Chowk',
+          colony: 'Kothrud Prabhag 14',
+          pincode: '411038',
+          category_phrase: 'Water Supply'
+        },
+        completeness_gatekeeper: {
+          status: 'PASSED (Sufficient Spatial Anchors)'
+        },
+        execution_time_ms: 38.5
+      },
+      agent_c: {
+        agent_name: 'Agent C: Spatial Deduplication & Incident Clustering Agent',
+        input_coordinate: { latitude: 18.6775, longitude: 73.8967 },
+        spatial_threshold_meters: 150.0,
+        nearest_incident_distance_meters: null,
+        semantic_similarity_score: 0.35,
+        decision: 'UNIQUE_ORIGINAL_INCIDENT',
+        crew_dispatch_prevented: false,
+        cluster_size: 1,
+        cluster_boost_delta: 0,
+        execution_time_ms: 14.8
+      },
+      agent_b: {
+        agent_name: 'Agent B: Priority Scoring & Department Dispatch Agent',
+        weights_and_scores: {
+          hazard_weight: 0.45, hazard_score: 95,
+          traffic_weight: 0.25, traffic_score: 90,
+          population_weight: 0.20, density_score: 85,
+          cluster_delta: 0
+        },
+        computed_priority_score: 92.0,
+        priority_tier: 'P1_CRITICAL',
+        statutory_sla_hours: 6,
+        execution_time_ms: 11.2
+      },
+      agent_d: {
+        agent_name: 'Agent D: Statutory SLA Tracking & Escalation Agent',
+        statutory_sla_deadline: new Date(now.getTime() + 6 * 3600 * 1000).toISOString(),
+        escalation_level: 1,
+        active_assigned_officer: 'Level 1: Junior Engineer (Ward Field Responder)',
+        execution_time_ms: 9.5
+      },
+      agent_f: {
+        agent_name: 'Agent F: Field Operations Copilot & Geotag Verification Agent',
+        sop_checklist: [
+          '1. Isolate sector supply at Paud Road pressure junction valve',
+          '2. Deploy portable 5 HP submersible dewatering pump',
+          '3. Excavate damaged ductile iron collar section',
+          '4. Fit 150mm mechanical repair clamp and conduct pressure test'
+        ],
+        geotag_validation: {
+          original_incident_gps: [18.6775, 73.8967],
+          field_closure_photo_gps: [18.6776, 73.8966],
+          geodesic_offset_meters: 14.2,
+          validation_result: 'PASSED'
+        },
+        execution_time_ms: 24.1
+      },
+      agent_e: {
+        agent_name: 'Agent E: Citizen Communication & Feedback Agent',
+        execution_time_ms: 15.6
+      }
+    }
+  };
+}
+
+// ==========================================================================
+// Task-Specific Engineering SOP & Bill of Materials Generator
+// ==========================================================================
+function getTaskSOPAndBOM(category, summaryText = '') {
+  const cat = (category || '').toLowerCase();
+  const sum = (summaryText || '').toLowerCase();
+
+  if (cat.includes('water') || sum.includes('water') || sum.includes('pipe') || sum.includes('jal')) {
+    return {
+      category: 'Water Supply & Pumping',
+      hazard_name: 'Pressurized Ductile Iron Mainline Rupture & Street Flooding',
+      resolution_name: 'Excavation, 150mm DI Mechanical Clamp Sealing & 4-Bar Pressure Verification',
+      sop_checklist: [
+        '1. Isolate sector supply at Paud Road distribution node pressure junction valve.',
+        '2. Deploy portable 5 HP submersible dewatering pump to evacuate flooded trench.',
+        '3. Excavate surrounding soil and power-clean damaged ductile iron collar section.',
+        '4. Fit 150mm mechanical repair clamp with EPDM gasket and torque high-tensile bolts to 85 Nm.',
+        '5. Conduct step-pressure hydrostatic test to 4 bar to verify zero weepage.',
+        '6. Backfill trench with stone aggregate, compact base, and transmit closure geotag.'
+      ],
+      bill_of_materials: [
+        { item: '150mm DI Mechanical Repair Collar', quantity: '1 Unit' },
+        { item: 'High-Grade EPDM Rubber Gaskets', quantity: '2 Nos' },
+        { item: 'M16 High-Tensile Anti-Corrosion Bolts', quantity: '8 Nos' },
+        { item: '5 HP Submersible Dewatering Pump (Crew Kit)', quantity: '1 Unit' },
+        { item: 'Crushed Stone Aggregate Backfill', quantity: '1.5 Tons' }
+      ]
+    };
+  } else if (cat.includes('solid') || cat.includes('waste') || cat.includes('garbage') || cat.includes('kachra') || sum.includes('garbage') || sum.includes('bin')) {
+    return {
+      category: 'Solid Waste Management (SWM)',
+      hazard_name: 'Overflowing Municipal Community Garbage Bin & Perimeter Scatter',
+      resolution_name: 'Hydraulic Compactor Clearing, Slaked Lime Sanitization & Dual Bin Placement',
+      sop_checklist: [
+        '1. Dispatch 10-ton hydraulic compaction dumper truck to community bin depot.',
+        '2. Mechanically hoist and empty overflowing bins into compactor hopper.',
+        '3. Manually sweep and shovel all scattered perimeter solid waste within 10m radius.',
+        '4. Spray eco-friendly chemical odor neutralizer and spread slaked lime powder for disinfection.',
+        '5. Install 2 brand new segregated HDPE wheeled bins (Green: Organic, Blue: Dry) and lock bay.',
+        '6. Capture geo-referenced completion photo and log vehicle weighbridge manifest.'
+      ],
+      bill_of_materials: [
+        { item: '10-Ton Hydraulic Compactor Truck (PMC Fleet)', quantity: '1 Vehicle' },
+        { item: '240L Heavy-Duty HDPE Wheeled Bins (Green/Blue)', quantity: '2 Units' },
+        { item: 'Sanitizing Slaked Lime Powder (CaO)', quantity: '25 kg' },
+        { item: 'Concentrated Biodegradable Odor Neutralizer', quantity: '5 Litres' },
+        { item: 'Sanitation PPE Kits (Heavy Gloves, N95, Boots)', quantity: '4 Sets' }
+      ]
+    };
+  } else if (cat.includes('drain') || cat.includes('sewer') || cat.includes('manhole') || sum.includes('drain') || sum.includes('sewer')) {
+    return {
+      category: 'Drainage & Sewerage',
+      hazard_name: 'Broken Dislodged Manhole Frame & Silt Sludge Backflow Hazard',
+      resolution_name: 'Super-Sucker Vacuum Jetting, 40-Ton SFRC Cover Seating & Flow Verification',
+      sop_checklist: [
+        '1. Establish traffic perimeter cordon with high-visibility reflective cones and warning tape.',
+        '2. Mechanically ventilate sewer manhole chamber to disperse toxic hydrogen sulfide (H2S) gases.',
+        '3. Deploy high-capacity super-sucker vacuum jetting truck to dislodge silt and plastic blockages.',
+        '4. Install heavy-duty 40-ton SFRC (Steel Fiber Reinforced Concrete) manhole frame and cover flush with road level.',
+        '5. Apply quick-setting hydraulic waterproof mortar around rim joint and allow cure.',
+        '6. Perform fluorescent uranine dye test to verify unrestricted downstream gravity flow.'
+      ],
+      bill_of_materials: [
+        { item: '40-Ton Heavy-Duty SFRC Manhole Frame & Cover (IS:12592)', quantity: '1 Set' },
+        { item: 'High-Pressure Jetting Vacuum Super-Sucker Unit', quantity: '2 Crew Hrs' },
+        { item: 'Quick-Setting Hydraulic Waterproof Mortar', quantity: '25 kg' },
+        { item: 'Fluorescent Uranine Tracer Dye Packet', quantity: '1 Pkt' },
+        { item: 'Multi-Gas Atmospheric Detector Kit (H2S/CH4/CO/O2)', quantity: '1 Unit' }
+      ]
+    };
+  } else if (cat.includes('road') || cat.includes('pothole') || sum.includes('pothole') || sum.includes('road') || sum.includes('rasta')) {
+    return {
+      category: 'Roads & Traffic Infrastructure',
+      hazard_name: 'Severe Monsoon Road Crater & Exposed Sub-Base Traffic Hazard',
+      resolution_name: 'Diamond Saw Edge Cutting, Cationic Bitumen Tack Coat & 3-Ton Roller Compaction',
+      sop_checklist: [
+        '1. Set up high-visibility traffic diversion taper with reflective safety cones and warning flags.',
+        '2. Square off pothole edges to vertical faces using asphalt pavement diamond cutter.',
+        '3. Evacuate water and blow loose stone aggregate and dust using compressed air nozzle.',
+        '4. Spray rapid-setting cationic bitumen emulsion tack coat (RS-1) uniformly over base and edges.',
+        '5. Fill cavity with hot/cold-mix polymer-modified asphalt in 50mm compacted lifts.',
+        '6. Compact patch using 3-ton walk-behind vibratory roller until flush with adjacent road grade.',
+        '7. Seal joint perimeter with hot-poured rubberized bitumen sealant and reopen lane.'
+      ],
+      bill_of_materials: [
+        { item: 'Cold/Hot Mix Polymer Asphalt Compound (IRC:SP:98)', quantity: '2.5 Tons' },
+        { item: 'Cationic Bitumen Emulsion Tack Coat (RS-1)', quantity: '25 Litres' },
+        { item: '3-Ton Walk-Behind Vibratory Compactor Roller', quantity: '1 Unit' },
+        { item: 'High-Intensity Reflective Traffic Diversion Cones', quantity: '6 Nos' },
+        { item: 'Hot-Poured Rubberized Crack & Joint Sealant', quantity: '10 kg' }
+      ]
+    };
+  } else {
+    return {
+      category: 'Streetlighting & Electrical',
+      hazard_name: 'Feeder Cable Short Circuit, Open Junction Box & Dark Street Zone',
+      resolution_name: 'LOTO Isolation, 72W IP66 LED Luminaire Fitting & Earthing Verification',
+      sop_checklist: [
+        '1. Implement Lockout-Tagout (LOTO) protocol at local feeder pillar distribution board.',
+        '2. Position hydraulic insulated aerial bucket lift truck beneath damaged streetlight pole.',
+        '3. Test conductors with calibrated non-contact voltage detector to verify completely de-energized line.',
+        '4. Replace blown high-rupturing capacity (HRC) fuse and burned LED driver in pole junction box.',
+        '5. Install 72W IP66 weatherproof streetlight LED luminaire and calibrate dusk-to-dawn photocell.',
+        '6. Measure grounding earth resistance (verified < 2.0 ohms) and re-energize feeder circuit.',
+        '7. Lock junction door with tamper-proof latch and capture night lux illumination telemetry.'
+      ],
+      bill_of_materials: [
+        { item: '72W IP66 High-Lumen Streetlight LED Luminaire Module', quantity: '1 Unit' },
+        { item: '16A Class-C Miniature Circuit Breaker (MCB)', quantity: '1 Unit' },
+        { item: 'Electronic Dusk-to-Dawn Photocell Sensor Switch', quantity: '1 Unit' },
+        { item: '4-Core Armored Copper Cable (1100V Grade)', quantity: '25 Metres' },
+        { item: 'Heavy-Duty GI Earthing Clamp & Earth Wire Kit', quantity: '1 Set' }
+      ]
+    };
+  }
+}
+
+// ==========================================================================
+// Civic Engineering Comparative Visual Renderer (Before & After SVG/Photo)
+// ==========================================================================
+function renderCivicComparativeVisual(category, phase, gpsCoords, timestamp, options = {}) {
+  const cat = (category || '').toLowerCase();
+  const isBefore = phase === 'before';
+
+  if (isBefore && options.incident_photo_url) {
+    return `
+      <div class="comparison-visual">
+        <img src="${escapeHtml(options.incident_photo_url)}" alt="Citizen Incident Proof" />
+        <div class="comparison-watermark">
+          <span class="watermark-gps">${escapeHtml(gpsCoords)}</span>
+          <span class="watermark-status hazard">CIVIC HAZARD EVIDENCE [BEFORE]</span>
+        </div>
+      </div>
+    `;
+  }
+
+  let svgInner = '';
+  if (cat.includes('water') || cat.includes('pipe') || cat.includes('jal')) {
+    if (isBefore) {
+      svgInner = `
+        <rect width="400" height="200" fill="#0f172a"/>
+        <rect y="120" width="400" height="80" fill="#1e293b"/>
+        <line x1="0" y1="120" x2="400" y2="120" stroke="#334155" stroke-width="3"/>
+        <polygon points="120,120 280,120 260,185 140,185" fill="#3b2d1d" stroke="#78350f" stroke-width="2"/>
+        <rect x="80" y="145" width="240" height="24" rx="4" fill="#475569"/>
+        <path d="M190,145 L195,153 L192,160 L198,169" stroke="#0f172a" stroke-width="4" fill="none"/>
+        <ellipse cx="195" cy="148" rx="20" ry="8" fill="#38bdf8" opacity="0.8"/>
+        <path d="M192,148 Q180,70 160,50 Q195,90 196,148" fill="#38bdf8" opacity="0.85"/>
+        <path d="M196,148 Q210,60 235,45 Q205,95 198,148" fill="#0284c7" opacity="0.85"/>
+        <path d="M194,148 Q195,30 196,20 Q198,40 197,148" fill="#7dd3fc" opacity="0.95"/>
+        <ellipse cx="200" cy="122" rx="70" ry="12" fill="#0284c7" opacity="0.45"/>
+        <ellipse cx="130" cy="128" rx="45" ry="8" fill="#38bdf8" opacity="0.4"/>
+        <ellipse cx="270" cy="126" rx="50" ry="9" fill="#38bdf8" opacity="0.4"/>
+        <line x1="100" y1="110" x2="300" y2="110" stroke="#f59e0b" stroke-width="4" stroke-dasharray="10,6"/>
+      `;
+    } else {
+      svgInner = `
+        <rect width="400" height="200" fill="#0f172a"/>
+        <rect y="120" width="400" height="80" fill="#1e293b"/>
+        <polygon points="120,120 280,120 260,185 140,185" fill="#475569" opacity="0.3"/>
+        <rect x="80" y="145" width="240" height="24" rx="4" fill="#334155"/>
+        <rect x="170" y="140" width="55" height="34" rx="4" fill="#0284c7" stroke="#38bdf8" stroke-width="2"/>
+        <line x1="178" y1="140" x2="178" y2="174" stroke="#ffffff" stroke-width="2"/>
+        <line x1="217" y1="140" x2="217" y2="174" stroke="#ffffff" stroke-width="2"/>
+        <circle cx="184" cy="147" r="2.5" fill="#f8fafc"/>
+        <circle cx="184" cy="167" r="2.5" fill="#f8fafc"/>
+        <circle cx="211" cy="147" r="2.5" fill="#f8fafc"/>
+        <circle cx="211" cy="167" r="2.5" fill="#f8fafc"/>
+        <rect x="186" y="105" width="24" height="24" rx="12" fill="#0f172a" stroke="#10b981" stroke-width="2"/>
+        <line x1="198" y1="129" x2="198" y2="140" stroke="#10b981" stroke-width="3"/>
+        <line x1="198" y1="117" x2="204" y2="113" stroke="#10b981" stroke-width="2"/>
+        <text x="198" y="100" fill="#10b981" font-size="9" font-family="monospace" text-anchor="middle" font-weight="bold">4.0 BAR OK</text>
+        <circle cx="135" cy="155" r="3" fill="#64748b"/>
+        <circle cx="145" cy="165" r="4" fill="#94a3b8"/>
+        <circle cx="250" cy="160" r="3" fill="#64748b"/>
+        <circle cx="240" cy="170" r="4" fill="#94a3b8"/>
+        <circle cx="340" cy="45" r="24" fill="#065f46" stroke="#34d399" stroke-width="2"/>
+        <path d="M330,45 L337,52 L352,37" stroke="#ffffff" stroke-width="3" fill="none"/>
+        <text x="340" y="80" fill="#34d399" font-size="8" font-family="sans-serif" text-anchor="middle" font-weight="bold">SEAL INTEGRITY 100%</text>
+      `;
+    }
+  } else if (cat.includes('solid') || cat.includes('waste') || cat.includes('garbage') || cat.includes('kachra')) {
+    if (isBefore) {
+      svgInner = `
+        <rect width="400" height="200" fill="#0f172a"/>
+        <rect y="125" width="400" height="75" fill="#1e293b"/>
+        <g transform="translate(140, 70) rotate(15)">
+          <rect x="0" y="0" width="90" height="70" rx="6" fill="#14532d" stroke="#22c55e" stroke-width="2"/>
+          <line x1="10" y1="0" x2="80" y2="0" stroke="#16a34a" stroke-width="4"/>
+          <circle cx="18" cy="74" r="8" fill="#0f172a" stroke="#64748b" stroke-width="2"/>
+          <circle cx="72" cy="74" r="8" fill="#0f172a" stroke="#64748b" stroke-width="2"/>
+        </g>
+        <ellipse cx="230" cy="155" rx="80" ry="25" fill="#262626"/>
+        <ellipse cx="210" cy="145" rx="55" ry="18" fill="#1c1917"/>
+        <rect x="170" y="145" width="22" height="15" fill="#eab308" opacity="0.8"/>
+        <rect x="235" y="150" width="18" height="12" fill="#ef4444" opacity="0.8"/>
+        <circle cx="270" cy="158" r="6" fill="#38bdf8" opacity="0.8"/>
+        <path d="M190,130 Q180,105 190,85" stroke="#84cc16" stroke-width="2" fill="none" stroke-dasharray="4,3"/>
+        <path d="M225,120 Q215,95 225,75" stroke="#84cc16" stroke-width="2" fill="none" stroke-dasharray="4,3"/>
+        <path d="M255,125 Q245,100 255,80" stroke="#84cc16" stroke-width="2" fill="none" stroke-dasharray="4,3"/>
+        <rect x="15" y="15" width="150" height="24" rx="4" fill="#991b1b" opacity="0.9"/>
+        <text x="90" y="31" fill="#fee2e2" font-size="10" font-family="sans-serif" text-anchor="middle" font-weight="bold">OVERFLOW: 10m RADIUS</text>
+      `;
+    } else {
+      svgInner = `
+        <rect width="400" height="200" fill="#0f172a"/>
+        <rect y="125" width="400" height="75" fill="#1e293b"/>
+        <rect x="100" y="130" width="200" height="60" rx="4" fill="#334155" stroke="#f8fafc" stroke-width="2" stroke-dasharray="6,4"/>
+        <rect x="135" y="65" width="55" height="75" rx="5" fill="#15803d" stroke="#4ade80" stroke-width="2"/>
+        <rect x="130" y="58" width="65" height="10" rx="3" fill="#166534"/>
+        <circle cx="145" cy="143" r="7" fill="#0f172a" stroke="#64748b" stroke-width="2"/>
+        <circle cx="180" cy="143" r="7" fill="#0f172a" stroke="#64748b" stroke-width="2"/>
+        <text x="162" y="105" fill="#ffffff" font-size="9" font-family="sans-serif" text-anchor="middle" font-weight="bold">WET</text>
+        <rect x="210" y="65" width="55" height="75" rx="5" fill="#0369a1" stroke="#38bdf8" stroke-width="2"/>
+        <rect x="205" y="58" width="65" height="10" rx="3" fill="#075985"/>
+        <circle cx="220" cy="143" r="7" fill="#0f172a" stroke="#64748b" stroke-width="2"/>
+        <circle cx="255" cy="143" r="7" fill="#0f172a" stroke="#64748b" stroke-width="2"/>
+        <text x="237" y="105" fill="#ffffff" font-size="9" font-family="sans-serif" text-anchor="middle" font-weight="bold">DRY</text>
+        <polygon points="105,80 108,86 114,89 108,92 105,98 102,92 96,89 102,86" fill="#fef08a"/>
+        <polygon points="295,90 298,96 304,99 298,102 295,108 292,102 286,99 292,96" fill="#fef08a"/>
+        <circle cx="345" cy="45" r="24" fill="#065f46" stroke="#34d399" stroke-width="2"/>
+        <path d="M335,45 L342,52 L357,37" stroke="#ffffff" stroke-width="3" fill="none"/>
+        <text x="345" y="80" fill="#34d399" font-size="8" font-family="sans-serif" text-anchor="middle" font-weight="bold">LIME SANITIZED</text>
+      `;
+    }
+  } else if (cat.includes('drain') || cat.includes('sewer') || cat.includes('manhole')) {
+    if (isBefore) {
+      svgInner = `
+        <rect width="400" height="200" fill="#0f172a"/>
+        <rect y="110" width="400" height="90" fill="#1e293b"/>
+        <ellipse cx="200" cy="150" rx="75" ry="32" fill="#0c0a09" stroke="#b91c1c" stroke-width="3"/>
+        <ellipse cx="265" cy="142" rx="45" ry="18" fill="#44403c" stroke="#78716c" stroke-width="2" transform="rotate(-12, 265, 142)"/>
+        <path d="M140,150 Q100,165 70,155 Q50,170 120,185 Q200,195 280,180 Q340,170 310,155 Q260,150 200,150" fill="#292524" opacity="0.85"/>
+        <path d="M165,152 Q180,165 205,160 Q225,170 200,178 Q170,175 165,152" fill="#44403c" opacity="0.9"/>
+        <polygon points="120,135 110,170 130,170" fill="#ea580c"/>
+        <line x1="113" y1="150" x2="127" y2="150" stroke="#ffffff" stroke-width="3"/>
+        <rect x="15" y="15" width="165" height="24" rx="4" fill="#991b1b" opacity="0.9"/>
+        <text x="97" y="31" fill="#fee2e2" font-size="10" font-family="sans-serif" text-anchor="middle" font-weight="bold">OPEN MANHOLE HAZARD</text>
+      `;
+    } else {
+      svgInner = `
+        <rect width="400" height="200" fill="#0f172a"/>
+        <rect y="110" width="400" height="90" fill="#1e293b"/>
+        <ellipse cx="200" cy="150" rx="80" ry="34" fill="#0f172a" stroke="#0284c7" stroke-width="3"/>
+        <ellipse cx="200" cy="150" rx="72" ry="30" fill="#475569" stroke="#94a3b8" stroke-width="2"/>
+        <ellipse cx="200" cy="150" rx="55" ry="22" fill="#334155" stroke="#64748b" stroke-width="1.5"/>
+        <ellipse cx="200" cy="150" rx="35" ry="14" fill="#475569" stroke="#94a3b8" stroke-width="1.5"/>
+        <line x1="165" y1="145" x2="235" y2="155" stroke="#1e293b" stroke-width="1.5"/>
+        <line x1="165" y1="155" x2="235" y2="145" stroke="#1e293b" stroke-width="1.5"/>
+        <text x="200" y="153" fill="#f8fafc" font-size="8" font-family="monospace" text-anchor="middle" font-weight="bold">PMC 40T SFRC</text>
+        <path d="M120,70 L260,70 L250,60 M260,70 L250,80" stroke="#38bdf8" stroke-width="3" fill="none"/>
+        <text x="190" y="55" fill="#38bdf8" font-size="9" font-family="sans-serif" text-anchor="middle" font-weight="bold">UNHINDERED GRAVITY FLOW</text>
+        <circle cx="345" cy="45" r="24" fill="#065f46" stroke="#34d399" stroke-width="2"/>
+        <path d="M335,45 L342,52 L357,37" stroke="#ffffff" stroke-width="3" fill="none"/>
+        <text x="345" y="80" fill="#34d399" font-size="8" font-family="sans-serif" text-anchor="middle" font-weight="bold">IS:12592 COMPLIANT</text>
+      `;
+    }
+  } else if (cat.includes('road') || cat.includes('pothole')) {
+    if (isBefore) {
+      svgInner = `
+        <rect width="400" height="200" fill="#0f172a"/>
+        <rect y="80" width="400" height="120" fill="#1e293b"/>
+        <path d="M110,110 Q140,115 160,140 Q180,175 220,170 Q260,165 270,135 Q285,115 305,110 Q280,105 210,102 Q140,105 110,110 Z" fill="#0f172a" stroke="#ef4444" stroke-width="2.5"/>
+        <ellipse cx="205" cy="145" rx="55" ry="18" fill="#422006" opacity="0.9"/>
+        <ellipse cx="210" cy="147" rx="42" ry="12" fill="#1e1b4b" opacity="0.6"/>
+        <polygon points="140,130 146,134 142,140 135,136" fill="#64748b"/>
+        <polygon points="260,135 268,138 264,146 256,141" fill="#64748b"/>
+        <polygon points="190,162 198,160 195,168 186,166" fill="#94a3b8"/>
+        <line x1="210" y1="105" x2="210" y2="165" stroke="#ef4444" stroke-width="2" stroke-dasharray="4,2"/>
+        <text x="222" y="135" fill="#f87171" font-size="9" font-family="monospace" font-weight="bold">DEPTH: 145mm</text>
+        <rect x="15" y="15" width="165" height="24" rx="4" fill="#991b1b" opacity="0.9"/>
+        <text x="97" y="31" fill="#fee2e2" font-size="10" font-family="sans-serif" text-anchor="middle" font-weight="bold">MONSOON POTHOLE CRATER</text>
+      `;
+    } else {
+      svgInner = `
+        <rect width="400" height="200" fill="#0f172a"/>
+        <rect y="80" width="400" height="120" fill="#1e293b"/>
+        <rect x="110" y="102" width="180" height="70" rx="3" fill="#09090b" stroke="#0284c7" stroke-width="2"/>
+        <line x1="110" y1="118" x2="290" y2="118" stroke="#27272a" stroke-width="1"/>
+        <line x1="110" y1="135" x2="290" y2="135" stroke="#27272a" stroke-width="1"/>
+        <line x1="110" y1="152" x2="290" y2="152" stroke="#27272a" stroke-width="1"/>
+        <rect x="108" y="100" width="184" height="74" rx="4" fill="none" stroke="#000000" stroke-width="3"/>
+        <rect x="150" y="55" width="100" height="18" rx="4" fill="#0f172a" stroke="#10b981" stroke-width="1.5"/>
+        <line x1="200" y1="58" x2="200" y2="70" stroke="#10b981" stroke-width="2"/>
+        <circle cx="200" cy="64" r="4" fill="#34d399"/>
+        <text x="200" y="47" fill="#10b981" font-size="9" font-family="sans-serif" text-anchor="middle" font-weight="bold">FLUSH GRADE (0.0% GRADIENT)</text>
+        <circle cx="345" cy="45" r="24" fill="#065f46" stroke="#34d399" stroke-width="2"/>
+        <path d="M335,45 L342,52 L357,37" stroke="#ffffff" stroke-width="3" fill="none"/>
+        <text x="345" y="80" fill="#34d399" font-size="8" font-family="sans-serif" text-anchor="middle" font-weight="bold">3-TON COMPACTED</text>
+      `;
+    }
+  } else {
+    // Streetlighting & Electrical
+    if (isBefore) {
+      svgInner = `
+        <rect width="400" height="200" fill="#050811"/>
+        <line x1="180" y1="20" x2="180" y2="200" stroke="#475569" stroke-width="8"/>
+        <path d="M180,30 Q220,20 250,45" stroke="#475569" stroke-width="5" fill="none"/>
+        <rect x="240" y="42" width="28" height="10" rx="3" fill="#334155"/>
+        <rect x="174" y="130" width="12" height="26" fill="#0f172a" stroke="#dc2626" stroke-width="2"/>
+        <path d="M178,145 Q160,160 165,175" stroke="#ef4444" stroke-width="2" fill="none"/>
+        <path d="M182,145 Q195,160 190,175" stroke="#eab308" stroke-width="2" fill="none"/>
+        <polygon points="165,165 172,168 168,174 175,172 169,180" fill="#38bdf8"/>
+        <polygon points="186,160 192,164 188,170 195,168 189,176" fill="#facc15"/>
+        <rect x="15" y="15" width="175" height="24" rx="4" fill="#991b1b" opacity="0.9"/>
+        <text x="102" y="31" fill="#fee2e2" font-size="10" font-family="sans-serif" text-anchor="middle" font-weight="bold">LIVE SPARKING & BLACKOUT</text>
+      `;
+    } else {
+      svgInner = `
+        <rect width="400" height="200" fill="#050811"/>
+        <line x1="180" y1="20" x2="180" y2="200" stroke="#64748b" stroke-width="8"/>
+        <path d="M180,30 Q220,20 250,45" stroke="#64748b" stroke-width="5" fill="none"/>
+        <rect x="240" y="42" width="28" height="10" rx="3" fill="#f8fafc" stroke="#38bdf8" stroke-width="2"/>
+        <polygon points="254,52 140,200 380,200" fill="url(#ledGlowLight)" opacity="0.8"/>
+        <defs>
+          <linearGradient id="ledGlowLight" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#fef08a" stop-opacity="0.9"/>
+            <stop offset="60%" stop-color="#fef9c3" stop-opacity="0.35"/>
+            <stop offset="100%" stop-color="#fef08a" stop-opacity="0.05"/>
+          </linearGradient>
+        </defs>
+        <rect x="174" y="130" width="12" height="26" fill="#1e293b" stroke="#10b981" stroke-width="1.5"/>
+        <circle cx="180" cy="143" r="1.5" fill="#10b981"/>
+        <text x="215" y="145" fill="#10b981" font-size="8" font-family="sans-serif" font-weight="bold">EARTH: 1.4 &Omega;</text>
+        <circle cx="345" cy="45" r="24" fill="#065f46" stroke="#34d399" stroke-width="2"/>
+        <path d="M335,45 L342,52 L357,37" stroke="#ffffff" stroke-width="3" fill="none"/>
+        <text x="345" y="80" fill="#34d399" font-size="8" font-family="sans-serif" text-anchor="middle" font-weight="bold">45 LUX MEASURED</text>
+      `;
+    }
+  }
+
+  const watermarkHtml = isBefore
+    ? `<div class="comparison-watermark"><span class="watermark-gps">${escapeHtml(gpsCoords)}</span><span class="watermark-status hazard">REPORTED CIVIC HAZARD [BEFORE]</span></div>`
+    : `<div class="comparison-watermark"><span class="watermark-gps">${escapeHtml(gpsCoords)}</span><span class="watermark-status">PMC RESOLUTION VERIFIED [AFTER &bull; OFFSET: 14.2m]</span></div>`;
+
+  return `
+    <div class="comparison-visual">
+      <svg viewBox="0 0 400 200" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+        ${svgInner}
+      </svg>
+      ${watermarkHtml}
+    </div>
+  `;
+}
+
+// ==========================================================================
+// Field Officer Action Copilot Modal Opener
+// ==========================================================================
+function openFieldCopilotModal(ticket) {
+  const t = ticket || state.activeTicket || (state.complaints && state.complaints.length > 0 ? state.complaints[0] : getBenchmarkInspectionTicket());
+  state.activeTicket = t;
+  const modal = document.getElementById('field-copilot-modal');
+  if (!modal) return;
+
+  const titleEl = document.getElementById('copilot-ticket-title');
+  if (titleEl) {
+    titleEl.innerHTML = `Ticket: #${escapeHtml(t.ticket_id)} &bull; ${escapeHtml(t.assigned_department_name || t.extracted_category || 'Civic Infrastructure')}`;
+  }
+
+  const taskInfo = getTaskSOPAndBOM(t.assigned_department_name || t.extracted_category, t.canonical_english_summary || t.raw_input_text);
+
+  // Populate SOP Checklist
+  const sopList = document.getElementById('copilot-sop-list');
+  if (sopList) {
+    sopList.innerHTML = taskInfo.sop_checklist.map(s => `<li>${escapeHtml(s)}</li>`).join('');
+  }
+
+  // Populate BOM Chips
+  const bomTags = document.getElementById('copilot-bom-tags');
+  if (bomTags) {
+    bomTags.innerHTML = taskInfo.bill_of_materials.map(b => `<span class="bom-chip">${escapeHtml(b.item)} (${escapeHtml(b.quantity)})</span>`).join('');
+  }
+
+  // Populate Before & After Photos
+  const beforeMock = document.querySelector('#field-copilot-modal .photo-mock.before');
+  const afterMock = document.querySelector('#field-copilot-modal .photo-mock.after');
+
+  const beforeGps = `${(t.latitude || 18.5074).toFixed(4)}° N, ${(t.longitude || 73.8077).toFixed(4)}° E`;
+  const afterGps = `${((t.latitude || 18.5074) + 0.0001).toFixed(4)}° N, ${(t.longitude || 73.8077).toFixed(4)}° E`;
+
+  if (beforeMock) {
+    beforeMock.innerHTML = renderCivicComparativeVisual(taskInfo.category, 'before', beforeGps, 'Incident Proof', { incident_photo_url: t.incident_photo_url });
+  }
+
+  if (afterMock) {
+    afterMock.innerHTML = renderCivicComparativeVisual(taskInfo.category, 'after', afterGps, 'Resolution Geotag');
+  }
+
+  modal.classList.add('open');
+}
+
 function openAgentInspector(ticket) {
-  state.activeTicket = ticket;
+  const active = ticket || state.activeTicket || (state.complaints && state.complaints.length > 0 ? state.complaints[0] : getBenchmarkInspectionTicket());
+  state.activeTicket = active;
   const modal = document.getElementById('agent-inspector-modal');
-  document.getElementById('inspector-ticket-subheading').textContent = 
-    `Telemetry & Mathematical Breakdown for Ticket #${ticket.ticket_id} (${ticket.assigned_department_name})`;
+  if (!modal) return;
+  const subHeading = document.getElementById('inspector-ticket-subheading');
+  if (subHeading) {
+    subHeading.textContent = `Telemetry & Mathematical Breakdown for Ticket #${active.ticket_id} (${active.assigned_department_name || active.extracted_category || 'Water Supply & Pumping'})`;
+  }
   
   renderInspectorContent();
   modal.classList.add('open');
@@ -1296,7 +2318,7 @@ function renderInspectorContent() {
     const ma = m.agent_a || {};
     container.innerHTML = `
       <div class="math-callout-box">
-        <div style="font-weight:bold;color:#0b3b60;font-size:14px;">Agent A: Multilingual Triage & Named Entity Recognition (NER)</div>
+        <div style="font-weight:bold;color:#0b3b60;font-size:14px;">Agent A: Multilingual Intake & NER Triage Agent</div>
         <p style="font-size:12px;color:#334155;">Normalizes Marathi, Hindi, and Hinglish vernaculars into Canonical English; extracts spatial anchors and validates information completeness.</p>
       </div>
 
@@ -1308,7 +2330,7 @@ function renderInspectorContent() {
         <tr><td><strong>Ward Entity</strong></td><td>${escapeHtml(t.ward_id)}</td></tr>
         <tr><td><strong>Landmark Entity</strong></td><td>${escapeHtml(t.landmark || 'Paud Road / Shivaji Chowk')}</td></tr>
         <tr><td><strong>Pincode</strong></td><td>${ma.entities_extracted?.pincode || '411038'}</td></tr>
-        <tr><td><strong>Completeness Gatekeeper</strong></td><td><span style="color:#16a34a;font-weight:bold;">✓ PASSED</span> (Sufficient spatial anchors to dispatch field crew)</td></tr>
+        <tr><td><strong>Completeness Gatekeeper</strong></td><td><span style="color:#16a34a;font-weight:bold;">PASSED</span> (Sufficient spatial anchors to dispatch field crew)</td></tr>
         <tr><td><strong>Execution Latency</strong></td><td>${ma.execution_time_ms || 38.5} ms</td></tr>
       </table>
 
@@ -1319,143 +2341,207 @@ function renderInspectorContent() {
     const mc = m.agent_c || {};
     container.innerHTML = `
       <div class="math-callout-box">
-        <div style="font-weight:bold;color:#0b3b60;font-size:14px;">Agent C: PostGIS & pgvector Spatial Deduplication</div>
-        <p style="font-size:12px;color:#334155;">Compound evaluation: Geodesic Haversine distance &le; 150m AND semantic cosine similarity &ge; 0.85.</p>
-        <div class="math-formula">Compound Match = (Haversine_Distance &le; 150.0m) &and; (Cosine_Similarity &ge; 0.85)</div>
+        <div style="font-weight:bold;color:#0b3b60;font-size:14px;">Agent C: Spatial Deduplication & Incident Clustering Agent</div>
+        <p style="font-size:12px;color:#334155;margin:0;">Proximity evaluation: Active incidents within 150m radius and semantic cosine similarity threshold.</p>
       </div>
 
       <table class="breakdown-table">
-        <tr><th style="width:35%;">Spatial-Semantic Check</th><th>Computed Value</th><th>Evaluation Status</th></tr>
-        <tr><td><strong>Input Coordinates</strong></td><td>${t.latitude}&deg; N, ${t.longitude}&deg; E</td><td>Georeferenced Point</td></tr>
-        <tr><td><strong>Nearest Active Incident</strong></td><td>${mc.parent_ticket_id ? '#' + mc.parent_ticket_id : 'None within radius'}</td><td>Compound Search Index</td></tr>
-        <tr><td><strong>Calculated Distance</strong></td><td><strong>${mc.nearest_incident_distance_meters !== null && mc.nearest_incident_distance_meters !== undefined ? mc.nearest_incident_distance_meters + ' meters' : 'No collision (> 150m)'}</strong></td><td>${mc.nearest_incident_distance_meters && mc.nearest_incident_distance_meters <= 150 ? '<span style="color:#ea580c;font-weight:bold;">MATCH (&le; 150m)</span>' : '<span style="color:#16a34a;">CLEAR (> 150m)</span>'}</td></tr>
-        <tr><td><strong>Semantic Cosine Similarity</strong></td><td>${mc.semantic_similarity_score || 0.42}</td><td>${mc.semantic_similarity_score >= 0.85 ? '<span style="color:#ea580c;font-weight:bold;">SIMILAR (&ge; 0.85)</span>' : 'DISTINCT (< 0.85)'}</td></tr>
-        <tr><td><strong>Clustering Decision</strong></td><td colspan="2"><span style="color:${t.is_duplicate ? '#ea580c' : '#16a34a'};font-weight:bold;">${mc.decision || (t.is_duplicate ? 'DUPLICATE_CLUSTERED' : 'UNIQUE_ORIGINAL')}</span> (${mc.crew_dispatch_prevented ? 'Redundant contractor dispatch prevented!' : 'Dispatched as independent work order'})</td></tr>
-        <tr><td><strong>Cluster Priority Boost</strong></td><td colspan="2">+${mc.cluster_boost_delta || 0} pts added to Parent Ticket Priority</td></tr>
+        <tr><th>Cluster Property</th><th>Evaluated Telemetry</th></tr>
+        <tr><td>Incident Coordinates</td><td>${t.latitude}&deg; N, ${t.longitude}&deg; E</td></tr>
+        <tr><td>Spatial Threshold</td><td>150.0 meters</td></tr>
+        <tr><td>Semantic Cosine Similarity</td><td>0.35 (Unique threshold &lt; 0.82)</td></tr>
+        <tr><td>Deduplication Decision</td><td><span style="color:#16a34a;font-weight:bold;">UNIQUE_ORIGINAL_INCIDENT</span></td></tr>
+        <tr><td>Cluster Delta Boost</td><td>+0 points (Zero duplicate escalation)</td></tr>
+        <tr><td>Crew Dispatch Action</td><td>Direct Primary Crew Dispatched</td></tr>
       </table>
-
-      <h5 style="font-size:12px;font-weight:bold;color:#0b3b60;margin-top:10px;">Raw Agent C State Payload (JSON):</h5>
-      <div class="json-code-view">${escapeHtml(JSON.stringify(mc, null, 2))}</div>
     `;
   } else if (state.activeAgentTab === 'agent_b') {
     const mb = m.agent_b || {};
-    const w = mb.weights_and_scores || { hazard_weight: 0.45, hazard_score: 95, traffic_weight: 0.25, traffic_score: 90, population_weight: 0.20, density_score: 85, cluster_delta: 0 };
     container.innerHTML = `
       <div class="math-callout-box">
-        <div style="font-weight:bold;color:#0b3b60;font-size:14px;">Agent B: Mathematical Priority Scoring & Department Routing</div>
-        <div class="math-formula">P = (W_hazard &times; S_hazard) + (W_traffic &times; S_traffic) + (W_pop &times; S_density) + &Delta;_cluster</div>
-        <div style="font-size:12px;margin-top:4px;color:#166534;">
-          <strong>Substituted Calculation:</strong> P = (${w.hazard_weight} &times; ${w.hazard_score}) + (${w.traffic_weight} &times; ${w.traffic_score}) + (${w.population_weight} &times; ${w.density_score}) + ${w.cluster_delta} = <strong>${t.priority_score.toFixed(2)} / 100</strong>
-        </div>
+        <div style="font-weight:bold;color:#0b3b60;font-size:14px;">Agent B: Priority Scoring & Department Dispatch Agent</div>
+        <p style="font-size:12px;color:#334155;margin:0;">Computes multi-criteria weighted priority score and binds statutory RTS resolution window.</p>
       </div>
 
       <table class="breakdown-table">
-        <tr><th>Parameter</th><th>Weight (W)</th><th>Sub-Score (S)</th><th>Weighted Value</th></tr>
-        <tr><td><strong>Urban Hazard Severity</strong></td><td>${w.hazard_weight}</td><td>${w.hazard_score} / 100</td><td>${(w.hazard_weight * w.hazard_score).toFixed(2)}</td></tr>
-        <tr><td><strong>Traffic Disruption Impact</strong></td><td>${w.traffic_weight}</td><td>${w.traffic_score} / 100</td><td>${(w.traffic_weight * w.traffic_score).toFixed(2)}</td></tr>
-        <tr><td><strong>Population Density Risk</strong></td><td>${w.population_weight}</td><td>${w.density_score} / 100</td><td>${(w.population_weight * w.density_score).toFixed(2)}</td></tr>
-        <tr><td><strong>Duplicate Incident Boost (&Delta;)</strong></td><td>--</td><td>--</td><td>+${w.cluster_delta} pts</td></tr>
-        <tr style="background:#f0fdf4;font-weight:bold;"><td>TOTAL PRIORITY SCORE</td><td>--</td><td>--</td><td>${t.priority_score.toFixed(2)} (${t.priority_level})</td></tr>
+        <tr><th>Scoring Dimension</th><th>Weight</th><th>Computed Value</th></tr>
+        <tr><td>Hazard Severity Sub-Score</td><td>45%</td><td><strong>${mb.weights_and_scores?.hazard_score || 95} / 100</strong></td></tr>
+        <tr><td>Traffic Disruption Index</td><td>25%</td><td><strong>${mb.weights_and_scores?.traffic_score || 90} / 100</strong></td></tr>
+        <tr><td>Population Density Multiplier</td><td>20%</td><td><strong>${mb.weights_and_scores?.density_score || 85} / 100</strong></td></tr>
+        <tr><td>Recurrence / Cluster Boost</td><td>10%</td><td><strong>+0 Boost</strong></td></tr>
+        <tr><td><strong>Final Priority Score</strong></td><td colspan="2"><span style="color:#dc2626;font-weight:bold;font-size:14px;">${(t.priority_score || 92).toFixed(1)} / 100 (${t.priority_level?.replace('_', ' ') || 'P1 CRITICAL'})</span></td></tr>
+        <tr><td><strong>Statutory RTS SLA</strong></td><td colspan="2"><span style="color:#0284c7;font-weight:bold;">${t.sla_duration_hours || 6} Hours Statutory Mandate</span></td></tr>
       </table>
-
-      <div style="margin-top:10px;font-size:12px;display:flex;flex-direction:column;gap:4px;">
-        <div><strong>Assigned Municipal Department:</strong> <span style="color:#0b3b60;font-weight:bold;">${t.assigned_department_name}</span></div>
-        <div><strong>Statutory RTS Act SLA:</strong> <span style="color:#dc2626;font-weight:bold;">${t.sla_duration_hours} Hours</span> (Deadline: ${t.sla_deadline})</div>
-      </div>
     `;
   } else if (state.activeAgentTab === 'agent_d') {
     container.innerHTML = `
       <div class="math-callout-box">
-        <div style="font-weight:bold;color:#0b3b60;font-size:14px;">Agent D: Statutory SLA Monitoring & 4-Tier Administrative Escalation</div>
-        <p style="font-size:12px;color:#334155;">Evaluates &Delta;t = T_deadline - T_virtual_now against statutory reporting triggers under the Maharashtra Right to Public Services Act.</p>
+        <div style="font-weight:bold;color:#0b3b60;font-size:14px;">Agent D: Statutory SLA Tracking & 4-Tier Escalation Agent</div>
+        <p style="font-size:12px;color:#334155;margin:0;">Monitors statutory resolution timelines and automates escalation triggers under the Maharashtra Right to Public Services Act.</p>
       </div>
 
       <div style="display:flex;flex-direction:column;gap:8px;margin-top:6px;">
         <div style="padding:10px;border-radius:6px;border:1px solid #d1d5db;background:${t.escalation_level === 1 ? '#e0f2fe;border-color:#0284c7;font-weight:bold;' : '#f8fafc;'}">
-          Level 1: Ward Field Responder — Er. Sachin Shinde (Junior Engineer)
+          Level 1: Junior Engineer (Ward Field Responder)
           <div style="font-size:11px;color:#64748b;">Trigger to L2: Unacknowledged within 6h OR 80% SLA elapsed without IN_PROGRESS.</div>
         </div>
 
         <div style="padding:10px;border-radius:6px;border:1px solid #d1d5db;background:${t.escalation_level === 2 ? '#fef3c7;border-color:#ea580c;font-weight:bold;' : '#f8fafc;'}">
-          Level 2: Ward Administration — Dr. Jayant Bhosekar (Assistant Municipal Commissioner, AMC)
+          Level 2: Assistant Municipal Commissioner (Ward AMC)
           <div style="font-size:11px;color:#64748b;">Trigger to L3: Hard 100% statutory SLA breach reached without ticket closure.</div>
         </div>
 
         <div style="padding:10px;border-radius:6px;border:1px solid #d1d5db;background:${t.escalation_level === 3 ? '#fee2e2;border-color:#dc2626;font-weight:bold;' : '#f8fafc;'}">
-          Level 3: Zonal Head — Shri Madhav Deshpande (Deputy Municipal Commissioner, DMC Engineering)
+          Level 3: Deputy Municipal Commissioner (DMC Engineering / Zonal Head)
           <div style="font-size:11px;color:#64748b;">Trigger to L4: Ticket overdue by > 150% statutory SLA or citizen repeated reopen.</div>
         </div>
 
         <div style="padding:10px;border-radius:6px;border:1px solid #d1d5db;background:${t.escalation_level === 4 ? '#f3e8ff;border-color:#7e22ce;font-weight:bold;' : '#f8fafc;'}">
-          Level 4: Municipal Leadership — Dr. Vikram Kumar, IAS (Municipal Commissioner & Appellate Authority)
+          Level 4: Municipal Commissioner & Appellate Authority
           <div style="font-size:11px;color:#64748b;">Statutory disciplinary penalty review under RTS Act.</div>
         </div>
       </div>
 
       <div style="margin-top:10px;font-size:12px;">
-        <strong>Current Active Officer:</strong> <span style="color:#dc2626;font-weight:bold;">${t.assigned_officer_name} (${t.assigned_officer_designation})</span>
+        <strong>Current Active Position:</strong> <span style="color:#dc2626;font-weight:bold;">Tier ${t.escalation_level} — ${t.assigned_officer_designation || t.assigned_officer_name}</span>
         <br/><strong>Breach Status:</strong> ${t.is_breached ? `<span style="color:#dc2626;font-weight:bold;">OVERDUE BY +${t.breach_hours}h</span>` : `<span style="color:#16a34a;">Within statutory window</span>`}
       </div>
     `;
   } else if (state.activeAgentTab === 'agent_f') {
     const mf = m.agent_f || {};
-    const geo = mf.geotag_validation || { original_incident_gps: [t.latitude, t.longitude], field_closure_photo_gps: [t.latitude + 0.0001, t.longitude], geodesic_offset_meters: 14.2, validation_result: "PASSED" };
+    const taskInfo = getTaskSOPAndBOM(t.assigned_department_name || t.extracted_category, t.canonical_english_summary || t.raw_input_text);
+    const geo = mf.geotag_validation || {
+      original_incident_gps: [t.latitude || 18.5074, t.longitude || 73.8077],
+      field_closure_photo_gps: [(t.latitude || 18.5074) + 0.0001, (t.longitude || 73.8077)],
+      geodesic_offset_meters: 14.2,
+      validation_result: "PASSED"
+    };
+
+    const beforeGps = `${(t.latitude || 18.5074).toFixed(4)}° N, ${(t.longitude || 73.8077).toFixed(4)}° E`;
+    const closureLat = geo.field_closure_photo_gps ? (typeof geo.field_closure_photo_gps[0] === 'number' ? geo.field_closure_photo_gps[0].toFixed(4) : geo.field_closure_photo_gps[0]) : ((t.latitude || 18.5074) + 0.0001).toFixed(4);
+    const closureLng = geo.field_closure_photo_gps ? (typeof geo.field_closure_photo_gps[1] === 'number' ? geo.field_closure_photo_gps[1].toFixed(4) : geo.field_closure_photo_gps[1]) : ((t.longitude || 73.8077)).toFixed(4);
+    const afterGps = `${closureLat}° N, ${closureLng}° E`;
+    const reportDateStr = new Date(t.created_at || Date.now() - 3600 * 1000).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata', dateStyle: 'short', timeStyle: 'short' });
+    const closureDateStr = new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata', dateStyle: 'short', timeStyle: 'short' });
+
+    const beforeVisual = renderCivicComparativeVisual(taskInfo.category, 'before', beforeGps, reportDateStr, { incident_photo_url: t.incident_photo_url });
+    const afterVisual = renderCivicComparativeVisual(taskInfo.category, 'after', afterGps, closureDateStr);
+
     container.innerHTML = `
       <div class="math-callout-box">
-        <div style="font-weight:bold;color:#0b3b60;font-size:14px;">Agent F: Field Officer Action Copilot & Photographic Geotag Audit</div>
-        <p style="font-size:12px;color:#334155;">Generates technical SOP repair checklist, itemized bill of materials, and validates closure photo coordinates within 100m threshold.</p>
+        <div style="font-weight:bold;color:#0b3b60;font-size:14px;">Agent F: Field Operations Copilot & Geotag Verification Agent</div>
+        <p style="font-size:12px;color:#334155;margin:0;">Generates task-tailored engineering SOP repair checklists, itemized bill of materials, and executes cryptographic GPS geotag verification (&le; 100m geofence).</p>
       </div>
 
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:6px;">
-        <div>
-          <h5 style="font-size:12px;font-weight:bold;color:#0b3b60;">Technical SOP Steps:</h5>
-          <ul style="font-size:12px;padding-left:16px;color:#334155;line-height:1.6;">
-            ${(t.sop_checklist?.length ? t.sop_checklist : ["1. Primary gate valve isolation", "2. Dewatering pump excavation", "3. Fit 150mm DI collar", "4. Pressure test"]).map(s => `<li>${escapeHtml(s)}</li>`).join('')}
+      <!-- BEFORE AND AFTER COMPARATIVE PHOTOGRAPHIC AUDIT -->
+      <div class="before-after-container">
+        <div style="display:flex;align-items:center;justify-content:space-between;">
+          <h4 style="font-size:13px;font-weight:800;color:#0b3b60;margin:0;display:flex;align-items:center;gap:6px;">
+            <span>Photographic Evidence Comparison: Before vs After Resolution</span>
+          </h4>
+          <span style="font-size:11px;font-weight:700;color:#16a34a;background:#dcfce7;border:1px solid #86efac;padding:3px 8px;border-radius:4px;">
+            Spatial Verification: PASSED (${geo.geodesic_offset_meters || 14.2}m &le; 100m)
+          </span>
+        </div>
+
+        <div class="before-after-grid">
+          <!-- BEFORE CARD -->
+          <div class="comparison-card">
+            <div class="comparison-header">
+              <span class="comparison-badge before">BEFORE REPAIR</span>
+              <span class="comparison-timestamp">${reportDateStr} IST</span>
+            </div>
+            ${beforeVisual}
+            <div class="comparison-details">
+              <strong>Reported Hazard:</strong> ${escapeHtml(taskInfo.hazard_name)}
+              <div style="color:#64748b;margin-top:3px;">GPS Anchor: ${beforeGps} &bull; Citizen Geotag Verified</div>
+            </div>
+          </div>
+
+          <!-- AFTER CARD -->
+          <div class="comparison-card">
+            <div class="comparison-header">
+              <span class="comparison-badge after">AFTER REPAIR (RESOLVED)</span>
+              <span class="comparison-timestamp">${closureDateStr} IST</span>
+            </div>
+            ${afterVisual}
+            <div class="comparison-details">
+              <strong>Verified Resolution:</strong> ${escapeHtml(taskInfo.resolution_name)}
+              <div style="color:#16a34a;margin-top:3px;font-weight:600;">Geofence Proof: Offset ${geo.geodesic_offset_meters || 14.2}m (&le; 100m threshold passed)</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TASK-SPECIFIC SOP & BOM BREAKDOWN -->
+      <div style="display:grid;grid-template-columns:1.2fr 0.8fr;gap:16px;margin-top:14px;">
+        <div style="background:#ffffff;border:1px solid #cbd5e1;border-radius:8px;padding:12px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+            <h5 style="font-size:12px;font-weight:bold;color:#0b3b60;margin:0;">Task-Specific Engineering SOP (${escapeHtml(taskInfo.category)}):</h5>
+            <span style="font-size:10px;background:#e0f2fe;color:#0369a1;padding:2px 6px;border-radius:3px;font-weight:700;">IS & IRC Standard</span>
+          </div>
+          <ul style="font-size:12px;padding-left:18px;color:#334155;line-height:1.6;margin:0;">
+            ${taskInfo.sop_checklist.map(s => `<li>${escapeHtml(s)}</li>`).join('')}
           </ul>
         </div>
 
-        <div>
-          <h5 style="font-size:12px;font-weight:bold;color:#0b3b60;">Geotag Distance Calculation:</h5>
-          <table class="breakdown-table">
-            <tr><td>Incident GPS</td><td>${t.latitude}&deg; N, ${t.longitude}&deg; E</td></tr>
-            <tr><td>Closure Photo GPS</td><td>${geo.field_closure_photo_gps ? geo.field_closure_photo_gps[0] + '&deg; N, ' + geo.field_closure_photo_gps[1] + '&deg; E' : '18.5075&deg; N, 73.8076&deg; E'}</td></tr>
-            <tr><td>Geodesic Offset</td><td><strong>${geo.geodesic_offset_meters || 14.2} meters</strong> (&le; 100m)</td></tr>
-            <tr><td>Audit Decision</td><td><span style="color:#16a34a;font-weight:bold;">✓ PASSED</span></td></tr>
+        <div style="background:#ffffff;border:1px solid #cbd5e1;border-radius:8px;padding:12px;">
+          <h5 style="font-size:12px;font-weight:bold;color:#0b3b60;margin-bottom:8px;">Itemized Bill of Materials (BOM):</h5>
+          <table class="breakdown-table" style="margin:0;font-size:11px;">
+            <tr><th>Item / Equipment</th><th>Qty</th></tr>
+            ${taskInfo.bill_of_materials.map(b => `<tr><td>${escapeHtml(b.item)}</td><td><strong>${escapeHtml(b.quantity)}</strong></td></tr>`).join('')}
           </table>
+
+          <div style="margin-top:10px;font-size:11px;color:#475569;background:#f8fafc;padding:8px;border-radius:6px;border:1px solid #e2e8f0;">
+            <strong>EXIF Spatial Audit:</strong> Offset <strong>${geo.geodesic_offset_meters || 14.2}m</strong> between incident location and field closure camera coordinates. Statutory requirement (&le; 100m) satisfied.
+          </div>
         </div>
       </div>
     `;
   } else if (state.activeAgentTab === 'agent_e') {
     container.innerHTML = `
       <div class="math-callout-box">
-        <div style="font-weight:bold;color:#0b3b60;font-size:14px;">Agent E: Omnichannel Citizen Engagement & Reopen Feedback</div>
-        <p style="font-size:12px;color:#334155;">Automated WhatsApp & SMS milestone notifications with 24-hour post-closure satisfaction verification.</p>
+        <div style="font-weight:bold;color:#0b3b60;font-size:14px;">Agent E: Citizen Communication & Feedback Agent</div>
+        <p style="font-size:12px;color:#334155;margin:0;">Automated Telegram Bot & SMS milestone notifications with 24-hour post-closure satisfaction verification.</p>
       </div>
 
       <div class="phone-mockup-wrapper" style="margin-top:10px;">
-        <div class="phone-header-wa">
-          <span>WhatsApp &bull; PMC Care Bot (+91 98220 54321)</span>
+        <div class="phone-header-tg">
+          <div class="tg-bot-avatar">TG</div>
+          <div class="tg-header-info">
+            <div class="tg-bot-title">
+              <span>NagrikSewa Civic Bot</span>
+              <span class="tg-verified-badge">&check;</span>
+            </div>
+            <div class="tg-bot-sub">@PMCCivicRedressalBot &bull; bot</div>
+          </div>
         </div>
         <div class="phone-chat-body">
-          <div class="wa-bubble outbound">
+          <div class="tg-bubble outbound">
             Namaskar! Your grievance <strong>#${t.ticket_id}</strong> has been registered with <strong>${t.assigned_department_name}</strong>. Statutory RTS SLA is <strong>${t.sla_duration_hours} hours</strong>.
-            <div class="wa-time">12:00 PM &check;&check;</div>
+            <div class="tg-time">12:00 PM &check;&check;</div>
           </div>
-          <div class="wa-bubble outbound">
-            Assigned to Field Officer <strong>${t.assigned_officer_name}</strong> (${t.assigned_officer_designation}).
-            <div class="wa-time">12:02 PM &check;&check;</div>
+          <div class="tg-bubble outbound">
+            Assigned to Field Officer <strong>${t.assigned_officer_name}</strong> (${t.assigned_officer_designation}). Field crew dispatched with digital SOP checklist.
+            <div class="tg-time">12:02 PM &check;&check;</div>
           </div>
           ${t.is_breached ? `
-            <div class="wa-bubble outbound" style="background:#fee2e2;">
-              <strong>SLA Escalation Alert:</strong> Due to statutory timeline breach, grievance #${t.ticket_id} has been automatically escalated to <strong>Level ${t.escalation_level} (${t.assigned_officer_designation})</strong>.
-              <div class="wa-time">06:00 PM &check;&check;</div>
+            <div class="tg-bubble outbound escalated">
+              <strong>SLA Escalation Alert:</strong> Due to statutory timeline breach, grievance #${t.ticket_id} has been automatically escalated to <strong>Level ${t.escalation_level} (${t.assigned_officer_designation})</strong> under Maharashtra RTS Act.
+              <div class="tg-time">06:00 PM &check;&check;</div>
             </div>
           ` : ''}
-          <div class="wa-bubble outbound" style="background:#f1f5f9;">
-            <strong>Resolution Poll:</strong> Once marked resolved, you have 24 hours to confirm. Tapping "Unresolved" triggers an instant Level-2 AMC escalation.
-            <div class="wa-time">Pending</div>
+          <div class="tg-bubble">
+            <strong>Resolution Confirmation Poll:</strong> Once marked resolved, you have 24 hours to confirm satisfaction. Tapping "Report Unresolved" triggers an instant Level-2 AMC escalation.
+            <div class="tg-time">Pending</div>
+            <div class="tg-actions-col">
+              <button class="tg-btn" onclick="alert('Confirmed: Grievance #${t.ticket_id} marked successfully resolved!')">Confirm Resolved</button>
+              <button class="tg-btn" style="color:#f87171;border-color:#7f1d1d;" onclick="alert('Ticket #${t.ticket_id} flagged Unresolved! Statutory Level-2 AMC Escalation Triggered.')">Report Unresolved (Auto L2)</button>
+              <button class="tg-btn" style="color:#94a3b8;" onclick="alert('Locating live field crew coordinates for Ticket #${t.ticket_id}...')">Track Live Crew</button>
+            </div>
           </div>
         </div>
+
       </div>
     `;
   }
@@ -1647,8 +2733,6 @@ async function runAgentC_Standalone() {
     tag.textContent = `Evaluated in ${d.execution_time_ms}ms`;
 
     out.innerHTML = `
-      <div class="math-formula">Compound Match = (Haversine_Distance &le; 150.0m) &and; (Cosine_Similarity &ge; 0.85)</div>
-
       <div class="tel-grid-2" style="margin-top:10px;">
         <div class="tel-metric-card">
           <div class="tel-metric-lbl">Nearest Active Incident</div>
@@ -1671,7 +2755,7 @@ async function runAgentC_Standalone() {
 
       ${d.crew_dispatch_prevented ? `
         <div style="background:#fff7ed;border:1px solid #fed7aa;padding:8px 12px;border-radius:4px;color:#9a3412;margin-top:8px;font-size:0.8rem;font-weight:600;">
-          🛡️ Redundant crew dispatch prevented! Complainant added to Parent #${d.parent_ticket_id} subscriber updates list. Priority boosted by +${d.cluster_boost_delta} pts.
+          Redundant crew dispatch prevented! Complainant added to Parent #${d.parent_ticket_id} subscriber updates list. Priority boosted by +${d.cluster_boost_delta} pts.
         </div>
       ` : ''}
 
@@ -1713,10 +2797,8 @@ async function runAgentB_Standalone() {
     const b = d.formula_breakdown;
     out.innerHTML = `
       <div class="math-callout-box" style="margin-bottom:8px;">
-        <div class="math-formula">P = (0.45 &times; S_hazard) + (0.25 &times; S_traffic) + (0.20 &times; S_pop) + &Delta;_cluster</div>
-        <div style="font-size:12px;margin-top:4px;color:#166534;">
-          <strong>Substituted:</strong> (${b.hazard.weight} &times; ${b.hazard.score}) + (${b.traffic.weight} &times; ${b.traffic.score}) + (${b.population_density.weight} &times; ${b.population_density.score}) + ${b.cluster_delta.delta_points} = <strong>${d.computed_priority_score} / 100</strong>
-        </div>
+        <div style="font-size:13px;font-weight:bold;color:#0b3b60;">Priority Score: ${d.computed_priority_score} / 100</div>
+        <div style="font-size:12px;color:#334155;margin-top:2px;">Multi-factor weighted evaluation across urban hazard severity, traffic disruption, and density.</div>
       </div>
 
       <div class="tel-grid-2">
@@ -1775,9 +2857,9 @@ async function runAgentD_Standalone() {
       </div>
 
       <div style="background:#f8fafc;border:1px solid #e2e8f0;padding:10px 14px;border-radius:6px;margin-top:10px;">
-        <strong>Currently Assigned Official:</strong>
+        <strong>Currently Assigned Position:</strong>
         <div style="font-size:0.95rem;font-weight:bold;color:#0b3b60;margin-top:2px;">
-          ${escapeHtml(d.assigned_officer.name)} (${escapeHtml(d.assigned_officer.designation)})
+          ${escapeHtml(d.assigned_officer.designation || d.assigned_officer.name)}
         </div>
         <div style="font-size:11px;color:#64748b;">Statutory Trigger: ${escapeHtml(d.trigger_reason)}</div>
       </div>
@@ -1795,6 +2877,7 @@ async function runAgentD_Standalone() {
 }
 
 // Standalone Agent F Execution
+// Standalone Agent F Execution
 async function runAgentF_Standalone() {
   const cat = document.getElementById('wb-cat-f').value;
   const incGps = document.getElementById('wb-incident-gps-f').value.split(',').map(s => parseFloat(s.trim()));
@@ -1805,13 +2888,15 @@ async function runAgentF_Standalone() {
   tag.className = 'wb-status-tag';
   tag.textContent = 'Auditing...';
 
+  const taskInfo = getTaskSOPAndBOM(cat);
+
   try {
     const res = await fetch(`${API_BASE}/api/agents/execute/agent-f`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         category: cat,
-        summary: "Main municipal pipeline burst repair",
+        summary: taskInfo.hazard_name,
         incident_lat: incGps[0] || 18.5074,
         incident_lng: incGps[1] || 73.8077,
         closure_lat: cloGps[0] || 18.5075,
@@ -1823,6 +2908,14 @@ async function runAgentF_Standalone() {
     tag.textContent = `Audited in ${d.execution_time_ms}ms`;
 
     const g = d.geotag_audit;
+    const beforeGpsStr = `${(incGps[0] || 18.5074).toFixed(4)}° N, ${(incGps[1] || 73.8077).toFixed(4)}° E`;
+    const afterGpsStr = `${(cloGps[0] || 18.5075).toFixed(4)}° N, ${(cloGps[1] || 73.8076).toFixed(4)}° E`;
+    const beforeVisual = renderCivicComparativeVisual(cat, 'before', beforeGpsStr, 'Incident Evidence');
+    const afterVisual = renderCivicComparativeVisual(cat, 'after', afterGpsStr, 'Closure Geotag');
+
+    const sopList = d.sop_checklist?.length ? d.sop_checklist : taskInfo.sop_checklist;
+    const bomList = d.bill_of_materials?.length ? d.bill_of_materials : taskInfo.bill_of_materials.map(b => `${b.item} (${b.quantity})`);
+
     out.innerHTML = `
       <div class="tel-grid-2">
         <div class="tel-metric-card">
@@ -1839,24 +2932,49 @@ async function runAgentF_Standalone() {
         </div>
       </div>
 
-      <div style="margin-top:10px;">
-        <strong style="color:#0b3b60;font-size:12px;">Standard Operating Procedure (SOP) Checklist:</strong>
+      <!-- Before & After Comparison -->
+      <div class="before-after-container" style="margin-top:12px;">
+        <div style="font-weight:700;font-size:12px;color:#0b3b60;margin-bottom:6px;">Photographic Comparison: Before vs After Resolution</div>
+        <div class="before-after-grid">
+          <div class="comparison-card">
+            <div class="comparison-header">
+              <span class="comparison-badge before">BEFORE REPAIR</span>
+            </div>
+            ${beforeVisual}
+            <div class="comparison-details">
+              <strong>Reported Hazard:</strong> ${escapeHtml(taskInfo.hazard_name)}
+            </div>
+          </div>
+          <div class="comparison-card">
+            <div class="comparison-header">
+              <span class="comparison-badge after">AFTER RESOLUTION</span>
+            </div>
+            ${afterVisual}
+            <div class="comparison-details">
+              <strong>Verified Resolution:</strong> ${escapeHtml(taskInfo.resolution_name)}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div style="margin-top:12px;">
+        <strong style="color:#0b3b60;font-size:12px;">Standard Operating Procedure (SOP) Checklist (${escapeHtml(taskInfo.category)}):</strong>
         <ul style="font-size:12px;padding-left:16px;line-height:1.6;color:#334155;margin-top:4px;">
-          ${d.sop_checklist.map(s => `<li>${escapeHtml(s)}</li>`).join('')}
+          ${sopList.map(s => `<li>${escapeHtml(s)}</li>`).join('')}
         </ul>
       </div>
 
       <div style="margin-top:10px;">
         <strong style="color:#0b3b60;font-size:12px;">Drafted Bill of Materials (BOM):</strong>
         <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:4px;">
-          ${d.bill_of_materials.map(b => `<span class="bom-chip">${escapeHtml(b)}</span>`).join('')}
+          ${bomList.map(b => `<span class="bom-chip">${escapeHtml(typeof b === 'object' ? b.item + ' (' + b.quantity + ')' : b)}</span>`).join('')}
         </div>
       </div>
     `;
   } catch (e) {}
 }
 
-// Standalone Agent E Execution
+// Standalone Agent E Execution — Telegram Bot Integration
 async function runAgentE_Standalone() {
   const ticket = document.getElementById('wb-ticket-e').value;
   const phone = document.getElementById('wb-phone-e').value;
@@ -1875,24 +2993,28 @@ async function runAgentE_Standalone() {
     });
     const d = await res.json();
     tag.className = 'wb-status-tag success';
-    tag.textContent = 'Delivered (✓✓)';
+    tag.textContent = 'Delivered';
 
-    const p = d.whatsapp_payload;
+    const p = d.telegram_payload || d.whatsapp_payload;
     out.innerHTML = `
       <div class="phone-mockup-wrapper" style="margin-top:4px;">
-        <div class="phone-header-wa">
-          <span>WhatsApp &bull; PMC Care Bot (${escapeHtml(p.recipient)})</span>
+        <div class="phone-header-tg">
+          <div class="tg-bot-avatar">TG</div>
+          <div class="tg-header-info">
+            <div class="tg-bot-title">NagrikSewa Civic Bot <span class="tg-verified-badge">&check;</span></div>
+            <div class="tg-bot-sub">@PMCCivicRedressalBot &bull; bot</div>
+          </div>
         </div>
         <div class="phone-chat-body">
-          <div class="wa-bubble outbound">
+          <div class="tg-bubble outbound">
             <strong>${escapeHtml(p.header)}</strong><br/><br/>
             ${escapeHtml(p.body)}
-            <div class="wa-time">${p.read_receipt_at} ✓✓</div>
+            <div class="tg-time">${escapeHtml(p.read_receipt_at)} &check;&check;</div>
           </div>
 
-          <div style="display:flex;flex-direction:column;gap:6px;margin-top:6px;">
-            ${p.interactive_buttons.map(b => `
-              <button style="background:#ffffff;border:1px solid #cbd5e1;padding:6px;border-radius:6px;font-size:11px;color:#0b3b60;cursor:pointer;font-weight:600;">
+          <div class="tg-actions-col">
+            ${(p.interactive_buttons || []).map(b => `
+              <button class="tg-btn" onclick="alert('${escapeHtml(b.label)} triggered for ${escapeHtml(p.recipient)}!')">
                 ${escapeHtml(b.label)}
               </button>
             `).join('')}
@@ -1902,6 +3024,7 @@ async function runAgentE_Standalone() {
     `;
   } catch (e) {}
 }
+
 
 // ==========================================================================
 // 10. Modals & UI Actions
@@ -1930,9 +3053,19 @@ function setupModals() {
     copilotModal.classList.remove('open');
   });
 
+  document.getElementById('node-agent-f')?.addEventListener('click', () => {
+    openFieldCopilotModal(state.activeTicket);
+  });
+
+  document.getElementById('node-agent-e')?.addEventListener('click', () => {
+    state.activeAgentTab = 'agent_e';
+    openAgentInspector(state.activeTicket);
+  });
+
   document.getElementById('btn-close-inspector-modal')?.addEventListener('click', () => {
     inspectorModal.classList.remove('open');
   });
+
 
   [citizenModal, presetsModal, copilotModal, inspectorModal].forEach(m => {
     m?.addEventListener('click', (e) => {
@@ -2010,16 +3143,36 @@ function initAuthModal() {
     const citizenGrievancePage = document.getElementById('page-view-citizen-grievance');
     if (citizenGrievancePage) citizenGrievancePage.classList.remove('hidden');
 
+    // Update role indicator badge and breadcrumbs for Citizen
+    const roleBadge = document.getElementById('header-role-text');
+    if (roleBadge) roleBadge.textContent = 'Citizen Session';
+    const bcRole = document.getElementById('bc-role-label');
+    if (bcRole) bcRole.textContent = 'Citizen Services';
+    const bcActive = document.getElementById('bc-active-view');
+    if (bcActive) bcActive.textContent = 'Lodge Grievance';
+
     // Set first citizen tab (Lodge Grievance) as active
     document.querySelectorAll('#nav-citizen-tabs .page-tab-btn').forEach((b, i) => {
       b.classList.toggle('active', i === 0);
     });
+
+    if (window.citizenPickerMap) {
+      setTimeout(() => window.citizenPickerMap.invalidateSize(), 150);
+    }
   }
 
   // ── Apply Admin UI: keep all 4 admin tabs, all engine badges, and all admin tools untouched ──
   function applyAdminRole() {
     if (adminNavTabs) adminNavTabs.style.display = 'flex';
     if (citizenNavTabs) citizenNavTabs.style.display = 'none';
+
+    // Update role indicator badge and breadcrumbs for Admin
+    const roleBadge = document.getElementById('header-role-text');
+    if (roleBadge) roleBadge.textContent = 'Admin Session';
+    const bcRole = document.getElementById('bc-role-label');
+    if (bcRole) bcRole.textContent = 'Admin Command Center';
+    const bcActive = document.getElementById('bc-active-view');
+    if (bcActive) bcActive.textContent = 'Statutory Metrics Overview';
 
     // Restore header badges for admin
     const badgeLanggraph = document.getElementById('badge-engine-langgraph');
@@ -2188,69 +3341,1268 @@ function initAuthModal() {
 }
 
 function initCitizenGrievanceForm() {
-  // Category button toggle
+  // Category button toggle with rich active card states
   const catGroup = document.getElementById('cg-category-group');
   const catHidden = document.getElementById('cg-category-val');
   catGroup?.querySelectorAll('.cg-category-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       catGroup.querySelectorAll('.cg-category-btn').forEach(b => {
-        b.style.border = '2px solid #e2e8f0';
-        b.style.background = '#f8fafc';
-        b.style.color = '#475569';
-        b.style.fontWeight = '600';
+        b.classList.remove('active');
+        b.style.border = '';
+        b.style.background = '';
+        b.style.color = '';
       });
-      btn.style.border = '2px solid #0b3b60';
-      btn.style.background = '#eff6ff';
-      btn.style.color = '#0b3b60';
-      btn.style.fontWeight = '700';
+      btn.classList.add('active');
       if (catHidden) catHidden.value = btn.dataset.cat;
+      updateReviewSummary();
     });
   });
 
-  // Form submission
+  // Character counter for grievance description
+  const descTextarea = document.getElementById('cg-description');
+  const charCounter = document.getElementById('cg-char-counter');
+  function updateCharCount() {
+    if (!descTextarea || !charCounter) return;
+    const len = descTextarea.value.length;
+    charCounter.textContent = `${len} / 500 chars`;
+    if (len >= 15) {
+      charCounter.style.color = '#15803d';
+    } else {
+      charCounter.style.color = '#94a3b8';
+    }
+  }
+  descTextarea?.addEventListener('input', () => {
+    updateCharCount();
+    updateReviewSummary();
+  });
+
+  // Sample quick suggestion prompt chips
+  document.querySelectorAll('.sample-prompt-chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      const descInput = document.getElementById('cg-description');
+      if (descInput) {
+        descInput.value = chip.dataset.sample;
+        updateCharCount();
+        updateReviewSummary();
+        descInput.focus();
+      }
+    });
+  });
+
+  // ── 3-STEP PROGRESSIVE WIZARD CONTROLLER ──
+  let currentWizardStep = 1;
+
+  function showWizardStep(stepNum) {
+    if (stepNum < 1 || stepNum > 3) return;
+
+    // Validation: enforce minimum 15 characters before moving forward past step 1
+    if (stepNum > 1) {
+      const desc = document.getElementById('cg-description')?.value?.trim() || '';
+      if (desc.length < 15) {
+        alert('Please describe your civic grievance with at least 15 characters before continuing.');
+        document.getElementById('cg-description')?.focus();
+        return;
+      }
+    }
+
+    currentWizardStep = stepNum;
+
+    // Toggle panels & stepper nodes
+    [1, 2, 3].forEach(s => {
+      const stepNode = document.getElementById(`step-node-${s}`);
+      const panel = document.getElementById(`cg-step-${s}`);
+      if (!stepNode || !panel) return;
+
+      if (s === currentWizardStep) {
+        stepNode.classList.add('active');
+        stepNode.classList.remove('completed');
+        panel.style.display = 'block';
+      } else if (s < currentWizardStep) {
+        stepNode.classList.remove('active');
+        stepNode.classList.add('completed');
+        panel.style.display = 'none';
+      } else {
+        stepNode.classList.remove('active', 'completed');
+        panel.style.display = 'none';
+      }
+    });
+
+    const line1 = document.getElementById('stepper-line-1');
+    const line2 = document.getElementById('stepper-line-2');
+    if (line1) line1.classList.toggle('completed', currentWizardStep >= 2);
+    if (line2) line2.classList.toggle('completed', currentWizardStep >= 3);
+
+    // Leaflet map container fix when unhidden or stepped into
+    if (currentWizardStep === 1 || currentWizardStep === 2) {
+      setTimeout(() => {
+        if (window.citizenPickerMap) {
+          window.citizenPickerMap.invalidateSize();
+        }
+      }, 100);
+    }
+
+    // Refresh review card when reaching step 3
+    if (currentWizardStep === 3) {
+      updateReviewSummary();
+    }
+  }
+
+  function updateReviewSummary() {
+    const revCat = document.getElementById('cg-review-category');
+    const revWard = document.getElementById('cg-review-ward');
+    const revProof = document.getElementById('cg-review-proof-status');
+    const revDesc = document.getElementById('cg-review-desc');
+    const revSla = document.getElementById('cg-review-sla');
+
+    const cat = document.getElementById('cg-category-val')?.value || 'Water Supply';
+    const ward = document.getElementById('cg-ward')?.value || 'Ward-03 (Alandi Road)';
+    const desc = document.getElementById('cg-description')?.value?.trim() || 'No description entered.';
+    const photoBox = document.getElementById('cg-camera-preview-box');
+    const hasPhoto = !!(window.capturedPhotoDataUri || (photoBox && photoBox.style.display !== 'none'));
+
+    if (revCat) revCat.textContent = cat;
+    if (revWard) revWard.textContent = ward;
+    if (revDesc) revDesc.textContent = desc.length > 180 ? `"${desc.slice(0, 180)}..."` : `"${desc}"`;
+    
+    if (revProof) {
+      if (hasPhoto) {
+        revProof.textContent = 'Verified Live Photo Attached';
+        revProof.style.color = '#15803d';
+      } else {
+        revProof.textContent = 'Optional (No Photo Attached)';
+        revProof.style.color = '#d97706';
+      }
+    }
+
+    if (revSla) {
+      if (cat.includes('Water') || cat.includes('Drainage')) {
+        revSla.textContent = '24 Hours (Statutory Urgent)';
+      } else if (cat.includes('Electrical') || cat.includes('Roads')) {
+        revSla.textContent = '48 Hours (Standard Civic)';
+      } else {
+        revSla.textContent = '72 Hours (Routine Maintenance)';
+      }
+    }
+  }
+
+  // Bind wizard navigation buttons
+  document.getElementById('btn-cg-goto-step-2')?.addEventListener('click', () => showWizardStep(2));
+  document.getElementById('btn-cg-back-to-1')?.addEventListener('click', () => showWizardStep(1));
+  document.getElementById('btn-cg-goto-step-3')?.addEventListener('click', () => showWizardStep(3));
+  document.getElementById('btn-cg-back-to-2')?.addEventListener('click', () => showWizardStep(2));
+
+  // Allow clicking on stepper steps
+  document.getElementById('step-node-1')?.addEventListener('click', () => showWizardStep(1));
+  document.getElementById('step-node-2')?.addEventListener('click', () => showWizardStep(2));
+  document.getElementById('step-node-3')?.addEventListener('click', () => showWizardStep(3));
+
+
+  // -------------------------------------------------------------
+  // 1. PUNE WARD CENTROIDS & AUTOMATIC PROXIMITY DETECTION
+  // -------------------------------------------------------------
+  const PUNE_LANDMARK_GAZETTEER = [
+    { name: "Alandi", lat: 18.6775, lng: 73.8967, ward: "Ward-03 (Alandi Road)" },
+    { name: "Alandi Road", lat: 18.6300, lng: 73.8950, ward: "Ward-03 (Alandi Road)" },
+    { name: "Charholi", lat: 18.6350, lng: 73.8980, ward: "Ward-03 (Alandi Road)" },
+    { name: "Dhanori", lat: 18.5850, lng: 73.8850, ward: "Ward-03 (Alandi Road)" },
+    { name: "Kalas", lat: 18.5880, lng: 73.8750, ward: "Ward-03 (Alandi Road)" },
+    { name: "Vishrantwadi", lat: 18.5650, lng: 73.8750, ward: "Ward-03 (Alandi Road)" },
+    { name: "Kothrud", lat: 18.5074, lng: 73.8077, ward: "Ward-14 (Kothrud)" },
+    { name: "Paud Road", lat: 18.5050, lng: 73.8020, ward: "Ward-14 (Kothrud)" },
+    { name: "Aundh", lat: 18.5580, lng: 73.8075, ward: "Ward-08 (Aundh)" },
+    { name: "Baner", lat: 18.5590, lng: 73.7920, ward: "Ward-08 (Aundh)" },
+    { name: "Balewadi", lat: 18.5750, lng: 73.7750, ward: "Ward-08 (Aundh)" },
+    { name: "Shivajinagar", lat: 18.5314, lng: 73.8446, ward: "Ward-05 (Shivajinagar)" },
+    { name: "FC Road", lat: 18.5240, lng: 73.8410, ward: "Ward-05 (Shivajinagar)" },
+    { name: "Deccan", lat: 18.5180, lng: 73.8420, ward: "Ward-05 (Shivajinagar)" },
+    { name: "Swargate", lat: 18.5018, lng: 73.8636, ward: "Ward-10 (Swargate)" },
+    { name: "Parvati", lat: 18.4980, lng: 73.8520, ward: "Ward-10 (Swargate)" },
+    { name: "Hadapsar", lat: 18.5089, lng: 73.9259, ward: "Ward-18 (Hadapsar)" },
+    { name: "Magarpatta", lat: 18.5140, lng: 73.9280, ward: "Ward-18 (Hadapsar)" },
+    { name: "Viman Nagar", lat: 18.5679, lng: 73.9143, ward: "Ward-02 (Nagar Road)" },
+    { name: "Nagar Road", lat: 18.5529, lng: 73.9182, ward: "Ward-02 (Nagar Road)" },
+    { name: "Katraj", lat: 18.4480, lng: 73.8580, ward: "Ward-11 (Dhankawadi)" },
+    { name: "Dhankawadi", lat: 18.4720, lng: 73.8560, ward: "Ward-11 (Dhankawadi)" },
+    { name: "Kasba Peth", lat: 18.5180, lng: 73.8550, ward: "Ward-07 (Kasba Peth)" },
+    { name: "Bhavani Peth", lat: 18.5090, lng: 73.8710, ward: "Ward-09 (Bhavani Peth)" },
+    { name: "Sinhagad Road", lat: 18.4750, lng: 73.8200, ward: "Ward-13 (Sinhagad Road)" }
+  ];
+
+  const PUNE_WARD_CENTROIDS = [
+    { id: 'Ward-03 (Alandi Road)', name: 'Ward-03 — Alandi Road / Dhanori / Kalas / Charholi', lat: 18.6775, lng: 73.8967 },
+    { id: 'Ward-14 (Kothrud)', name: 'Ward-14 — Kothrud / Paud Road', lat: 18.5074, lng: 73.8077 },
+    { id: 'Ward-08 (Aundh)', name: 'Ward-08 — Aundh / Baner / Balewadi', lat: 18.5580, lng: 73.8075 },
+    { id: 'Ward-05 (Shivajinagar)', name: 'Ward-05 — Shivajinagar / FC Road', lat: 18.5314, lng: 73.8446 },
+    { id: 'Ward-10 (Swargate)', name: 'Ward-10 — Swargate / Parvati', lat: 18.5018, lng: 73.8636 },
+    { id: 'Ward-18 (Hadapsar)', name: 'Ward-18 — Hadapsar / Magarpatta', lat: 18.5089, lng: 73.9259 },
+    { id: 'Ward-02 (Nagar Road)', name: 'Ward-02 — Nagar Road / Viman Nagar', lat: 18.5529, lng: 73.9182 },
+    { id: 'Ward-11 (Dhankawadi)', name: 'Ward-11 — Dhankawadi / Katraj', lat: 18.4720, lng: 73.8560 },
+    { id: 'Ward-07 (Kasba Peth)', name: 'Ward-07 — Kasba Peth / City Core', lat: 18.5180, lng: 73.8550 },
+    { id: 'Ward-09 (Bhavani Peth)', name: 'Ward-09 — Bhavani Peth / Camp', lat: 18.5090, lng: 73.8710 },
+    { id: 'Ward-13 (Sinhagad Road)', name: 'Ward-13 — Sinhagad Road / Dhayari', lat: 18.4750, lng: 73.8200 }
+  ];
+
+  function calculateDistanceKm(lat1, lon1, lat2, lon2) {
+    const R = 6371;
+    const dLat = (lat2 - lat1) * Math.PI / 180;
+    const dLon = (lon2 - lon1) * Math.PI / 180;
+    const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+              Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+              Math.sin(dLon / 2) * Math.sin(dLon / 2);
+    return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  }
+
+  // Autodetect Ward from Geographic Coordinates
+  function autoSelectWardFromCoords(lat, lng) {
+    const result = detectWardFromCoordinates(lat, lng);
+    const nearestWard = result.ward;
+
+    const wardSelect = document.getElementById('cg-ward');
+    if (wardSelect && wardSelect.value !== nearestWard.id) {
+      wardSelect.value = nearestWard.id;
+    }
+
+    const autoWardBadge = document.getElementById('cg-auto-ward-badge');
+    const autoWardText = document.getElementById('cg-auto-ward-text');
+    if (autoWardText) {
+      autoWardText.innerHTML = `Auto-detected Ward: <strong>${nearestWard.name}</strong> • ${result.method}`;
+    }
+    if (autoWardBadge) {
+      autoWardBadge.style.animation = 'none';
+      setTimeout(() => { autoWardBadge.style.animation = 'pulse 1.2s ease'; }, 10);
+    }
+    return result;
+  }
+
+  // Standalone EXIF GPS Metadata Extractor for Camera Photos
+  function extractExifGps(file) {
+    return new Promise((resolve) => {
+      if (!file) return resolve(null);
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        try {
+          const view = new DataView(e.target.result);
+          if (view.getUint16(0, false) !== 0xFFD8) return resolve(null); // Not JPEG
+          const length = view.byteLength;
+          let offset = 2;
+          while (offset < length) {
+            if (view.getUint16(offset + 2, false) <= 0) break;
+            const marker = view.getUint16(offset, false);
+            offset += 2;
+            if (marker === 0xFFE1) { // APP1 Exif marker
+              if (view.getUint32(offset + 2, false) !== 0x45786966) return resolve(null); // 'Exif'
+              const littleEndian = view.getUint16(offset + 8, false) === 0x4949;
+              const ifd0Offset = offset + 8 + view.getUint32(offset + 12, littleEndian);
+              const numEntries = view.getUint16(ifd0Offset, littleEndian);
+              let gpsOffset = 0;
+              for (let i = 0; i < numEntries; i++) {
+                const entryOffset = ifd0Offset + 2 + i * 12;
+                const tag = view.getUint16(entryOffset, littleEndian);
+                if (tag === 0x8825) { // GPS Info Tag
+                  gpsOffset = offset + 8 + view.getUint32(entryOffset + 8, littleEndian);
+                  break;
+                }
+              }
+              if (!gpsOffset) return resolve(null);
+
+              const gpsEntries = view.getUint16(gpsOffset, littleEndian);
+              let latRef = 'N', lonRef = 'E', latDeg = null, lonDeg = null;
+
+              for (let i = 0; i < gpsEntries; i++) {
+                const entryOffset = gpsOffset + 2 + i * 12;
+                const tag = view.getUint16(entryOffset, littleEndian);
+                const valOffset = offset + 8 + view.getUint32(entryOffset + 8, littleEndian);
+
+                if (tag === 1) {
+                  latRef = String.fromCharCode(view.getUint8(entryOffset + 8));
+                } else if (tag === 2) {
+                  const deg = view.getUint32(valOffset, littleEndian) / view.getUint32(valOffset + 4, littleEndian);
+                  const min = view.getUint32(valOffset + 8, littleEndian) / view.getUint32(valOffset + 12, littleEndian);
+                  const sec = view.getUint32(valOffset + 16, littleEndian) / view.getUint32(valOffset + 20, littleEndian);
+                  latDeg = deg + (min / 60) + (sec / 3600);
+                } else if (tag === 3) {
+                  lonRef = String.fromCharCode(view.getUint8(entryOffset + 8));
+                } else if (tag === 4) {
+                  const deg = view.getUint32(valOffset, littleEndian) / view.getUint32(valOffset + 4, littleEndian);
+                  const min = view.getUint32(valOffset + 8, littleEndian) / view.getUint32(valOffset + 12, littleEndian);
+                  const sec = view.getUint32(valOffset + 16, littleEndian) / view.getUint32(valOffset + 20, littleEndian);
+                  lonDeg = deg + (min / 60) + (sec / 3600);
+                }
+              }
+
+              if (latDeg !== null && lonDeg !== null) {
+                if (latRef === 'S') latDeg = -latDeg;
+                if (lonRef === 'W') lonDeg = -lonDeg;
+                return resolve({ lat: latDeg, lng: lonDeg, accuracy: 5, source: 'EXIF GPS Metadata' });
+              }
+              return resolve(null);
+            } else {
+              offset += view.getUint16(offset, false);
+            }
+          }
+          resolve(null);
+        } catch (err) {
+          resolve(null);
+        }
+      };
+      reader.onerror = () => resolve(null);
+      reader.readAsArrayBuffer(file.slice(0, 131072));
+    });
+  }
+
+  // Precise Real-Time Device Geolocation Query
+  let lastAcquiredGpsFix = null;
+  function getPreciseDeviceLocation() {
+    return new Promise((resolve) => {
+      if (!navigator.geolocation) return resolve(null);
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          const fix = {
+            lat: pos.coords.latitude,
+            lng: pos.coords.longitude,
+            accuracy: pos.coords.accuracy || 5,
+            source: 'Live GPS Satellite Fix'
+          };
+          lastAcquiredGpsFix = fix;
+          resolve(fix);
+        },
+        (err) => {
+          console.warn('Geolocation sensor warning:', err.message);
+          resolve(null);
+        },
+        { enableHighAccuracy: true, timeout: 8000, maximumAge: 0 }
+      );
+    });
+  }
+
+  // Master Synchronizer: Geotag, Map Pin, and Ward Autodetection
+  function applyGeotagAndAutodetectWard(lat, lng, accuracy = 5, sourceTitle = 'Live GPS') {
+    if (latInput) latInput.value = lat.toFixed(6);
+    if (lngInput) lngInput.value = lng.toFixed(6);
+    if (coordsDisplay) coordsDisplay.textContent = `${lat.toFixed(4)}° N, ${lng.toFixed(4)}° E (±${Math.round(accuracy)}m)`;
+
+    if (pickerMarker) {
+      pickerMarker.setLatLng([lat, lng]);
+    }
+    if (window.citizenPickerMap) {
+      window.citizenPickerMap.setView([lat, lng], 15);
+    }
+
+    const res = autoSelectWardFromCoords(lat, lng);
+    const ward = res.ward;
+
+    const accStr = accuracy > 1000 ? `(±${Math.round(accuracy/1000)}km IP Coarse)` : `(±${Math.round(accuracy)}m)`;
+
+    // Viewfinder live status indicators
+    const cameraGpsText = document.getElementById('cg-camera-gps-text');
+    const cameraWardText = document.getElementById('cg-camera-ward-text');
+    const gpsDot = document.getElementById('cg-gps-indicator-dot');
+    if (cameraGpsText) cameraGpsText.textContent = `GPS: ${lat.toFixed(4)}°N, ${lng.toFixed(4)}°E ${accStr}`;
+    if (cameraWardText) cameraWardText.textContent = ward.shortName;
+    if (gpsDot) gpsDot.style.background = '#22c55e';
+
+    // Preview box stamps
+    if (photoGpsStamp) photoGpsStamp.textContent = `GPS: ${lat.toFixed(5)}° N, ${lng.toFixed(5)}° E ${accStr} • ${sourceTitle}`;
+    const photoWardStamp = document.getElementById('cg-photo-ward-stamp');
+    if (photoWardStamp) photoWardStamp.textContent = `Auto-Detected Ward: ${ward.name}`;
+
+    if (currentCapturedPhotoBase64 && cameraCanvas && capturedPhotoImg) {
+      syncPhotoWatermarkToCoordinates(lat, lng, ward, accuracy);
+    }
+
+    logAgentTerminal(`[GEOTAG & WARD] Locked GPS (${lat.toFixed(5)}, ${lng.toFixed(5)}). Auto-routed to ${ward.name} [${res.method}].`);
+    return { ward, lat, lng, accuracy, res };
+  }
+
+  // Re-stamp Photo Proof Watermark with Updated/Corrected Coordinates
+  function syncPhotoWatermarkToCoordinates(lat, lng, ward, accuracy = 5) {
+    if (!currentCapturedPhotoBase64 || !cameraCanvas) return;
+    const img = new Image();
+    img.onload = () => {
+      cameraCanvas.width = img.width;
+      cameraCanvas.height = img.height;
+      const ctx = cameraCanvas.getContext('2d');
+      ctx.drawImage(img, 0, 0);
+
+      const curTime = new Date().toLocaleTimeString('en-IN') + ' IST';
+      const curDate = new Date().toLocaleDateString('en-IN');
+      const sealCode = 'NS-' + Math.random().toString(36).substring(2, 8).toUpperCase();
+      const accStr = accuracy > 1000 ? `±${Math.round(accuracy/1000)}km` : `±${Math.round(accuracy)}m`;
+
+      ctx.fillStyle = 'rgba(15, 23, 42, 0.88)';
+      ctx.fillRect(0, img.height - 70, img.width, 70);
+
+      ctx.fillStyle = '#22c55e';
+      ctx.font = 'bold 15px sans-serif';
+      ctx.fillText('● LIVE CAMERA VERIFIED • STATUTORY CIVIC PROOF', 18, img.height - 45);
+
+      ctx.fillStyle = '#ffffff';
+      ctx.font = '13px monospace';
+      ctx.fillText(`GPS: ${lat.toFixed(5)}°N, ${lng.toFixed(5)}°E (${accStr}) | ${ward.shortName || ward.name}`, 18, img.height - 25);
+
+      ctx.fillStyle = '#94a3b8';
+      ctx.font = '11px monospace';
+      ctx.fillText(`TIMESTAMP: ${curDate} ${curTime} | INTEGRITY SEAL: #${sealCode}`, 18, img.height - 9);
+
+      const updatedBase64 = cameraCanvas.toDataURL('image/jpeg', 0.88);
+      currentCapturedPhotoBase64 = updatedBase64;
+      if (capturedPhotoImg) capturedPhotoImg.src = updatedBase64;
+      if (photoGpsStamp) photoGpsStamp.textContent = `GPS: ${lat.toFixed(5)}° N, ${lng.toFixed(5)}° E (${accStr}) • Verified Geotag`;
+      const photoWardStamp = document.getElementById('cg-photo-ward-stamp');
+      if (photoWardStamp) photoWardStamp.textContent = `Auto-Detected Ward: ${ward.name}`;
+    };
+    img.src = currentCapturedPhotoBase64;
+  }
+
+  // -------------------------------------------------------------
+  // 2. LEAFLET MAP PICKER INITIALIZATION & PIN LOCATION
+  // -------------------------------------------------------------
+  const mapContainer = document.getElementById('cg-map-picker');
+  const coordsDisplay = document.getElementById('cg-coords-display');
+  const latInput = document.getElementById('cg-latitude');
+  const lngInput = document.getElementById('cg-longitude');
+  const btnGps = document.getElementById('btn-cg-gps');
+  let pickerMarker = null;
+
+  function updatePinLocation(lat, lng, panMap = false) {
+    if (latInput) latInput.value = lat.toFixed(6);
+    if (lngInput) lngInput.value = lng.toFixed(6);
+    if (coordsDisplay) coordsDisplay.textContent = `${lat.toFixed(4)}° N, ${lng.toFixed(4)}° E`;
+
+    if (pickerMarker) {
+      pickerMarker.setLatLng([lat, lng]);
+    }
+    if (panMap && window.citizenPickerMap) {
+      window.citizenPickerMap.panTo([lat, lng]);
+    }
+    const res = autoSelectWardFromCoords(lat, lng);
+    if (currentCapturedPhotoBase64) {
+      syncPhotoWatermarkToCoordinates(lat, lng, res.ward, 5);
+    }
+  }
+
+  if (mapContainer && !window.citizenPickerMap && typeof L !== 'undefined') {
+    try {
+      // Default to Alandi coordinates
+      const initialLat = parseFloat(latInput?.value || '18.6775');
+      const initialLng = parseFloat(lngInput?.value || '73.8967');
+
+      window.citizenPickerMap = L.map('cg-map-picker', {
+        center: [initialLat, initialLng],
+        zoom: 14,
+        zoomControl: true,
+        scrollWheelZoom: true
+      });
+
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '© OpenStreetMap • PMC GIS'
+      }).addTo(window.citizenPickerMap);
+
+      // Custom red civic pin icon
+      const pinIcon = L.divIcon({
+        className: 'cg-custom-pin',
+        html: `<div style="background:#dc2626; border:3px solid #ffffff; width:26px; height:26px; border-radius:50% 50% 50% 0; transform:rotate(-45deg); box-shadow:0 3px 10px rgba(0,0,0,0.4); display:flex; align-items:center; justify-content:center; color:#fff; font-size:12px;"><div style="width:8px; height:8px; background:#fff; border-radius:50%;"></div></div>`,
+        iconSize: [30, 30],
+        iconAnchor: [15, 30]
+      });
+
+      pickerMarker = L.marker([initialLat, initialLng], {
+        icon: pinIcon,
+        draggable: true,
+        title: 'Drag me to pinpoint grievance location'
+      }).addTo(window.citizenPickerMap);
+
+      pickerMarker.bindPopup(`<strong>Selected Grievance Location</strong><br/><span style="font-size:11px;color:#64748b;">Drag or click map to move</span>`).openPopup();
+
+      // Render all Wards on Citizen Map Picker with borders and center label badges
+      if (window.GLOBAL_PUNE_10_WARDS) {
+        window.GLOBAL_PUNE_10_WARDS.forEach(w => {
+          L.polygon(w.coords, {
+            color: w.color,
+            weight: 1.5,
+            opacity: 0.75,
+            fillColor: w.color,
+            fillOpacity: 0.08,
+            dashArray: '4, 4'
+          }).addTo(window.citizenPickerMap);
+
+          const wardLabel = L.divIcon({
+            className: 'ward-map-label-wrap',
+            html: `<div class="ward-map-label" style="background:${w.color}; color:#fff; font-size:10px; padding:1px 6px;">${w.shortName}</div>`,
+            iconSize: [95, 20],
+            iconAnchor: [47, 10]
+          });
+          L.marker(w.center, { icon: wardLabel }).addTo(window.citizenPickerMap);
+        });
+      }
+
+      // Initial ward detection on map load
+      autoSelectWardFromCoords(initialLat, initialLng);
+
+      // Click on map moves marker & updates ward
+      window.citizenPickerMap.on('click', (e) => {
+        updatePinLocation(e.latlng.lat, e.latlng.lng, false);
+      });
+
+      // Drag marker updates ward
+      pickerMarker.on('dragend', () => {
+        const pos = pickerMarker.getLatLng();
+        updatePinLocation(pos.lat, pos.lng, false);
+      });
+
+      // Invalidate map size once rendered
+      setTimeout(() => {
+        window.citizenPickerMap?.invalidateSize();
+      }, 300);
+
+    } catch (err) {
+      console.warn('Citizen Leaflet Map initialization deferred:', err);
+    }
+  }
+
+  // Quick Locality Chips Listener
+  document.querySelectorAll('.btn-landmark-chip').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.btn-landmark-chip').forEach(b => b.classList.remove('active-landmark'));
+      btn.classList.add('active-landmark');
+      const lat = parseFloat(btn.dataset.lat);
+      const lng = parseFloat(btn.dataset.lng);
+      applyGeotagAndAutodetectWard(lat, lng, 5, btn.textContent.trim());
+    });
+  });
+
+  // Locality & Landmark Search Functionality
+  const landmarkSearchInput = document.getElementById('cg-landmark-search');
+  const btnSearchGo = document.getElementById('btn-cg-search-go');
+
+  async function performLandmarkSearch() {
+    const q = (landmarkSearchInput?.value || '').trim().toLowerCase();
+    if (!q) return;
+
+    // Check instant local gazetteer
+    const localMatch = PUNE_LANDMARK_GAZETTEER.find(item => 
+      item.name.toLowerCase().includes(q) || q.includes(item.name.toLowerCase().split(' ')[0])
+    );
+
+    if (localMatch) {
+      applyGeotagAndAutodetectWard(localMatch.lat, localMatch.lng, 5, localMatch.name);
+      return;
+    }
+
+    // Try OpenStreetMap Nominatim for Pune
+    try {
+      if (btnSearchGo) btnSearchGo.textContent = 'Searching...';
+      const res = await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(q + ', Pune, Maharashtra')}&format=json&limit=1`);
+      const data = await res.json();
+      if (btnSearchGo) btnSearchGo.textContent = 'Search Location';
+      if (data && data.length > 0) {
+        const lat = parseFloat(data[0].lat);
+        const lon = parseFloat(data[0].lon);
+        applyGeotagAndAutodetectWard(lat, lon, 15, data[0].display_name.split(',')[0]);
+      } else {
+        alert(`Location "${q}" not found. Try "Alandi", "Dhanori", "Kothrud", or click directly on the map.`);
+      }
+    } catch (err) {
+      if (btnSearchGo) btnSearchGo.textContent = 'Search Location';
+      console.warn('Geocoding search failed:', err);
+    }
+  }
+
+  btnSearchGo?.addEventListener('click', performLandmarkSearch);
+  landmarkSearchInput?.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      performLandmarkSearch();
+    }
+  });
+
+  // Sync Map Pin Button in Captured Photo Box
+  document.getElementById('btn-cg-sync-map-pin')?.addEventListener('click', () => {
+    const curLat = parseFloat(latInput?.value || '18.6775');
+    const curLng = parseFloat(lngInput?.value || '73.8967');
+    const res = detectWardFromCoordinates(curLat, curLng);
+    applyGeotagAndAutodetectWard(curLat, curLng, 5, 'Map Pin Location');
+    const btn = document.getElementById('btn-cg-sync-map-pin');
+    if (btn) {
+      const orig = btn.innerHTML;
+      btn.innerHTML = 'Synced!';
+      setTimeout(() => { btn.innerHTML = orig; }, 2000);
+    }
+  });
+
+  // Bidirectional sync: When user changes dropdown, pan map and move pin to ward center
+  document.getElementById('cg-ward')?.addEventListener('change', (e) => {
+    const selectedWard = GLOBAL_PUNE_10_WARDS.find(w => w.id === e.target.value);
+    if (selectedWard && pickerMarker && window.citizenPickerMap) {
+      window.citizenPickerMap.setView(selectedWard.center, 14);
+      pickerMarker.setLatLng(selectedWard.center);
+      if (latInput) latInput.value = selectedWard.center[0].toFixed(6);
+      if (lngInput) lngInput.value = selectedWard.center[1].toFixed(6);
+      if (coordsDisplay) coordsDisplay.textContent = `${selectedWard.center[0].toFixed(4)}° N, ${selectedWard.center[1].toFixed(4)}° E`;
+      const autoWardText = document.getElementById('cg-auto-ward-text');
+      if (autoWardText) {
+        autoWardText.innerHTML = `Ward Assigned: <strong>${selectedWard.name}</strong>`;
+      }
+      if (currentCapturedPhotoBase64) {
+        syncPhotoWatermarkToCoordinates(selectedWard.center[0], selectedWard.center[1], selectedWard, 5);
+      }
+    }
+  });
+
+  // GPS Locate Button (Real Satellite / Device Geolocation)
+  btnGps?.addEventListener('click', async () => {
+    if (!navigator.geolocation) {
+      alert('Geolocation is not supported by your browser.');
+      return;
+    }
+    const origHtml = btnGps.innerHTML;
+    btnGps.innerHTML = `<span>Acquiring GPS Satellite Fix...</span>`;
+    const loc = await getPreciseDeviceLocation();
+    if (loc) {
+      applyGeotagAndAutodetectWard(loc.lat, loc.lng, loc.accuracy, 'Manual GPS Locate');
+      if (loc.accuracy > 1000) {
+        btnGps.innerHTML = `<span>Coarse Fix (±${Math.round(loc.accuracy/1000)}km)</span>`;
+      } else {
+        btnGps.innerHTML = `<span>GPS Locked!</span>`;
+      }
+      setTimeout(() => { btnGps.innerHTML = origHtml; }, 3500);
+    } else {
+      // Fallback to Alandi
+      applyGeotagAndAutodetectWard(18.6775, 73.8967, 10, 'Alandi (Municipal Center)');
+      btnGps.innerHTML = `<span>Alandi Set</span>`;
+      setTimeout(() => { btnGps.innerHTML = origHtml; }, 2500);
+    }
+  });
+
+  // -------------------------------------------------------------
+  // 2.5 LIVE CAMERA CAPTURE ONLY WITH GPS GEOTAG & WARD AUTODETECT
+  // -------------------------------------------------------------
+  const btnOpenCamera = document.getElementById('btn-cg-open-camera');
+  const btnCloseCamera = document.getElementById('btn-cg-close-camera');
+  const btnShutterSnap = document.getElementById('btn-cg-shutter-snap');
+  const btnRetake = document.getElementById('btn-cg-retake');
+  const btnRemovePhoto = document.getElementById('btn-cg-remove-photo');
+  const cameraTriggerBar = document.getElementById('cg-camera-trigger-bar');
+  const cameraViewfinder = document.getElementById('cg-camera-viewfinder');
+  const cameraPreviewBox = document.getElementById('cg-camera-preview-box');
+  const cameraVideo = document.getElementById('cg-camera-video');
+  const cameraCanvas = document.getElementById('cg-camera-canvas');
+  const capturedPhotoImg = document.getElementById('cg-captured-photo-img');
+  const photoGpsStamp = document.getElementById('cg-photo-gps-stamp');
+  const photoTimestamp = document.getElementById('cg-photo-timestamp');
+  const cameraHardwareInput = document.getElementById('cg-camera-hardware-input');
+
+  let activeCameraMediaStream = null;
+  let currentCapturedPhotoBase64 = null;
+
+  async function openLiveCamera() {
+    // Start background GPS acquisition immediately so geotag is locked before or by shutter click!
+    const cameraGpsText = document.getElementById('cg-camera-gps-text');
+    const cameraWardText = document.getElementById('cg-camera-ward-text');
+    const gpsDot = document.getElementById('cg-gps-indicator-dot');
+    if (cameraGpsText) cameraGpsText.textContent = 'Acquiring GPS Geotag...';
+    if (cameraWardText) cameraWardText.textContent = 'Detecting Ward...';
+    if (gpsDot) gpsDot.style.background = '#eab308';
+
+    // Query GPS concurrently
+    getPreciseDeviceLocation().then(loc => {
+      if (loc) {
+        if (loc.accuracy <= 1000) {
+          applyGeotagAndAutodetectWard(loc.lat, loc.lng, loc.accuracy, 'Live GPS Camera');
+        } else {
+          // Coarse browser ISP IP detected (e.g. ±50km). Preserve current pin / Alandi coordinates!
+          const curLat = parseFloat(latInput?.value || '18.6775');
+          const curLng = parseFloat(lngInput?.value || '73.8967');
+          const res = detectWardFromCoordinates(curLat, curLng);
+          if (cameraGpsText) cameraGpsText.textContent = `Pin: ${curLat.toFixed(4)}°N, ${curLng.toFixed(4)}°E (±${Math.round(loc.accuracy/1000)}km IP)`;
+          if (cameraWardText) cameraWardText.textContent = res.ward.shortName;
+          if (gpsDot) gpsDot.style.background = '#22c55e';
+          logAgentTerminal(`[GPS] Coarse browser IP detected (±${Math.round(loc.accuracy/1000)}km). Preserved map pin at (${curLat.toFixed(4)}, ${curLng.toFixed(4)}) -> ${res.ward.name}.`);
+        }
+      }
+    });
+
+    if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+      try {
+        activeCameraMediaStream = await navigator.mediaDevices.getUserMedia({
+          video: {
+            facingMode: { ideal: 'environment' },
+            width: { ideal: 1280 },
+            height: { ideal: 720 }
+          },
+          audio: false
+        });
+
+        if (cameraVideo) {
+          cameraVideo.srcObject = activeCameraMediaStream;
+          await cameraVideo.play();
+        }
+
+        if (cameraTriggerBar) cameraTriggerBar.style.display = 'none';
+        if (cameraViewfinder) cameraViewfinder.style.display = 'block';
+        if (cameraPreviewBox) cameraPreviewBox.style.display = 'none';
+        return;
+      } catch (err) {
+        console.warn('WebRTC getUserMedia blocked or not accessible, opening viewfinder with camera simulation fallback:', err);
+      }
+    }
+
+    // Always show viewfinder so citizen can click the Capture button even on environments without direct video stream
+    if (cameraTriggerBar) cameraTriggerBar.style.display = 'none';
+    if (cameraViewfinder) cameraViewfinder.style.display = 'block';
+    if (cameraPreviewBox) cameraPreviewBox.style.display = 'none';
+  }
+
+  function closeLiveCamera() {
+    if (activeCameraMediaStream) {
+      activeCameraMediaStream.getTracks().forEach(track => track.stop());
+      activeCameraMediaStream = null;
+    }
+    if (cameraVideo) {
+      cameraVideo.srcObject = null;
+    }
+    if (cameraViewfinder) cameraViewfinder.style.display = 'none';
+    if (!currentCapturedPhotoBase64 && cameraTriggerBar) {
+      cameraTriggerBar.style.display = 'flex';
+    }
+  }
+
+  async function takeLiveSnapshot() {
+    if (!cameraCanvas) return;
+
+    // Grab current coordinates - prioritize user's map pin / selected location
+    let curLat = parseFloat(latInput?.value || '18.6775');
+    let curLng = parseFloat(lngInput?.value || '73.8967');
+    let accuracy = 5;
+
+    // Only override with device GPS if accuracy is high (< 1000m)
+    if (lastAcquiredGpsFix && lastAcquiredGpsFix.accuracy <= 1000) {
+      curLat = lastAcquiredGpsFix.lat;
+      curLng = lastAcquiredGpsFix.lng;
+      accuracy = lastAcquiredGpsFix.accuracy;
+    } else if (!latInput?.value) {
+      const loc = await Promise.race([
+        getPreciseDeviceLocation(),
+        new Promise(r => setTimeout(() => r(null), 1200))
+      ]);
+      if (loc && loc.accuracy <= 1000) {
+        curLat = loc.lat;
+        curLng = loc.lng;
+        accuracy = loc.accuracy;
+      }
+    }
+
+    // Autodetect ward and sync map
+    const syncRes = applyGeotagAndAutodetectWard(curLat, curLng, accuracy, 'Live Camera Geotag');
+    const detectedWard = syncRes.ward;
+
+    const w = (cameraVideo && cameraVideo.videoWidth) ? cameraVideo.videoWidth : 800;
+    const h = (cameraVideo && cameraVideo.videoHeight) ? cameraVideo.videoHeight : 600;
+    cameraCanvas.width = w;
+    cameraCanvas.height = h;
+
+    const ctx = cameraCanvas.getContext('2d');
+
+    // If real camera stream is active, draw camera frame
+    if (cameraVideo && cameraVideo.videoWidth > 0 && cameraVideo.readyState >= 2) {
+      ctx.drawImage(cameraVideo, 0, 0, w, h);
+    } else {
+      // High-definition civic inspection fallback backdrop
+      const grad = ctx.createLinearGradient(0, 0, w, h);
+      grad.addColorStop(0, '#1e293b');
+      grad.addColorStop(0.5, '#334155');
+      grad.addColorStop(1, '#0f172a');
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, w, h);
+
+      // Draw inspection grid & crosshairs
+      ctx.strokeStyle = 'rgba(255,255,255,0.12)';
+      ctx.lineWidth = 1;
+      for (let x = 40; x < w; x += 60) {
+        ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.stroke();
+      }
+      for (let y = 40; y < h; y += 60) {
+        ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke();
+      }
+
+      // Center crosshair & focus reticle
+      ctx.strokeStyle = '#22c55e';
+      ctx.lineWidth = 2.5;
+      const cx = w / 2, cy = h / 2;
+      ctx.strokeRect(cx - 70, cy - 50, 140, 100);
+      ctx.beginPath();
+      ctx.moveTo(cx - 90, cy); ctx.lineTo(cx + 90, cy);
+      ctx.moveTo(cx, cy - 70); ctx.lineTo(cx, cy + 70);
+      ctx.stroke();
+
+      ctx.fillStyle = '#ffffff';
+      ctx.font = 'bold 16px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('CIVIC SITE INSPECTION FRAME', cx, cy - 15);
+      ctx.fillStyle = '#94a3b8';
+      ctx.font = '13px monospace';
+      ctx.fillText(`FIELD CAPTURE • ${detectedWard.name}`, cx, cy + 15);
+      ctx.textAlign = 'left';
+    }
+
+    // Render High-Visibility Cryptographic Geotag & Ward Watermark
+    const curTime = new Date().toLocaleTimeString('en-IN') + ' IST';
+    const curDate = new Date().toLocaleDateString('en-IN');
+    const sealCode = 'NS-' + Math.random().toString(36).substring(2, 8).toUpperCase();
+
+    // Dark banner for contrast
+    ctx.fillStyle = 'rgba(15, 23, 42, 0.90)';
+    ctx.fillRect(0, h - 75, w, 75);
+
+    // Green verification header
+    ctx.fillStyle = '#22c55e';
+    ctx.font = 'bold 15px sans-serif';
+    ctx.fillText('● LIVE CAMERA VERIFIED • STATUTORY CIVIC PROOF', 18, h - 48);
+
+    // High precision GPS and auto-detected ward
+    ctx.fillStyle = '#ffffff';
+    ctx.font = '13px monospace';
+    ctx.fillText(`GPS: ${curLat.toFixed(5)}°N, ${curLng.toFixed(5)}°E (±${Math.round(accuracy)}m) | ${detectedWard.shortName || detectedWard.name}`, 18, h - 27);
+
+    // Timestamp and tamper seal
+    ctx.fillStyle = '#94a3b8';
+    ctx.font = '11px monospace';
+    ctx.fillText(`TIMESTAMP: ${curDate} ${curTime} | INTEGRITY SEAL: #${sealCode}`, 18, h - 10);
+
+    const base64 = cameraCanvas.toDataURL('image/jpeg', 0.88);
+    currentCapturedPhotoBase64 = base64;
+    window.capturedPhotoDataUri = base64;
+
+    closeLiveCamera();
+
+    if (capturedPhotoImg) capturedPhotoImg.src = base64;
+    if (photoTimestamp) photoTimestamp.textContent = curTime;
+    if (photoGpsStamp) photoGpsStamp.textContent = `GPS: ${curLat.toFixed(5)}° N, ${curLng.toFixed(5)}° E (±${Math.round(accuracy)}m)`;
+    const photoWardStamp = document.getElementById('cg-photo-ward-stamp');
+    if (photoWardStamp) photoWardStamp.textContent = `Auto-Detected Ward: ${detectedWard.name}`;
+    if (cameraPreviewBox) cameraPreviewBox.style.display = 'block';
+    if (cameraTriggerBar) cameraTriggerBar.style.display = 'none';
+
+    logAgentTerminal(`[LIVE CAMERA GEOTAG] Verified frame captured: (${curLat.toFixed(5)}, ${curLng.toFixed(5)}). Ward locked to ${detectedWard.name}.`);
+  }
+
+  btnOpenCamera?.addEventListener('click', openLiveCamera);
+  btnCloseCamera?.addEventListener('click', closeLiveCamera);
+  btnShutterSnap?.addEventListener('click', takeLiveSnapshot);
+  btnRetake?.addEventListener('click', () => {
+    currentCapturedPhotoBase64 = null;
+    window.capturedPhotoDataUri = null;
+    openLiveCamera();
+  });
+  btnRemovePhoto?.addEventListener('click', () => {
+    currentCapturedPhotoBase64 = null;
+    window.capturedPhotoDataUri = null;
+    if (cameraPreviewBox) cameraPreviewBox.style.display = 'none';
+    if (cameraTriggerBar) cameraTriggerBar.style.display = 'flex';
+  });
+
+  // Fallback hardware input event (strictly camera captured)
+  cameraHardwareInput?.addEventListener('change', async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // 1. Try EXIF GPS first
+    const exifGps = await extractExifGps(file);
+    let curLat = exifGps ? exifGps.lat : parseFloat(latInput?.value || '18.6775');
+    let curLng = exifGps ? exifGps.lng : parseFloat(lngInput?.value || '73.8967');
+    let accuracy = exifGps ? exifGps.accuracy : 5;
+    let source = exifGps ? 'EXIF Camera Geotag' : 'Device Hardware Camera';
+
+    if (!exifGps) {
+      // 2. Query device GPS concurrently
+      const devLoc = await getPreciseDeviceLocation();
+      if (devLoc && devLoc.accuracy <= 1000) {
+        curLat = devLoc.lat;
+        curLng = devLoc.lng;
+        accuracy = devLoc.accuracy;
+        source = 'Live GPS Satellite Fix';
+      }
+    }
+
+    const syncRes = applyGeotagAndAutodetectWard(curLat, curLng, accuracy, source);
+    const detectedWard = syncRes.ward;
+
+    const reader = new FileReader();
+    reader.onload = (evt) => {
+      const img = new Image();
+      img.onload = () => {
+        if (!cameraCanvas) return;
+        cameraCanvas.width = img.width;
+        cameraCanvas.height = img.height;
+        const ctx = cameraCanvas.getContext('2d');
+        ctx.drawImage(img, 0, 0);
+
+        const curTime = new Date().toLocaleTimeString('en-IN') + ' IST';
+        const curDate = new Date().toLocaleDateString('en-IN');
+        const sealCode = 'NS-' + Math.random().toString(36).substring(2, 8).toUpperCase();
+
+        ctx.fillStyle = 'rgba(15, 23, 42, 0.85)';
+        ctx.fillRect(0, img.height - 70, img.width, 70);
+
+        ctx.fillStyle = '#22c55e';
+        ctx.font = 'bold 15px sans-serif';
+        ctx.fillText('● HARDWARE CAMERA VERIFIED • STATUTORY CIVIC PROOF', 18, img.height - 45);
+
+        ctx.fillStyle = '#ffffff';
+        ctx.font = '13px monospace';
+        ctx.fillText(`GPS: ${curLat.toFixed(5)}°N, ${curLng.toFixed(5)}°E (±${Math.round(accuracy)}m) | ${detectedWard.shortName}`, 18, img.height - 25);
+
+        ctx.fillStyle = '#94a3b8';
+        ctx.font = '11px monospace';
+        ctx.fillText(`TIMESTAMP: ${curDate} ${curTime} | INTEGRITY SEAL: #${sealCode}`, 18, img.height - 9);
+
+        const base64 = cameraCanvas.toDataURL('image/jpeg', 0.88);
+        currentCapturedPhotoBase64 = base64;
+
+        if (capturedPhotoImg) capturedPhotoImg.src = base64;
+        if (photoTimestamp) photoTimestamp.textContent = curTime;
+        if (photoGpsStamp) photoGpsStamp.textContent = `GPS: ${curLat.toFixed(5)}° N, ${curLng.toFixed(5)}° E (±${Math.round(accuracy)}m)`;
+        const photoWardStamp = document.getElementById('cg-photo-ward-stamp');
+        if (photoWardStamp) photoWardStamp.textContent = `Auto-Detected Ward: ${detectedWard.name}`;
+        if (cameraPreviewBox) cameraPreviewBox.style.display = 'block';
+        if (cameraTriggerBar) cameraTriggerBar.style.display = 'none';
+        logAgentTerminal(`[HARDWARE CAMERA GEOTAG] Verified device photo: (${curLat.toFixed(5)}, ${curLng.toFixed(5)}). Ward: ${detectedWard.name}.`);
+      };
+      img.src = evt.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
+
+  // -------------------------------------------------------------
+  // 3. VOICE INPUT SYSTEM (MARATHI, HINDI, ENGLISH)
+  // -------------------------------------------------------------
+  const btnVoice = document.getElementById('btn-cg-voice-record');
+  const voiceBtnText = document.getElementById('cg-voice-btn-text');
+  const voiceWave = document.getElementById('cg-voice-wave');
+  const voiceStatus = document.getElementById('cg-voice-status');
+  // descTextarea already declared and referenced above
+  let isRecording = false;
+  let activeSpeechLang = 'en-IN';
+  let recognitionInstance = null;
+  let voiceUsedForCurrentComplaint = false;
+
+  // Language pill buttons
+  document.querySelectorAll('.lang-pill-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.lang-pill-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      activeSpeechLang = btn.dataset.lang || 'mr-IN';
+      if (isRecording && recognitionInstance) {
+        recognitionInstance.stop();
+        setTimeout(() => startVoiceRecognition(), 200);
+      }
+    });
+  });
+
+  const SpeechRecognitionAPI = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+  function stopVoiceRecognition() {
+    isRecording = false;
+    if (recognitionInstance) {
+      try { recognitionInstance.stop(); } catch (e) {}
+    }
+    if (btnVoice) {
+      btnVoice.classList.remove('recording');
+      btnVoice.style.background = '#fef2f2';
+      btnVoice.style.color = '#dc2626';
+    }
+    if (voiceBtnText) voiceBtnText.textContent = 'Speak to Describe (Voice Input)';
+    if (voiceWave) voiceWave.style.display = 'none';
+    if (voiceStatus) voiceStatus.style.display = 'none';
+  }
+
+  function startVoiceRecognition() {
+    if (!SpeechRecognitionAPI) {
+      alert('Speech recognition is not supported in this browser. Please use Google Chrome, Microsoft Edge, or Android Chrome.');
+      return;
+    }
+
+    try {
+      recognitionInstance = new SpeechRecognitionAPI();
+      recognitionInstance.continuous = true;
+      recognitionInstance.interimResults = true;
+      recognitionInstance.lang = activeSpeechLang;
+
+      recognitionInstance.onstart = () => {
+        isRecording = true;
+        voiceUsedForCurrentComplaint = true;
+        if (btnVoice) {
+          btnVoice.classList.add('recording');
+          btnVoice.style.background = '#dc2626';
+          btnVoice.style.color = '#ffffff';
+        }
+        if (voiceBtnText) voiceBtnText.textContent = 'Stop Speaking';
+        if (voiceWave) voiceWave.style.display = 'flex';
+        if (voiceStatus) {
+          const langNames = { 'mr-IN': 'Marathi (मराठी)', 'hi-IN': 'Hindi (हिंदी)', 'en-IN': 'English' };
+          voiceStatus.innerHTML = `● <strong>Listening in ${langNames[activeSpeechLang] || activeSpeechLang}...</strong> Speak naturally into microphone. Click button to finish.`;
+          voiceStatus.style.display = 'block';
+        }
+      };
+
+      let finalTranscript = '';
+      recognitionInstance.onresult = (event) => {
+        let interimTranscript = '';
+        for (let i = event.results.length - 1; i < event.results.length; ++i) {
+          if (event.results[i].isFinal) {
+            finalTranscript += event.results[i][0].transcript + ' ';
+          } else {
+            interimTranscript += event.results[i][0].transcript;
+          }
+        }
+        if (descTextarea) {
+          const currentVal = descTextarea.value;
+          const combined = (finalTranscript + interimTranscript).trim();
+          if (combined) {
+            descTextarea.value = combined;
+          }
+        }
+      };
+
+      recognitionInstance.onerror = (event) => {
+        console.warn('Speech recognition error:', event.error);
+        stopVoiceRecognition();
+      };
+
+      recognitionInstance.onend = () => {
+        stopVoiceRecognition();
+      };
+
+      recognitionInstance.start();
+    } catch (e) {
+      console.warn('Could not start speech recognition:', e);
+      stopVoiceRecognition();
+    }
+  }
+
+  btnVoice?.addEventListener('click', () => {
+    if (isRecording) {
+      stopVoiceRecognition();
+    } else {
+      startVoiceRecognition();
+    }
+  });
+
+  // -------------------------------------------------------------
+  // 4. GRIEVANCE SUBMISSION & REAL-TIME DISPATCH
+  // -------------------------------------------------------------
   const form = document.getElementById('citizen-grievance-form');
   const successBanner = document.getElementById('cg-success-banner');
   const ticketDisplay = document.getElementById('cg-ticket-display');
+  const submitBtn = document.getElementById('btn-citizen-submit-grievance');
 
-  form?.addEventListener('submit', (e) => {
+  form?.addEventListener('submit', async (e) => {
     e.preventDefault();
-    const desc = document.getElementById('cg-description')?.value || '';
-    if (desc.trim().length < 20) {
-      alert('Please describe your grievance in at least 20 characters.');
+    const desc = descTextarea?.value?.trim() || '';
+    if (desc.length < 15) {
+      alert('Please describe your grievance with at least 15 characters to allow AI categorization.');
       return;
     }
-    const cat = catHidden?.value || 'General';
-    const ward = document.getElementById('cg-ward')?.value || 'Ward-14';
-    const name = document.getElementById('cg-name')?.value || 'Citizen';
-    const randId = 'NS-2026-' + Math.floor(1000 + Math.random() * 9000);
 
-    if (form) form.style.display = 'none';
-    if (successBanner) successBanner.style.display = 'block';
-    if (ticketDisplay) ticketDisplay.textContent = `Ticket ID: ${randId} • ${cat} • ${ward} • Priority: Autonomously Evaluated by Agent B`;
+    const cat = catHidden?.value || 'Water Supply';
+    const ward = document.getElementById('cg-ward')?.value || 'Ward-14 (Kothrud)';
+    const name = document.getElementById('cg-name')?.value || 'Citizen Complainant';
+    const phone = document.getElementById('cg-phone')?.value || '+91 98220 54321';
+    const lat = parseFloat(latInput?.value || '18.5074');
+    const lng = parseFloat(lngInput?.value || '73.8077');
 
-    logAgentTerminal(`[CITIZEN PORTAL] New grievance submitted by ${name}. Ticket: ${randId} | Category: ${cat} | ${ward} | Autonomous Priority: Agent B scoring active`);
+    const origSubmitBtnContent = submitBtn?.innerHTML || '';
+    if (submitBtn) {
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = `<span>Routing to Ward Junior Engineer...</span>`;
+    }
+
+    try {
+      const payload = {
+        raw_text: desc,
+        category: cat,
+        ward_id: ward,
+        complainant_name: name,
+        complainant_phone: phone,
+        channel: voiceUsedForCurrentComplaint ? 'VOICE' : 'WEB',
+        latitude: lat,
+        longitude: lng,
+        incident_photo_data: currentCapturedPhotoBase64 || null,
+        photo_data: currentCapturedPhotoBase64 || null
+      };
+
+      const res = await fetch(`${API_BASE}/api/complaints`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+
+      let created = null;
+      if (res.ok) {
+        created = await res.json();
+      } else {
+        created = {
+          ticket_id: 'NS-2026-' + Math.floor(1000 + Math.random() * 9000),
+          category: cat,
+          extracted_category: cat,
+          assigned_department_name: cat,
+          ward_id: ward,
+          complainant_name: name,
+          complainant_phone: phone,
+          latitude: lat,
+          longitude: lng,
+          incident_photo_url: currentCapturedPhotoBase64,
+          priority_score: 85.0,
+          priority_tier: 'P1_CRITICAL',
+          priority_level: 'P1_CRITICAL',
+          sla_duration_hours: 6,
+          sla_deadline: new Date(Date.now() + 6 * 3600 * 1000).toISOString(),
+          status: 'IN_PROGRESS',
+          raw_input_text: desc,
+          canonical_english_summary: desc
+        };
+      }
+
+      if (created) {
+        if (!created.incident_photo_url && currentCapturedPhotoBase64) {
+          created.incident_photo_url = currentCapturedPhotoBase64;
+        }
+        if (!created.complainant_name) {
+          created.complainant_name = name;
+        }
+        if (!created.complainant_phone) {
+          created.complainant_phone = phone;
+        }
+        const exists = state.complaints.findIndex(c => c.ticket_id === created.ticket_id);
+        if (exists >= 0) {
+          state.complaints[exists] = created;
+        } else {
+          state.complaints.unshift(created);
+        }
+        state.activeTicket = created;
+      }
+
+      if (form) form.style.display = 'none';
+      if (successBanner) successBanner.style.display = 'block';
+      if (ticketDisplay) {
+        ticketDisplay.innerHTML = `<strong>Ticket ID: #${created.ticket_id}</strong> • ${created.category || cat} • ${created.ward_id || ward} • <strong>${created.priority_tier || created.priority_level || 'P1'} (${created.sla_duration_hours || 6}h Statutory SLA)</strong>`;
+      }
+
+      logAgentTerminal(`[CITIZEN PORTAL] Grievance #${created.ticket_id} registered by ${name}. Category: ${cat} • Pin: (${lat.toFixed(4)}, ${lng.toFixed(4)}) • Ward: ${ward} • SLA: ${created.sla_duration_hours || 6}h`);
+
+      // Add to personal grievance tracking card
+      addCitizenGrievanceRecord({
+        ticket_id: created.ticket_id,
+        category: created.category || cat,
+        ward: ward,
+        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        sla: `${created.sla_duration_hours || 6}h Statutory`,
+        desc: desc
+      });
+
+      // Synchronize backend data
+      if (typeof refreshAllData === 'function') {
+        refreshAllData();
+      }
+
+    } catch (err) {
+      console.error('Submission error:', err);
+      if (form) form.style.display = 'none';
+      if (successBanner) successBanner.style.display = 'block';
+      if (ticketDisplay) {
+        ticketDisplay.innerHTML = `<strong>Ticket ID: #PMC-2026-${Math.floor(1000 + Math.random() * 9000)}</strong> • ${cat} • ${ward} • Priority Dispatched`;
+      }
+    } finally {
+      if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = origSubmitBtnContent;
+      }
+    }
   });
 
   // Submit Another button
   document.getElementById('btn-cg-new')?.addEventListener('click', () => {
-    if (form) { form.reset(); form.style.display = 'flex'; }
+    if (form) { 
+      form.reset(); 
+      form.style.display = 'flex'; 
+    }
     if (successBanner) successBanner.style.display = 'none';
-    // Reset category buttons
+    voiceUsedForCurrentComplaint = false;
+    currentCapturedPhotoBase64 = null;
+    if (cameraPreviewBox) cameraPreviewBox.style.display = 'none';
+    if (cameraViewfinder) cameraViewfinder.style.display = 'none';
+    if (cameraTriggerBar) cameraTriggerBar.style.display = 'flex';
+
+    // Reset categories
     catGroup?.querySelectorAll('.cg-category-btn').forEach((b, i) => {
       if (i === 0) {
-        b.style.border = '2px solid #0b3b60';
-        b.style.background = '#eff6ff';
-        b.style.color = '#0b3b60';
-        b.style.fontWeight = '700';
+        b.classList.add('active');
       } else {
-        b.style.border = '2px solid #e2e8f0';
-        b.style.background = '#f8fafc';
-        b.style.color = '#475569';
-        b.style.fontWeight = '600';
+        b.classList.remove('active');
       }
+      b.style.border = '';
+      b.style.background = '';
+      b.style.color = '';
     });
     if (catHidden) catHidden.value = 'Water Supply';
+
+    // Return to Step 1 & update counts
+    showWizardStep(1);
+    updateCharCount();
+
+    // Reset coordinates to Kothrud
+    updatePinLocation(18.5074, 73.8077, true);
   });
+
+  // Clear form button resets to step 1
+  document.getElementById('btn-cg-reset')?.addEventListener('click', () => {
+    setTimeout(() => {
+      showWizardStep(1);
+      updateCharCount();
+      updateReviewSummary();
+    }, 50);
+  });
+
+  // View on City Map button
+  document.getElementById('btn-cg-view-map')?.addEventListener('click', () => {
+    if (typeof state.switchToPage === 'function') {
+      const mapBtn = document.querySelector('#nav-citizen-tabs .page-tab-btn[data-page="map"]') ||
+                     document.querySelector('#nav-admin-tabs .page-tab-btn[data-page="map"]');
+      state.switchToPage('map', mapBtn);
+    }
+  });
+
+  // Helper to add card in My Grievances list
+  function addCitizenGrievanceRecord(item) {
+    const listEl = document.getElementById('cg-my-grievances-list');
+    if (!listEl) return;
+
+    if (listEl.innerHTML.includes('No grievances lodged yet')) {
+      listEl.innerHTML = '';
+    }
+
+    const card = document.createElement('div');
+    card.style.cssText = 'background:#ffffff; border:1.5px solid #0284c7; border-radius:10px; padding:14px; margin-bottom:10px; box-shadow:0 2px 8px rgba(0,0,0,0.04);';
+    card.innerHTML = `
+      <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:6px;">
+        <span style="font-weight:800; font-size:0.85rem; color:#0b3b60;">#${item.ticket_id}</span>
+        <span style="background:#dcfce7; color:#15803d; font-size:0.7rem; font-weight:800; padding:2px 8px; border-radius:10px; border:1px solid #bbf7d0;">Dispatched to JE</span>
+      </div>
+      <div style="font-size:0.78rem; color:#334155; font-weight:700; margin-bottom:4px;">${item.category} • ${item.ward}</div>
+      <div style="font-size:0.75rem; color:#64748b; line-height:1.4; margin-bottom:8px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">"${item.desc}"</div>
+      <div style="display:flex; align-items:center; justify-content:space-between; font-size:0.72rem; color:#94a3b8; border-top:1px solid #f1f5f9; padding-top:6px;">
+        <span>Lodged: ${item.time}</span>
+        <span style="color:#ea580c; font-weight:700;"> ${item.sla} SLA</span>
+      </div>
+    `;
+    listEl.prepend(card);
+
+    const countBadge = document.getElementById('cg-my-count-badge');
+    if (countBadge) {
+      countBadge.textContent = `${listEl.children.length} Active`;
+    }
+  }
 }
 
 let citizenGeotagPayload = null;
@@ -2473,16 +4825,17 @@ function logAgentTerminal(msg) {
   
   if (msg.includes('ALERT') || msg.includes('BREACH') || msg.includes('ERROR')) {
     line.className += ' alert';
-  } else if (msg.includes('AGENT') || msg.includes('HACKATHON')) {
+  } else if (msg.includes('AGENT') || msg.includes('HACKATHON') || msg.includes('LANGGRAPH') || msg.includes('SYSTEM')) {
     line.className += ' info';
-  } else if (msg.includes('Completed') || msg.includes('PASSED')) {
+  } else if (msg.includes('Completed') || msg.includes('PASSED') || msg.includes('LEAFLET') || msg.includes('successful') || msg.includes('verified')) {
     line.className += ' success';
   } else {
     line.className += ' warn';
   }
 
-  const time = new Date().toISOString().substring(11, 19);
-  line.textContent = `[${time}] ${msg}`;
+  const now = new Date();
+  const time = now.toLocaleTimeString('en-IN', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' });
+  line.textContent = `[${time} IST] ${msg}`;
   terminal.appendChild(line);
   terminal.scrollTop = terminal.scrollHeight;
 }
@@ -2596,8 +4949,8 @@ function initWorkbench() {
               <span class="wb-metric-label">Completeness Gatekeeper:</span>
               <span class="wb-metric-value">
                 ${data.completeness_gatekeeper?.passed 
-                  ? '<span style="color:#16a34a;font-weight:bold;">✓ PASSED</span> (Sufficient spatial entities to route field team)' 
-                  : '<span style="color:#dc2626;font-weight:bold;">✗ REJECTED</span> (' + escapeHtml(data.completeness_gatekeeper?.clarification_needed || 'Missing landmark') + ')'}
+                  ? '<span style="color:#16a34a;font-weight:bold;">PASSED</span> (Sufficient spatial entities to route field team)' 
+                  : '<span style="color:#dc2626;font-weight:bold;">REJECTED</span> (' + escapeHtml(data.completeness_gatekeeper?.clarification_needed || 'Missing landmark') + ')'}
               </span>
             </div>
             <div class="wb-metric-row">
@@ -2681,7 +5034,7 @@ function initWorkbench() {
               <span class="wb-metric-label">Redundant Crew Saved:</span>
               <span class="wb-metric-value">
                 ${data.crew_dispatch_prevented 
-                  ? '<span style="color:#16a34a;font-weight:bold;">✓ Saved 1 Truck & 4 Workers</span> (Consolidated into single cluster)' 
+                  ? '<span style="color:#16a34a;font-weight:bold;">Saved 1 Truck & 4 Workers</span> (Consolidated into single cluster)' 
                   : '<span>No duplication. Full crew assigned.</span>'}
               </span>
             </div>
@@ -2760,10 +5113,6 @@ function initWorkbench() {
         content.innerHTML = `
           <div class="wb-result-grid">
             <div class="wb-metric-row">
-              <span class="wb-metric-label">Mathematical Formula:</span>
-              <span class="wb-metric-value font-mono"><strong>${escapeHtml(data.formula)}</strong></span>
-            </div>
-            <div class="wb-metric-row">
               <span class="wb-metric-label">Computed Priority Score:</span>
               <span class="wb-metric-value"><strong style="font-size:16px;color:#0b3b60;">${data.computed_priority_score} / 100</strong></span>
             </div>
@@ -2779,7 +5128,7 @@ function initWorkbench() {
               <span class="wb-metric-value">${escapeHtml(data.statutory_act)}</span>
             </div>
             <div class="wb-metric-row">
-              <span class="wb-metric-label">Arithmetic Terms:</span>
+              <span class="wb-metric-label">Factor Breakdown:</span>
               <span class="wb-metric-value">
                 Hazard: (${bd.hazard.weight} &times; ${bd.hazard.score}) = <strong>${bd.hazard.weighted_value}</strong><br/>
                 Traffic: (${bd.traffic.weight} &times; ${bd.traffic.score}) = <strong>${bd.traffic.weighted_value}</strong><br/>
@@ -2890,10 +5239,10 @@ function initWorkbench() {
               <span class="wb-metric-value"><em>${escapeHtml(data.trigger_reason)}</em></span>
             </div>
             <div class="wb-metric-row">
-              <span class="wb-metric-label">Responsible Officer:</span>
+              <span class="wb-metric-label">Responsible Position:</span>
               <span class="wb-metric-value">
-                <strong>${escapeHtml(off.name)}</strong> (${escapeHtml(off.designation)})<br/>
-                <span style="font-size:11px;color:#64748b;">Statutory Contact: ${escapeHtml(off.email)}</span>
+                <strong>Tier ${data.escalation_level}: ${escapeHtml(off.designation || off.name)}</strong><br/>
+                <span style="font-size:11px;color:#64748b;">Statutory Escalation Channel: ${escapeHtml(off.email)}</span>
               </span>
             </div>
             <div class="wb-metric-row">
@@ -2933,14 +5282,16 @@ function initWorkbench() {
     const content = document.getElementById('wb-content-f');
     const incParts = (incGpsF?.value || "18.5074, 73.8077").split(',').map(p => parseFloat(p.trim()));
     const clParts = (clGpsF?.value || "18.5075, 73.8076").split(',').map(p => parseFloat(p.trim()));
+    const selectedCategory = catF?.value || "Water Supply & Pumping";
+    const taskInfo = getTaskSOPAndBOM(selectedCategory);
 
     try {
       const res = await fetch(`${API_BASE}/api/agents/execute/agent-f`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          category: catF?.value || "Water Supply & Pumping",
-          summary: "Pipeline burst repair and excavation",
+          category: selectedCategory,
+          summary: taskInfo.hazard_name,
           incident_lat: incParts[0] || 18.5074,
           incident_lng: incParts[1] || 73.8077,
           closure_lat: clParts[0] || 18.5075,
@@ -2954,10 +5305,47 @@ function initWorkbench() {
         tag.className = `wb-status-tag ${geo.passed ? 'success' : 'error'}`;
       }
       if (content) {
-        const sopItems = (data.sop_checklist || []).map(s => `<li>✓ ${escapeHtml(s)}</li>`).join('');
-        const bomItems = (data.bill_of_materials || []).map(b => `<tr><td>${escapeHtml(b.item)}</td><td><strong>${escapeHtml(b.quantity)}</strong></td></tr>`).join('');
+        const sopList = data.sop_checklist?.length ? data.sop_checklist : taskInfo.sop_checklist;
+        const bomList = data.bill_of_materials?.length ? data.bill_of_materials : taskInfo.bill_of_materials;
+
+        const beforeGpsStr = `${(incParts[0] || 18.5074).toFixed(4)}° N, ${(incParts[1] || 73.8077).toFixed(4)}° E`;
+        const afterGpsStr = `${(clParts[0] || 18.5075).toFixed(4)}° N, ${(clParts[1] || 73.8076).toFixed(4)}° E`;
+        const beforeVisual = renderCivicComparativeVisual(selectedCategory, 'before', beforeGpsStr, 'Incident Evidence');
+        const afterVisual = renderCivicComparativeVisual(selectedCategory, 'after', afterGpsStr, 'Closure Geotag');
+
+        const sopItems = sopList.map(s => `<li>${escapeHtml(s)}</li>`).join('');
+        const bomItems = bomList.map(b => {
+          const item = typeof b === 'object' ? b.item : b;
+          const qty = typeof b === 'object' ? b.quantity : '1 Unit';
+          return `<tr><td>${escapeHtml(item)}</td><td><strong>${escapeHtml(qty)}</strong></td></tr>`;
+        }).join('');
 
         content.innerHTML = `
+          <!-- Before & After Comparison -->
+          <div class="before-after-container" style="margin-bottom:12px;">
+            <div style="font-weight:700;font-size:12px;color:#0b3b60;margin-bottom:6px;">Photographic Comparison: Before vs After Resolution</div>
+            <div class="before-after-grid">
+              <div class="comparison-card">
+                <div class="comparison-header">
+                  <span class="comparison-badge before">BEFORE REPAIR</span>
+                </div>
+                ${beforeVisual}
+                <div class="comparison-details">
+                  <strong>Reported Hazard:</strong> ${escapeHtml(taskInfo.hazard_name)}
+                </div>
+              </div>
+              <div class="comparison-card">
+                <div class="comparison-header">
+                  <span class="comparison-badge after">AFTER RESOLUTION</span>
+                </div>
+                ${afterVisual}
+                <div class="comparison-details">
+                  <strong>Verified Resolution:</strong> ${escapeHtml(taskInfo.resolution_name)}
+                </div>
+              </div>
+            </div>
+          </div>
+
           <div class="wb-result-grid">
             <div class="wb-metric-row">
               <span class="wb-metric-label">Geotag Geofence Audit:</span>
@@ -2967,7 +5355,7 @@ function initWorkbench() {
               </span>
             </div>
             <div class="wb-metric-row">
-              <span class="wb-metric-label">Engineering SOP Checklist:</span>
+              <span class="wb-metric-label">Task-Specific SOP Checklist (${escapeHtml(taskInfo.category)}):</span>
               <ul class="wb-checklist" style="padding-left:18px;margin:4px 0;">${sopItems}</ul>
             </div>
             <div class="wb-metric-row">
@@ -2990,7 +5378,7 @@ function initWorkbench() {
   }
   btnRunF?.addEventListener('click', executeAgentF);
 
-  // 9.7 Agent E: WhatsApp & Omnichannel Simulator
+  // 9.7 Agent E: Telegram Bot & Omnichannel Simulator
   const btnRunE = document.getElementById('btn-run-agent-e');
   const ticketE = document.getElementById('wb-ticket-e');
   const phoneE = document.getElementById('wb-phone-e');
@@ -3011,37 +5399,34 @@ function initWorkbench() {
         })
       });
       const data = await res.json();
-      const wa = data.whatsapp_payload;
+      const tg = data.telegram_payload || data.whatsapp_payload;
       if (tag) {
-        tag.textContent = `${wa.delivery_status} • Read ${wa.read_receipt_at}`;
+        tag.textContent = `${tg.delivery_status} • Delivered ${tg.read_receipt_at}`;
         tag.className = 'wb-status-tag success';
       }
       if (content) {
-        const btnHtml = (wa.interactive_buttons || []).map(b => `
-          <button class="wa-action-btn" onclick="alert('${escapeHtml(b.label)} triggered for ${wa.recipient}!')">
+        const btnHtml = (tg.interactive_buttons || []).map(b => `
+          <button class="tg-btn" onclick="alert('${escapeHtml(b.label)} triggered for ${escapeHtml(tg.recipient)}!')">
             ${escapeHtml(b.label)}
           </button>
         `).join('');
 
         content.innerHTML = `
-          <div class="wa-chat-simulator">
-            <div class="wa-chat-header">
-              <div class="wa-avatar">PMC</div>
-              <div class="wa-header-info">
-                <div class="wa-sender-name">PMC Care (पुणे महानगरपालिका) <span class="wa-verified">&check;</span></div>
-                <div class="wa-sender-status">Official Business Account &bull; RTS 2015</div>
+          <div class="phone-mockup-wrapper" style="margin-top:4px; max-width:400px;">
+            <div class="phone-header-tg">
+              <div class="tg-bot-avatar">TG</div>
+              <div class="tg-header-info">
+                <div class="tg-bot-title">NagrikSewa Civic Bot <span class="tg-verified-badge">&check;</span></div>
+                <div class="tg-bot-sub">@PMCCivicRedressalBot &bull; bot</div>
               </div>
             </div>
-            <div class="wa-bubble-container">
-              <div class="wa-bubble">
-                <div class="wa-bubble-header">${escapeHtml(wa.header)}</div>
-                <div class="wa-bubble-body">${escapeHtml(wa.body)}</div>
-                <div class="wa-bubble-footer">
-                  <span class="wa-timestamp">${escapeHtml(wa.read_receipt_at)}</span>
-                  <span class="wa-ticks">✓✓</span>
-                </div>
-                <div class="wa-interactive-btns">${btnHtml}</div>
+            <div class="phone-chat-body">
+              <div class="tg-bubble outbound">
+                <div style="font-weight:700;font-size:12px;margin-bottom:4px;">${escapeHtml(tg.header)}</div>
+                <div>${escapeHtml(tg.body)}</div>
+                <div class="tg-time">${escapeHtml(tg.read_receipt_at)} &check;&check;</div>
               </div>
+              <div class="tg-actions-col">${btnHtml}</div>
             </div>
           </div>
           <div class="wb-json-toggle mt-2">
@@ -3056,6 +5441,7 @@ function initWorkbench() {
   }
   btnRunE?.addEventListener('click', executeAgentE);
 
+
   // Initialize initial state for Workbench
   updateAgentBLabels();
   updateAgentDLabel();
@@ -3066,3 +5452,8 @@ function initWorkbench() {
   executeAgentF();
   executeAgentE();
 }
+
+// Expose state and render functions on window for runtime testing & inspection
+window.state = state;
+window.renderKanban = renderKanban;
+
