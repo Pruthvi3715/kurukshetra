@@ -29,7 +29,7 @@ class LLMService:
             return provider.lower()
         if os.getenv("GEMINI_API_KEY"):
             return "gemini"
-        return "ollama"
+        return "gemini"
 
     @classmethod
     def parse_complaint_multilingual(cls, raw_text: str) -> Dict[str, Any]:
