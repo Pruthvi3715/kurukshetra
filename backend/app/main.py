@@ -1835,12 +1835,11 @@ def bulk_alert(req: BulkAlertRequest):
 
 
 @app.post("/api/notifications/webhook")
-async def twilio_webhook(request):
+async def twilio_webhook(request: Request):
     """
     Incoming WhatsApp message webhook from Twilio.
-    Receives citizen replies (status checks, feedback ratings).
+    Receives citizen replies (status checks, feedback ratings, and new civic grievances).
     Twilio sends form-encoded POST data.
-    Configure this URL in the Twilio Console under 'Messaging > Sandbox > When a message comes in'.
     """
     from fastapi.responses import Response as FastAPIResponse
 
@@ -1850,7 +1849,7 @@ async def twilio_webhook(request):
     body = str(form.get("Body", "")).strip()
 
     # Simple intent routing
-    reply = "Thanks for contacting Kurukshetra Municipal. Reply STATUS <complaint_id> to check status."
+    reply = "Namaskar! Welcome to PMC NagrikSewa AI. Type your civic grievance (e.g., 'Water pipeline leak near Karve statue') or reply STATUS <ticket_id> to track progress."
     body_upper = body.upper()
     if body_upper.startswith("STATUS"):
         parts = body.split()
@@ -1862,17 +1861,44 @@ async def twilio_webhook(request):
                 complaint = None
             if complaint:
                 reply = (
-                    f"Complaint {cid}:\n"
+                    f"🏛️ PMC Ticket {cid}:\n"
                     f"Status: {complaint.get('status', 'Unknown')}\n"
-                    f"Priority: {complaint.get('priority', 'Unknown')}\n"
-                    f"Updated: {complaint.get('updated_at', 'N/A')}"
+                    f"Category: {complaint.get('extracted_category', 'General')}\n"
+                    f"Priority: {complaint.get('priority_level', 'MEDIUM')}\n"
+                    f"Assigned: {complaint.get('assigned_officer_name', 'Ward Junior Engineer')}\n"
+                    f"SLA Commitment: {complaint.get('sla_duration_hours', 'N/A')}h"
                 )
             else:
-                reply = f"Complaint ID {cid} not found. Please check and try again."
+                reply = f"Grievance ID {cid} not found. Please verify and try again."
     elif body.isdigit() and 1 <= int(body) <= 5:
         rating = int(body)
         notify_feedback_received(from_number.replace("whatsapp:", ""), "FEEDBACK", rating)
-        reply = f"Thank you for rating us {rating}/5! Your feedback helps us serve you better."
+        reply = f"Dhanyavaad! Thank you for rating PMC services {rating}/5 stars. Your feedback is recorded."
+    elif len(body) > 3:
+        # Direct civic grievance ingestion via WhatsApp
+        try:
+            sub = ComplaintSubmission(
+                raw_text=body,
+                channel="WHATSAPP",
+                ward_id="Ward-14 (Kothrud)",
+                complainant_name="WhatsApp Citizen",
+                complainant_phone=from_number.replace("whatsapp:", "")
+            )
+            ticket = MunicipalMultiAgentPipeline.run_agent_pipeline(sub)
+            prio = ticket.priority_level.value if hasattr(ticket, 'priority_level') else "MEDIUM"
+            reply = (
+                f"✅ Grievance Registered Successfully!\n\n"
+                f"🆔 Ticket ID: {ticket.ticket_id}\n"
+                f"📂 Department: {ticket.assigned_department_name}\n"
+                f"⚡ Priority: {prio} (Score: {round(ticket.priority_score, 1)}/100)\n"
+                f"⏱️ Statutory SLA: {ticket.sla_duration_hours} Hours\n"
+                f"👤 Assigned Officer: {ticket.assigned_officer_name} ({ticket.assigned_officer_designation})\n"
+                f"📍 Ward: {ticket.ward_id}\n\n"
+                f"Statutory compliance under Maharashtra RTS Act 2015. Track live anytime with 'STATUS {ticket.ticket_id}'."
+            )
+        except Exception as e:
+            logger.error("WhatsApp pipeline execution error: %s", e)
+            reply = f"Grievance received. Processing through PMC AI Agents. Track updates with STATUS."
 
     # Return TwiML XML
     twiml = f'<?xml version="1.0" encoding="UTF-8"?><Response><Message>{reply}</Message></Response>'
